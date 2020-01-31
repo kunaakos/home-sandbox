@@ -48,14 +48,14 @@ export const Thermostat = async ({
     }
     
     const setCurrentTemperature = async value => {
-        currentTemperature = value
+        currentTemperature = value.toFixed(1)
         lastCurrentTemperatureUpdate = Date.now()
         await tick()
-        DEBUG && console.log(`THERMOSTAT: current temperature updated to ${value}`)
+        DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
     }
 
-    const processReading = reading => {
-        if (reading && reading.payload && reading.payload.t) {
+    const processMessage = reading => {
+        if (reading && reading.payload && reading.payload.t && !isNaN(reading.payload.t)) {
             setCurrentTemperature(reading.payload.t)
         }
     }
@@ -65,7 +65,10 @@ export const Thermostat = async ({
         const heatState = await getHeatSwitchState()
     
         // shut down if not updated in a long time
-        if (Date.now() - lastCurrentTemperatureUpdate > watchdogTimeout) {
+        if (
+            heatState === true &&
+            Date.now() - lastCurrentTemperatureUpdate > watchdogTimeout
+        ) {
             DEBUG && console.log(`THERMOSTAT: temperatures not updated, turning off heating`)
             return setHeatSwitchState(false)
         }
@@ -85,7 +88,7 @@ export const Thermostat = async ({
             currentTemperature > targetTemperature + overrun
         ) {
             DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
-            return heatSwitch(false)
+            return setHeatSwitchState(false)
         }
      
     }
@@ -103,7 +106,7 @@ export const Thermostat = async ({
         type: 'thermostat',
         id,
         label,
-        processReading,
+        processMessage,
         getTargetTemperature: () => targetTemperature,
         setTargetTemperature,
         getCurrentTemperature: () => currentTemperature,

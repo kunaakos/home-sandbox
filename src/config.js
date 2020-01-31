@@ -19,10 +19,10 @@ export const thingConfigs = new Map([
         }
     ],
     [
-        'nrf24gateway',
+        'serialgateway',
         {
-            type: 'nrf24gateway',
-            readAddress: '0xabcdabcd71',
+            type: 'serialgateway',
+            path: process.env.SERIAL_DEVICE_PATH,
             idMap: {
                 77: 'ROOM_TEMPERATURE', // mester
                 66: 'ROOM_TEMPERATURE', // angyalfoldi
@@ -64,5 +64,5 @@ export const thingConfigs = new Map([
 ])
 
 export const subscriptions = {
-    'NRF24__ROOM_TEMPERATURE': ['homethermostat'],
+    'SERIAL__ROOM_TEMPERATURE': ['homethermostat'],
 }

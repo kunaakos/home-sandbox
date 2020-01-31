@@ -1,23 +1,11 @@
 # base-image for node on any machine using a template variable,
 # see more about dockerfile templates here: https://www.balena.io/docs/learn/develop/dockerfile/#dockerfile-templates
 # and about balena base images here: https://www.balena.io/docs/reference/base-images/base-images/
-FROM balenalib/%%BALENA_MACHINE_NAME%%:buster-build
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12.14.1-bullseye-run
 
 # use `install_packages` if you need to install dependencies,
 # for instance if you need git, just uncomment the line below.
-# RUN install_packages git build-essential python
-
-# NRF24 lib needs node 10.13.0
-ENV NODE_VERSION=10.13.0
-RUN apt-get update && \
-    apt-get install wget curl ca-certificates rsync -y
-RUN wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
-ENV NVM_DIR=/root/.nvm
-RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" &&  nvm use v${NODE_VERSION}
-RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-RUN cp /root/.nvm/versions/node/v${NODE_VERSION}/bin/node /usr/bin/
-RUN cp /root/.nvm/versions/node/v${NODE_VERSION}/bin/npm /usr/bin/
+# RUN install_packages git
 
 # Defines our working directory in container
 WORKDIR /usr/src

@@ -2,7 +2,7 @@ import EventEmitter from 'events'
 
 import { Relay } from './lib/relay'
 import { Thermostat } from './lib/thermostat'
-import { Nrf24Gateway } from './lib/nrf24-gateway'
+import { SerialGateway } from './lib/serial-gateway'
 import { AioFeed } from './lib/aio'
 import { WebInterface } from './web/web-interface'
 import { TradfriGateway } from './lib/tradfri-gateway'
@@ -40,8 +40,8 @@ const initializeWithDependencies = (dependencies) => {
 			case 'tradfrigateway':
 				return TradfriGateway(injectDependencies(config))
 	
-			case 'nrf24gateway':
-				return Nrf24Gateway(injectDependencies(config))
+			case 'serialgateway':
+				return SerialGateway(injectDependencies(config))
 	
 			default:
 				throw new Error('Unsupported thing config.')
