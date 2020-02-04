@@ -30,7 +30,6 @@
     "serialport": "^8.0.7"
   },
   "optionalDependencies": {
-    "nrf24": "^0.1.4-beta",
     "rpi-gpio": "2.1.5"
   }
 }

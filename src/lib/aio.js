@@ -41,10 +41,17 @@ export const AioFeed = ({
     return responseBody
   }
 
+  const processMessage = async reading => {
+    if (reading && reading.payload && !isNaN(reading.payload.t)) {
+        update(reading.payload.t.toFixed(2))
+    }
+  }
+
   return { 
     type: 'datafeed',
     id,
     label,
-    update
+    update,
+    processMessage
   }
 }

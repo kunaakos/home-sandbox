@@ -13,11 +13,12 @@ export const Thermostat = async ({
     underrun = 0.2,
     watchdogTimeout = TWO_MINUTES,
     errorHandler,
-    things
+    things,
+    events
 }) => {
 
     DEBUG && console.log('THERMOSTAT: initializing')
-    
+
     let targetTemperature = initialTargetTemperature
     let currentTemperature = initialCurrentTemperature
     let lastCurrentTemperatureUpdate
@@ -46,7 +47,7 @@ export const Thermostat = async ({
         DEBUG && console.log(`THERMOSTAT: target temperature set to ${value}`)
         return targetTemperature
     }
-    
+
     const setCurrentTemperature = async value => {
         currentTemperature = value.toFixed(1)
         lastCurrentTemperatureUpdate = Date.now()
@@ -59,11 +60,18 @@ export const Thermostat = async ({
             setCurrentTemperature(reading.payload.t)
         }
     }
-    
+
     const tick = async () => {
 
         const heatState = await getHeatSwitchState()
-    
+
+        // temp hack: log heat relay state to adafruit io
+        events.emit('message', {
+            type: 'sensorreading',
+            sourceId: id,
+            payload: { t: heatState ? 1 : 0 }
+        })
+
         // shut down if not updated in a long time
         if (
             heatState === true &&
@@ -72,7 +80,7 @@ export const Thermostat = async ({
             DEBUG && console.log(`THERMOSTAT: temperatures not updated, turning off heating`)
             return setHeatSwitchState(false)
         }
-    
+
         // turn ON if temperature drops below target - threshold
         if (
             heatState === false &&
@@ -81,7 +89,7 @@ export const Thermostat = async ({
             DEBUG && console.log(`THERMOSTAT: turning heating ON`)
             return setHeatSwitchState(true)
         }
-    
+
         // turn OFF if temperature reached target
         if (
             heatState === true &&
@@ -90,9 +98,9 @@ export const Thermostat = async ({
             DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
             return setHeatSwitchState(false)
         }
-     
+
     }
-    
+
     // TODO: proper start/stop/pause
     const stop = async () => {
         DEBUG && console.log(`THERMOSTAT: stopping`)
@@ -112,5 +120,5 @@ export const Thermostat = async ({
         getCurrentTemperature: () => currentTemperature,
         stop
     }
-    
+
 }

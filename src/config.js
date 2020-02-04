@@ -64,5 +64,6 @@ export const thingConfigs = new Map([
 ])
 
 export const subscriptions = {
-    'SERIAL__ROOM_TEMPERATURE': ['homethermostat'],
+    'SERIAL__ROOM_TEMPERATURE': ['homethermostat', 'aiotemp'],
+    'homethermostat': ['aioheat']
 }
