@@ -2,13 +2,13 @@
  * Serial Gateway
  * Reads incoming sensor data (in JSON) from the serial port, emits messsages
  */
-
-const SerialPort = require('serialport')
-const Readline = require('@serialport/parser-readline')
+import fs from 'fs'
+import SerialPort from 'serialport'
+import Readline from '@serialport/parser-readline'
 
 const DEBUG = true
 
-export const SerialGateway = ({
+export const SerialGateway = async ({
   events,
   errorHandler,
   path,
@@ -37,7 +37,7 @@ export const SerialGateway = ({
     }
   }
 
-  if (path) {
+  if (path && fs.existsSync(path)) {
     const port = new SerialPort(path, { baudRate: 9600 })
     const parser = new Readline()
     port.pipe(parser)
