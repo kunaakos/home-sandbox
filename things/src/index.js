@@ -4,7 +4,6 @@ import { Relay } from './lib/relay'
 import { Thermostat } from './lib/thermostat'
 import { SerialGateway } from './lib/serial-gateway'
 import { AioFeed } from './lib/aio'
-import { WebInterface } from './web/web-interface'
 import { TradfriGateway } from './lib/tradfri-gateway'
 
 import { thingConfigs, subscriptions } from './config'
@@ -68,12 +67,6 @@ const main = async () => {
 			things.set(thingOrGateway.id, thingOrGateway)
 		}
 	}
-
-	// the web interface / API is neither a thing nor a gateway
-	WebInterface({
-		things,
-		port: process.env.WEB_UI_PORT || 80
-	})
 
 }
 
