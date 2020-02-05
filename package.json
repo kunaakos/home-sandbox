@@ -9,7 +9,8 @@
     "node": "12.14.1"
   },
   "scripts": {
-    "start": "npx babel-node -r dotenv/config things/src/index.js"
+    "serve-things": "npx babel-node -r dotenv/config things/src/index.js",
+    "serve-client": "npx babel-node -r dotenv/config client/serve.js"
   },
   "dependencies": {
     "@babel/core": "^7.7.5",
@@ -25,6 +26,7 @@
     "node-fetch": "^2.6.0",
     "node-tradfri-client": "^2.1.2",
     "nodemon": "^2.0.2",
+    "parcel-bundler": "^1.12.4",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "serialport": "^8.0.7"
