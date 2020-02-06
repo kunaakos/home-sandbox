@@ -1,23 +1,13 @@
-import EventEmitter from 'events'
+import { GpioPin } from './lib/things/gpio-pin'
+import { Thermostat } from './lib/things/thermostat'
+import { AioFeed } from './lib/things/aio-feed'
+import { SerialGateway } from './lib/gateways/serial-gateway'
+import { TradfriGateway } from './lib/gateways/tradfri-gateway'
 
-import { Relay } from './lib/relay'
-import { Thermostat } from './lib/thermostat'
-import { SerialGateway } from './lib/serial-gateway'
-import { AioFeed } from './lib/aio'
-import { TradfriGateway } from './lib/tradfri-gateway'
+import { ThingStore } from './lib/thing-store'
 
 import { thingConfigs, subscriptions } from './config'
 
-const errorHandler = error => console.error(error)
-
-const messageHandler = things => message => {
-	if (subscriptions[message.sourceId]) {
-		subscriptions[message.sourceId].forEach(targetId => {
-			const thing = things.get(targetId)
-			thing && thing.processMessage && thing.processMessage(message)
-		})
-	}
-}
 
 const initializeWithDependencies = (dependencies) => {
 
@@ -27,23 +17,23 @@ const initializeWithDependencies = (dependencies) => {
 
 		switch (config.type) {
 	
-			case 'relay':
-				return Relay(config)
+			case 'gpio-pin':
+				return GpioPin(config)
 	
 			case 'thermostat':
 				return Thermostat(injectDependencies(config))
 	
-			case 'adafruitiofeed':
+			case 'adafruit-io-feed':
 				return AioFeed(config)
 	
-			case 'tradfrigateway':
+			case 'tradfri-gateway':
 				return TradfriGateway(injectDependencies(config))
 	
-			case 'serialgateway':
+			case 'serial-gateway':
 				return SerialGateway(injectDependencies(config))
 	
 			default:
-				throw new Error('Unsupported thing config.')
+				throw new Error(`Unsupported thing config: ${config.type}.`)
 	
 		}
 	}
@@ -51,12 +41,9 @@ const initializeWithDependencies = (dependencies) => {
 
 const main = async () => {
 
-	const things = new Map()
-	const events = new EventEmitter
+	const things = ThingStore({ subscriptions })
 
-	events.on('message', messageHandler(things))
-
-	const initialize = initializeWithDependencies({ things, events, errorHandler })
+	const initialize = initializeWithDependencies({ things })
 
 	// synchronously init things and gateways in the order configs were declared in
 	for (let config of thingConfigs.values()) {
@@ -64,7 +51,7 @@ const main = async () => {
 		// NOTE: things have ids, gateways don't
 		// this is a temporary solution for differentiating between them
 		if (thingOrGateway.id) {
-			things.set(thingOrGateway.id, thingOrGateway)
+			things.add(thingOrGateway.id, thingOrGateway)
 		}
 	}
 

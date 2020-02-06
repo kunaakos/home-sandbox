@@ -1,10 +1,10 @@
 export const thingConfigs = new Map([
     [
-        'heatrelay',
+        'heat-request',
         {
-            type: 'relay',
-            id: 'heatrelay',
-            label: 'Home heat switch',
+            type: 'gpio-pin',
+            id: 'heat-request',
+            label: 'Heat request',
             hidden: true,
             pinNr: 7
         }
@@ -13,57 +13,64 @@ export const thingConfigs = new Map([
         'thermostat',
         {
             type: 'thermostat',
-            id: 'homethermostat',
-            label: 'Home',
-            heatSwitchId: 'heatrelay'
+            id: 'thermostat',
+            label: 'Thermostat',
+            heatSwitchId: 'heat-request'
         }
     ],
     [
-        'serialgateway',
+        'aio-temp',
         {
-            type: 'serialgateway',
-            path: process.env.SERIAL_DEVICE_PATH,
-            idMap: {
-                77: 'ROOM_TEMPERATURE', // mester
-                66: 'ROOM_TEMPERATURE', // angyalfoldi
-                55: 'BATHROOM_TEMPERATURE' // angyalfoldi
-            }
-        }
-    ],
-    [
-        'tradfrigateway',
-        {
-            type: 'tradfrigateway',
-            gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
-            identity: process.env.TRADFRI_IDENTITY,
-            psk: process.env.TRADFRI_PSK
-        }
-    ],
-    [
-        'aiotemp',
-        {
-            type: 'adafruitiofeed',
-            id: 'aiotemp',
-            label: 'AIO: temperature feed',
+            type: 'adafruit-io-feed',
+            id: 'aio-temp',
+            label: 'adafruit.io "temperature" feed',
             username: process.env.AIO_USERNAME,
             aioKey: process.env.AIO_KEY,
             feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
         }
     ],
     [
-        'aioheat',
+        'aio-heat',
         {
-            type: 'adafruitiofeed',
-            id: 'aioheat',
-            label: 'AIO: heat state feed',
+            type: 'adafruit-io-feed',
+            id: 'aio-heat',
+            label: 'adafruit.io "heat" feed',
             username: process.env.AIO_USERNAME,
             aioKey: process.env.AIO_KEY,
             feedKey: process.env.AIO_FEED_KEY_HEAT
         }
-    ]
+    ],
+    [
+        'serial-gateway',
+        {
+            type: 'serial-gateway',
+            path: process.env.SERIAL_DEVICE_PATH
+        }
+    ],
+    [
+        'tradfri-gateway',
+        {
+            type: 'tradfri-gateway',
+            gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
+            identity: process.env.TRADFRI_IDENTITY,
+            psk: process.env.TRADFRI_PSK
+        }
+    ],
 ])
 
+// NOTE: see things-store for schema
 export const subscriptions = {
-    'SERIAL__ROOM_TEMPERATURE': ['homethermostat', 'aiotemp'],
-    'homethermostat': ['aioheat']
+    'SERIAL__66': {
+        'thermostat': {
+            'temperature': 'currentTemperature'
+        },
+        'aio-temp': {
+            'temperature': 'value'
+        }
+    },
+    'heat-request': {
+        'aio-heat': {
+            'state': 'value'
+        }
+    }
 }
