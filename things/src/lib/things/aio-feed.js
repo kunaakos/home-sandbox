@@ -4,7 +4,7 @@ import { makeThingTools } from '../thing-tools'
 
 const DEBUG = true
 
-const updateAioFeed = async ({
+const updateAioFeed = ({
 	username,
 	aioKey,
 	feedKey
