@@ -2,7 +2,7 @@ import EventEmitter from 'events'
 
 // all things will share the same EventEmitter instance...
 const thingEvents = new EventEmitter()
-export const thingStateChanged = id => values => { thingEvents.emit('changed', { id, values }) }
+export const thingStateChanged = id => keys => { thingEvents.emit('changed', { id, keys }) }
 export const onThingStateChanged = callback => { thingEvents.on('changed', callback) }
 
 // ... and prototype. Don't use this to create things, just for runtime checks!
@@ -51,11 +51,26 @@ const makeThing = ({
 	// set is an asynchronous operation, will complete when all values are updated
 	// it is the responsibility of thing implementations to ensure that setters are async and resolve after values were updated
 	const set = async newValues => {
-		await Promise.all(
+		const changes = await Promise.all(
 			Object.entries(newValues)
-				.map(([key, newValue]) => values.hasOwnProperty(key) && values[key].set(newValue)) // false or Promise
+				.map(([key, newValue]) => {
+					if (values.hasOwnProperty(key)) {
+						return values[key].set(newValue)
+							.then(hasChanged => {
+								return hasChanged
+									? key
+									: null
+							})
+					} else {
+						return null // TODO: warn if non-existing key was changed
+					}
+				})
 				.filter(Boolean) // filter out falsy values, only Promises are kept
 		)
+		const changedKeys = changes.filter(Boolean)
+		if (changedKeys.length) {
+			thingStateChanged(id)(changedKeys)
+		}
 	}
 
 	return new Thing({

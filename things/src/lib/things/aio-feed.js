@@ -63,7 +63,10 @@ export const makeAioFeed = ({
 	// nor does it return any value when read
 	return makeThing({
 		value: {
-			set: async newValue => { updateFeed && await updateFeed(newValue) },
+			set: async newValue => {
+				updateFeed && await updateFeed(newValue)
+				return false
+			},
 			get: () => null
 		}
 	})

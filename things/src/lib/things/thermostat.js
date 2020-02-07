@@ -78,18 +78,26 @@ export const makeThermostat = async ({
 		targetTemperature: {
 			get: () => targetTemperature,
 			set: async newTargetTemperature => {
+				if (newTargetTemperature === targetTemperature) { return false } 
 				targetTemperature = newTargetTemperature
 				DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
 				tick() // <- here
+				return true
 			}
 		},
 		currentTemperature: {
 			get: () => currentTemperature,
 			set: async newCurrentTemperature => {
+				if (newCurrentTemperature === currentTemperature) { return false } 
 				currentTemperature = newCurrentTemperature
 				DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
 				tick() // <- and here
+				return true
 			}
+		},
+		heatRequest: {
+			get: ()  => heatRequest,
+			set: async () => false // read-only
 		}
 	})
 }

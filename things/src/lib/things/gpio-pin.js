@@ -15,7 +15,7 @@ export const makeGpioPin = async ({
 
 	DEBUG && console.log(`GPIO: initializing using pin #${pinNr}`)
 
-	const { makeThing , stateChanged } = makeThingTools({
+	const { makeThing } = makeThingTools({
 		type: 'switch',
 		id,
 		label,
@@ -36,9 +36,10 @@ export const makeGpioPin = async ({
 		state: {
 			get: () => pinState,
 			set: async newState => {
+				if (pinState === Boolean(newState)) { return false }
 				pinState = Boolean(newState)
 				await updatePinState()
-				stateChanged(['state'])
+				return true
 			}
 		}
 	})

@@ -11,7 +11,7 @@ export const makeAmbientSensor = async ({
 
 	DEBUG && console.log(`SENSOR: initializing ${id}`)
 
-	const { makeThing, stateChanged } = makeThingTools({
+	const { makeThing } = makeThingTools({
 		type: 'ambient-sensor',
 		id,
 		label,
@@ -24,7 +24,7 @@ export const makeAmbientSensor = async ({
 		temperature: {
 			set: async newValue => {
 				temperature = newValue
-				stateChanged(['temperature'])
+				return true
 			},
 			get: () => temperature
 		}
