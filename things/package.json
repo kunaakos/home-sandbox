@@ -1,0 +1,27 @@
+{
+	"name": "things",
+	"version": "0.0.0",
+	"description": "home-sandbox service that deals with things and server websocket API",
+	"author": "Akos Kun",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"node": "12.14.1"
+	},
+	"scripts": {
+		"dev": "npx babel-node -r dotenv/config src/index.js"
+	},
+	"dependencies": {
+		"@babel/core": "^7.7.5",
+		"@babel/node": "^7.7.4",
+		"@babel/preset-env": "^7.7.6",
+		"dotenv": "^8.2.0",
+		"node-fetch": "^2.6.0",
+		"node-tradfri-client": "^2.1.2",
+		"serialport": "^8.0.7",
+		"ws": "^7.2.1"
+	  },
+	  "optionalDependencies": {
+		"rpi-gpio": "2.1.5"
+	  }
+}

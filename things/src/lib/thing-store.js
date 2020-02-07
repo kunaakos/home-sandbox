@@ -16,6 +16,10 @@ export const makeThingStore = ({
 	const has = id => Boolean(things[id])
 	const get = id => things[id].get()
 
+	const getAll = () =>
+		Object.values(things)
+		.map(thing => thing.get())
+
 	const add = thing => {
 		const thingId = thing.id
 		things[thingId] = thing
@@ -32,6 +36,7 @@ export const makeThingStore = ({
 	return new ThingStore({
 		has,
 		get,
+		getAll,
 		add,
 		remove,
 		set

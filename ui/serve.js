@@ -14,7 +14,7 @@ const devOptions = {
   minify: false,
   scopeHoist: false,
   target: 'browser',
-  bundleNodeModules: false,
+  bundleNodeModules: true,
   logLevel: 3,
   hmr: true,
   hmrPort: 0, // resolves to a random free port

@@ -8,6 +8,8 @@ import { makeThingStore } from './lib/thing-store'
 import { thingStateChanged, onThingStateChanged } from './lib/thing-tools'
 import { handleSubscriptions } from './lib/thing-subscriptions'
 
+import { initializeWebsocketApi } from './websocket-api'
+
 import {
 	subscriptions,
 	thingConfigs,
@@ -60,14 +62,19 @@ const main = async () => {
 		things,
 		onThingStateChanged
 	})
-	
+
 	thingConfigs.forEach(async thingConfig => {
 		things.add(await initializeThing(thingConfig))
 	})
-	
+
 	const injectGatewayDependencies = config => ({ ...config, things, thingStateChanged })
 	gatewayConfigs.forEach(async gatewayConfig => {
 		await initializeGateway(injectGatewayDependencies(gatewayConfig))
+	})
+
+	initializeWebsocketApi({
+		things,
+		onThingStateChanged
 	})
 
 }
