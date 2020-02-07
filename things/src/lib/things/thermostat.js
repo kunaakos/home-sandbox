@@ -1,71 +1,80 @@
-import { Thing } from './thing'
+import { makeThingTools } from '../thing-tools'
 
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
 const DEBUG = true
 
-export const Thermostat = async ({
+export const makeThermostat = async ({
 	id,
 	label,
-	heatSwitchId,
-	overrun = 0.1,
-	underrun = 0.2,
-	watchdogTimeout = TWO_MINUTES,
-	tickInterval = THIRTY_SECONDS,
-	things
+	initialValues = {}
 }) => {
 
-	DEBUG && console.log('THERMOSTAT: initializing')
+	DEBUG && console.log(`THERMOSTAT: initializing ${id}`)
 
-	let targetTemperature = 0
-	let currentTemperature = 0
+	const { makeThing, stateChanged } = makeThingTools({
+		type: 'thermostat',
+		id,
+		label
+	})
+
+	let {
+		targetTemperature = 0,
+		currentTemperature = 0,
+		overrun = 0.1,
+		underrun = 0.2,
+		watchdogTimeout = TWO_MINUTES,
+		tickInterval = THIRTY_SECONDS
+	} = initialValues
+
+	let heatRequest = false
 	let lastCurrentTemperatureUpdate
 
-	const setHeatSwitchState = async newState => things.set(heatSwitchId, { state: newState })
-
-	const getHeatSwitchState = async () => {
-		const { state } = things.get(heatSwitchId)
-		return state
+	const setHeatRequest = async newState => {
+		heatRequest = newState
+		stateChanged(['heatRequest'])
 	}
 
 	const tick = async () => {
 
-		const heatState = await getHeatSwitchState()
-
 		// shut down if not updated in a long time
+		// TODO: implement watchdog timer utility
 		if (
-			heatState === true &&
+			heatRequest === true &&
 			Date.now() - lastCurrentTemperatureUpdate > watchdogTimeout
 		) {
 			DEBUG && console.log(`THERMOSTAT: temperatures not updated, turning off heating`)
-			return setHeatSwitchState(false)
+			setHeatRequest(false)
+			return
 		}
 
 		// turn ON if temperature drops below target - threshold
 		if (
-			heatState === false &&
+			heatRequest === false &&
 			currentTemperature < targetTemperature - underrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
-			return setHeatSwitchState(true)
+			setHeatRequest(true)
+			return
 		}
 
 		// turn OFF if temperature reached target
 		if (
-			heatState === true &&
+			heatRequest === true &&
 			currentTemperature > targetTemperature + overrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
-			return setHeatSwitchState(false)
+			setHeatRequest(false)
+			return
 		}
 
 	}
 
 	const tickIntervalHandle = setInterval(() => tick().catch(error => console.error(error)), tickInterval)
-
-	// TODO: see if setters return before or after a tick is finished - tick could change other things' state
-	const values = {
+	
+	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
+	return makeThing({
 		targetTemperature: {
 			get: () => targetTemperature,
 			set: async newTargetTemperature => {
@@ -82,13 +91,5 @@ export const Thermostat = async ({
 				tick() // <- and here
 			}
 		}
-	}
-
-	return Thing({
-		type: 'thermostat',
-		id,
-		label,
-		values
 	})
-
 }

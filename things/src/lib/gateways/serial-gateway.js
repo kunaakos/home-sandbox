@@ -6,13 +6,13 @@ import fs from 'fs'
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 
-import { AmbientSensor } from '../things/ambient-sensor'
+import { makeAmbientSensor } from '../things/ambient-sensor'
 
 const DEBUG = true
 
 const idOfAmbientSensor = sensorId => `SERIAL__${sensorId}`
 
-export const SerialGateway = async ({
+export const makeSerialGateway = async ({
 	path,
 	things
 }) => {
@@ -29,16 +29,17 @@ export const SerialGateway = async ({
 			if (things.has(thingId)) {
 				things.set(thingId, { temperature })
 				DEBUG && console.log(`SERIAL: Received data for ambient sensor with id ${thingId}`)
-
 			} else {
-				const ambientSensor = await AmbientSensor({
+
+				const ambientSensor = await makeAmbientSensor({
 					id: thingId,
-					label: `Sensor data with ID "${sensorId}" received via serial gateway.`,
+					label: `Sensor with ID "${sensorId}" reporting via serial.`,
 					initialValues: {
 						temperature
 					}
 				})
-				things.add(thingId, ambientSensor)
+				things.add(ambientSensor)
+
 				DEBUG && console.log(`SERIAL: added ambient sensor with id ${thingId}`)
 			}
 

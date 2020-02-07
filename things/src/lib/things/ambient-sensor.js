@@ -1,29 +1,32 @@
-import { Thing } from './thing' 
+import { makeThingTools } from '../thing-tools' 
 
 const DEBUG = true
 
-export const AmbientSensor = async ({
+export const makeAmbientSensor = async ({
 	id,
 	label,
+	hidden = true,
 	initialValues = {}
 }) => {
 
 	DEBUG && console.log(`SENSOR: initializing ${id}`)
 
-	let { temperature } = initialValues
-
-	const values = {
-		temperature: {
-			set: async newValue => { temperature = newValue },
-			get: () => temperature
-		}
-	}
-
-	return Thing({
+	const { makeThing, stateChanged } = makeThingTools({
 		type: 'ambient-sensor',
 		id,
 		label,
-		hidden: true,
-		values
+		hidden
+	})
+
+	let { temperature } = initialValues
+
+	return makeThing ({
+		temperature: {
+			set: async newValue => {
+				temperature = newValue
+				stateChanged(['temperature'])
+			},
+			get: () => temperature
+		}
 	})
 }

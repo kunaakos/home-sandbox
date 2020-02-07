@@ -1,59 +1,76 @@
-import { GpioPin } from './lib/things/gpio-pin'
-import { Thermostat } from './lib/things/thermostat'
-import { AioFeed } from './lib/things/aio-feed'
-import { SerialGateway } from './lib/gateways/serial-gateway'
-import { TradfriGateway } from './lib/gateways/tradfri-gateway'
+import { makeGpioPin } from './lib/things/gpio-pin'
+import { makeThermostat } from './lib/things/thermostat'
+import { makeAioFeed } from './lib/things/aio-feed'
+import { makeSerialGateway } from './lib/gateways/serial-gateway'
+import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 
-import { ThingStore } from './lib/thing-store'
+import { makeThingStore } from './lib/thing-store'
+import { thingStateChanged, onThingStateChanged } from './lib/thing-tools'
+import { handleSubscriptions } from './lib/thing-subscriptions'
 
-import { thingConfigs, subscriptions } from './config'
+import {
+	subscriptions,
+	thingConfigs,
+	gatewayConfigs
+} from './config'
 
+import {promiseThatResolvesIn} from './lib/utils'
 
-const initializeWithDependencies = (dependencies) => {
+const initializeThing = async config => {
 
-	const injectDependencies = config => ({ ...config, ...dependencies })
+	switch (config.type) {
 
-	return async config => {
+		case 'gpio-pin':
+			return makeGpioPin(config)
 
-		switch (config.type) {
-	
-			case 'gpio-pin':
-				return GpioPin(config)
-	
-			case 'thermostat':
-				return Thermostat(injectDependencies(config))
-	
-			case 'adafruit-io-feed':
-				return AioFeed(config)
-	
-			case 'tradfri-gateway':
-				return TradfriGateway(injectDependencies(config))
-	
-			case 'serial-gateway':
-				return SerialGateway(injectDependencies(config))
-	
-			default:
-				throw new Error(`Unsupported thing config: ${config.type}.`)
-	
-		}
+		case 'thermostat':
+			return makeThermostat(config)
+
+		case 'adafruit-io-feed':
+			return makeAioFeed(config)
+		default:
+			throw new Error(`Unsupported thing config: ${config.type}.`)
+
 	}
+}
+
+const initializeGateway = async config => {
+
+	switch (config.type) {
+
+		case 'tradfri-gateway':
+			return makeTradfriGateway(config)
+
+		case 'serial-gateway':
+			return makeSerialGateway(config)
+
+		default:
+			throw new Error(`Unsupported thing config: ${config.type}.`)
+
+	}
+
 }
 
 const main = async () => {
 
-	const things = ThingStore({ subscriptions })
+	const things = makeThingStore({
+		thingStateChanged
+	})
 
-	const initialize = initializeWithDependencies({ things })
-
-	// synchronously init things and gateways in the order configs were declared in
-	for (let config of thingConfigs.values()) {
-		const thingOrGateway = await initialize(config)
-		// NOTE: things have ids, gateways don't
-		// this is a temporary solution for differentiating between them
-		if (thingOrGateway.id) {
-			things.add(thingOrGateway.id, thingOrGateway)
-		}
-	}
+	handleSubscriptions({
+		subscriptions,
+		things,
+		onThingStateChanged
+	})
+	
+	thingConfigs.forEach(async thingConfig => {
+		things.add(await initializeThing(thingConfig))
+	})
+	
+	const injectGatewayDependencies = config => ({ ...config, things, thingStateChanged })
+	gatewayConfigs.forEach(async gatewayConfig => {
+		await initializeGateway(injectGatewayDependencies(gatewayConfig))
+	})
 
 }
 
