@@ -52,6 +52,11 @@ export const subscriptions = {
             'temperature': 'value'
         }
     },
+    'thermostat': {
+        'heat-request': {
+            'heatRequest': 'state'
+        }
+    },
     'heat-request': {
         'aio-heat': {
             'state': 'value'
