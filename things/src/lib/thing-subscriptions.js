@@ -22,7 +22,7 @@ const mapValues = (oldValues, keyMap) => {
 
 export const handleSubscriptions = ({
 	things,
-	onThingStateChanged,
+	subscribeToThingStateChanges,
 	subscriptions
 }) => {
 
@@ -43,5 +43,5 @@ export const handleSubscriptions = ({
 
 	}
 
-	onThingStateChanged(propagateStateChanges)
+	subscribeToThingStateChanges(propagateStateChanges)
 }

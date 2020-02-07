@@ -1,9 +1,21 @@
 import EventEmitter from 'events'
 
+let counter = 0
+const thingEventsSubscriptions = {}
+
 // all things will share the same EventEmitter instance...
 const thingEvents = new EventEmitter()
-export const thingStateChanged = id => keys => { thingEvents.emit('changed', { id, keys }) }
-export const onThingStateChanged = callback => { thingEvents.on('changed', callback) }
+export const thingStateChanged = thingId => keys => { thingEvents.emit('changed', { id: thingId, keys }) }
+export const subscribeToThingStateChanges = handler => {
+	counter++ // it's late and I want this done ASAP 🤷‍♂️ TODO: separate thing-events
+	thingEvents.on('changed', handler)
+	thingEventsSubscriptions[counter] = handler
+	return counter
+}
+export const unsubscribeFromThingStateChanges = subscriptionId => {
+	thingEvents.off('changed', thingEventsSubscriptions[subscriptionId])
+	delete thingEventsSubscriptions[subscriptionId]
+}
 
 // ... and prototype. Don't use this to create things, just for runtime checks!
 export function Thing(functions) {

@@ -5,8 +5,12 @@ import { makeSerialGateway } from './lib/gateways/serial-gateway'
 import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 
 import { makeThingStore } from './lib/thing-store'
-import { thingStateChanged, onThingStateChanged } from './lib/thing-tools'
 import { handleSubscriptions } from './lib/thing-subscriptions'
+import {
+	thingStateChanged,
+	subscribeToThingStateChanges,
+	unsubscribeFromThingStateChanges
+} from './lib/thing-tools'
 
 import { initializeWebsocketApi } from './websocket-api'
 
@@ -60,7 +64,7 @@ const main = async () => {
 	handleSubscriptions({
 		subscriptions,
 		things,
-		onThingStateChanged
+		subscribeToThingStateChanges
 	})
 
 	thingConfigs.forEach(async thingConfig => {
@@ -74,7 +78,8 @@ const main = async () => {
 
 	initializeWebsocketApi({
 		things,
-		onThingStateChanged
+		subscribeToThingStateChanges,
+		unsubscribeFromThingStateChanges
 	})
 
 }

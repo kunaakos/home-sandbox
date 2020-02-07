@@ -80,6 +80,7 @@ export const ThingsProvider = ({
         socket.onclose = () => {
             socketRef.current = null
             setConnected(false)
+            setThings({})
         }
         socket.onmessage = wsMessageHandler
 

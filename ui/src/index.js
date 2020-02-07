@@ -51,7 +51,7 @@ const App = () => {
 
 	const { connected, things, setThing } = useThings()
 
-	const visibleThings = things
+	const visibleThings = connected && things
 		? Object
 			.values(things)
 			.filter(thing => !thing.hidden)
@@ -60,7 +60,7 @@ const App = () => {
 	return (
 		<React.Fragment>
 			<h1>O HAI</h1>
-			<p>I'm your butler. I am currently {connected ? 'connected' : 'not connected'} to your home {connected ? '😌' : '😞'}.<br/>I have a list of things that I can see in your home, let me know if you want me to do anything with them.</p>
+			<p>I'm your butler. I am currently {connected ? 'connected' : 'not connected'} to your home {connected ? '😌' : '😞'}.<br/>{connected && 'I have a list of things that I can see in your home, let me know if you want me to do anything with them.'}</p>
 			{visibleThings.map(thing => <Thing key={thing.id} thing={thing} setThing={setThing} />)}
 		</React.Fragment>
 	)
