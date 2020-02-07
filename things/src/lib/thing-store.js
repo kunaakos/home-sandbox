@@ -1,5 +1,4 @@
 /**
- *
  * ThingStore holds references to Things, and can call their methods directly.
  * Things are read and updated via the store, never directly by any other thing or module. 
  */

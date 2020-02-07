@@ -1,8 +1,7 @@
 /**
  * IKEA TRADFRI Gateway
  * Handles communication with a TRADFRI gateway.
- * Its sole responsibility is to register discovered devices as things,
- * it should not manipulate them in any other way.
+ * Creates things and updates them.
  */
 
 import {

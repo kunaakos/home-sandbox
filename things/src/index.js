@@ -14,8 +14,6 @@ import {
 	gatewayConfigs
 } from './config'
 
-import {promiseThatResolvesIn} from './lib/utils'
-
 const initializeThing = async config => {
 
 	switch (config.type) {
@@ -29,7 +27,7 @@ const initializeThing = async config => {
 		case 'adafruit-io-feed':
 			return makeAioFeed(config)
 		default:
-			throw new Error(`Unsupported thing config: ${config.type}.`)
+			throw new Error(`Unsupported gateway config: ${config.type}.`)
 
 	}
 }

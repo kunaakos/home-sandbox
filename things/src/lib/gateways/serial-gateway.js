@@ -1,6 +1,7 @@
 /**
  * Serial Gateway
- * Reads incoming sensor data (in JSON) from the serial port, emits messsages
+ * Reads incoming sensor data (in JSON) from the serial port,
+ * creates a separate thing for each sensor id found.
  */
 import fs from 'fs'
 import SerialPort from 'serialport'
@@ -10,7 +11,7 @@ import { makeAmbientSensor } from '../things/ambient-sensor'
 
 const DEBUG = true
 
-const idOfAmbientSensor = sensorId => `SERIAL__${sensorId}`
+const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 
 export const makeSerialGateway = async ({
 	path,
@@ -24,7 +25,7 @@ export const makeSerialGateway = async ({
 			const reading = JSON.parse(data)
 			const { id: sensorId, t: temperature }  = reading
 			if (!sensorId || !temperature) { DEBUG && console.log('SERIAL: invalid data received') }
-			const thingId = idOfAmbientSensor(sensorId)
+			const thingId = thingIdFrom(sensorId)
 			
 			if (things.has(thingId)) {
 				things.set(thingId, { temperature })
