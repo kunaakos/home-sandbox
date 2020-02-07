@@ -60,9 +60,9 @@ const labelFrom = device => device.name
 
 const getTradfriLightbulbState = device => device.lightList[0].onOff
 const setTradfriLightbulbState = async (device, newState) => {
-	await newState
-		? device.lightList[0].turnOn()
-		: device.lightList[0].turnOff()
+	newState
+		? await device.lightList[0].turnOn()
+		: await device.lightList[0].turnOff()
 }
 
 const mapTradfriLightbulbToSwitchState = device => ({
@@ -72,7 +72,7 @@ const mapTradfriLightbulbToSwitchState = device => ({
 const makeSwitchFromTradfriLightbulb = async device => {
 
 	const id = thingIdFrom(device.instanceId)
-	DEBUG && console.log(`TRADFRI LIGHTBULB: initializing ${id}`)
+	DEBUG && console.log(`TRADFRI LIGHTBULB: initializing/updating ${id}`)
 
 	const { makeThing } = makeThingTools({
 		type: 'switch',
@@ -86,11 +86,10 @@ const makeSwitchFromTradfriLightbulb = async device => {
 		state: {
 			get: () => state,
 			set: async newState => {
-				if (state === !!newState) { return false }
-				state = Boolean(newState)
-				await setTradfriLightbulbState(device, newState) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+				if (state === Boolean(newState)) { return false }
+				await setTradfriLightbulbState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
 				DEBUG && console.log(`TRADFRI LIGHTBULB: ${id} set to ${state}`)
-				return false // state change will be advertised by TradfriGateway
+				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
 			}
 		}
 	})
@@ -98,9 +97,9 @@ const makeSwitchFromTradfriLightbulb = async device => {
 
 const getTradfriPlugState = device => device.plugList[0].onOff
 const setTradfriPlugState = async (device, newState) => {
-	await newState
-		? device.plugList[0].turnOn()
-		: device.plugList[0].turnOff()
+	newState
+		? await device.plugList[0].turnOn()
+		: await device.plugList[0].turnOff()
 }
 
 const mapTradfriPlugToSwitchState = device => ({
@@ -110,7 +109,7 @@ const mapTradfriPlugToSwitchState = device => ({
 const makeSwitchFromTradfriPlug = async device => {
 
 	const id = thingIdFrom(device.instanceId)
-	DEBUG && console.log(`TRADFRI PLUG: initializing ${id}`)
+	DEBUG && console.log(`TRADFRI PLUG: initializing/updating ${id}`)
 
 	const { makeThing } = makeThingTools({
 		type: 'switch',
@@ -124,11 +123,10 @@ const makeSwitchFromTradfriPlug = async device => {
 		state: {
 			get: () => state,
 			set: async newState => {
-				if (state === !!newState) { return false }
-				state = Boolean(newState)
-				await setTradfriPlugState(device, newState) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+				if (state === Boolean(newState)) { return false }
+				await setTradfriPlugState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
 				DEBUG && console.log(`TRADFRI PLUG: ${id} set to ${state}`)
-				return false // state change will be advertised by TradfriGateway
+				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
 			}
 		}
 	})
@@ -136,7 +134,6 @@ const makeSwitchFromTradfriPlug = async device => {
 
 export const makeTradfriGateway = async ({
 	things,
-	thingStateChanged,
 	gatewayAddressOrHost,
 	identity,
 	psk
@@ -146,8 +143,15 @@ export const makeTradfriGateway = async ({
 
 	const unsupportedInstanceIds = []
 
-	const addNew = async device => {
+	// The tradfri lib has a weird thing going on, so right now
+	// things are completely replaced on every state change
+	// because refs to fns like "device.plugList[0].turnOn()"
+	// stopped working after a state change and keeping tradfri lib and
+	// app state in sync was painful.
+	// This works, might cause a memory leak, revisit if it does.
+	const addOrReplaceThing = async device => {
 		switch (device.type) {
+
 			case AccessoryTypes.lightbulb:
 				things.add(await makeSwitchFromTradfriLightbulb(device))
 				break
@@ -162,21 +166,8 @@ export const makeTradfriGateway = async ({
 		}
 	}
 
-	const updateExisting = async device => {
-		switch (device.type) {
-			case AccessoryTypes.lightbulb:
-				await things.set(thingIdFrom(device.instanceId), mapTradfriLightbulbToSwitchState(device))
-				thingStateChanged(thingIdFrom(device.instanceId))()
-				break
-			case AccessoryTypes.plug:
-				await things.set(thingIdFrom(device.instanceId), mapTradfriPlugToSwitchState(device))
-				thingStateChanged(thingIdFrom(device.instanceId))()
-				break
-
-		}
-	}
-
-	const removeExisting = instanceId => {
+	// NOTE: not yet tested
+	const removeThing = instanceId => {
 		const thingId = thingIdFrom(instanceId)
 		things.remove(thingId)
 		unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
@@ -197,16 +188,13 @@ export const makeTradfriGateway = async ({
 
 		tradfriClient
 			.on('device updated', device => {
-				const id = thingIdFrom(device.instanceId)
-				if (things.has(id)) {
-					updateExisting(device)
-				} else if (unsupportedInstanceIds.includes(device.instanceId)) {
+				if (unsupportedInstanceIds.includes(device.instanceId)) {
 					// unsupported device updated, do nothing
 				} else {
-					addNew(device)
+					addOrReplaceThing(device)
 				}
 			})
-			.on('device removed', removeExisting)
+			.on('device removed', removeThing)
 			.observeDevices()
 		DEBUG && console.log('TRADFRI: credentials provided')
 	}
