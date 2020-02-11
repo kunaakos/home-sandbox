@@ -2,6 +2,10 @@ import * as React from 'react'
 import ReactDOM from 'react-dom'
 
 import {
+	useState
+} from 'react'
+
+import {
 	ThingsProvider,
 	useThings
 } from './components/use-things'
@@ -19,21 +23,30 @@ const Switch = ({ thing, setThing }) => (
 		<p>
 			It's {thing.state ? 'on ✅' : 'off ❌'}. I can {
 				thing.state
-					? ( <a href="#" onClick={() => { setThing(thing.id, { state: false }) }}>switch it off</a> )
-					: ( <a href="#" onClick={() => { setThing(thing.id, { state: true }) }}>turn it on</a> )
+					? (<button onClick={() => { setThing(thing.id, { state: false }) }}>switch it off</button>)
+					: (<button href="#" onClick={() => { setThing(thing.id, { state: true }) }}>turn it on</button>)
 			} for you.
 		</p>
 	</div>
 )
 
-const Thermostat = ({ thing, setThing }) => (
-	<div>
-		<h3>🌡 {thing.label}</h3>
-		<p>
-			It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C. The heat should be currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}.<br/>
+const Thermostat = ({ thing, setThing }) => {
+
+	const setTargetTemperature = value  => {
+		setThing(thing.id, {
+			targetTemperature: value
+		})
+	}
+	return (
+		<div>
+			<h3>🌡 {thing.label}</h3>
+			<p>
+				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C. The heat should currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}.<br />
+				Do you need it to be a bit <button onClick={() => setTargetTemperature(thing.targetTemperature + 0.5)}>warmer</button> or <button onClick={() => setTargetTemperature(thing.targetTemperature - 0.5)}>cooler</button>?<br />
 		</p>
-	</div>
-)
+		</div>
+	)
+}
 
 const Thing = ({ thing, setThing }) => {
 	switch (thing.type) {
@@ -60,7 +73,10 @@ const App = () => {
 	return (
 		<React.Fragment>
 			<h1>O HAI</h1>
-			<p>I'm your butler. I am currently {connected ? 'connected' : 'not connected'} to your home {connected ? '😌' : '😞'}.<br/>{connected && 'I have a list of things that I can see in your home, let me know if you want me to do anything with them.'}</p>
+			<p>
+				I am currently {connected ? 'connected' : 'not connected'} {connected ? '😌' : '😞'}.<br />
+				{connected && <React.Fragment>I have a list of things that I can see in your home, let me know if you want me to do anything with them.</React.Fragment>}
+			</p>
 			{visibleThings.map(thing => <Thing key={thing.id} thing={thing} setThing={setThing} />)}
 		</React.Fragment>
 	)
