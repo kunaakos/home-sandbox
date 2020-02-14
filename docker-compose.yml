@@ -1,0 +1,15 @@
+version: '2'
+services:
+  ui:
+    build: ./ui
+    ports:
+      - "80:80"
+  things:
+    build: ./things
+    # /sys/* is mounted in privileged mode, but only /sys/class/gpio is used, figure out more secure way
+    privileged: true
+    devices:
+      # figure out hotplugging later, something something dbus
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    ports:
+      - "8081:8081"
