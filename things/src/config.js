@@ -57,9 +57,10 @@ export const subscriptions = {
             'heatRequest': 'state'
         }
     },
-    'heat-request': {
-        'aio-heat': {
-            'state': 'value'
-        }
-    }
+    // TODO: need to cast boolean to number...
+    // 'heat-request': {
+    //     'aio-heat': {
+    //         'state': 'value'
+    //     }
+    // }
 }

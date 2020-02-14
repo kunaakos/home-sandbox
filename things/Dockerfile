@@ -1,13 +1,7 @@
-# base-image for node on any machine using a template variable,
-# see more about dockerfile templates here: https://www.balena.io/docs/learn/develop/dockerfile/#dockerfile-templates
-# and about balena base images here: https://www.balena.io/docs/reference/base-images/base-images/
-FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12.14.1-bullseye-build
+FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
 
-# use `install_packages` if you need to install dependencies,
-# for instance if you need git, just uncomment the line below.
-# RUN install_packages git
+RUN install_packages git build-essential python
 
-# Defines our working directory in container
 WORKDIR /usr/src
 
 # Copies the package.json first for better cache on later pushes
@@ -25,3 +19,4 @@ ENV UDEV=1
 
 # run apps when container starts up on the device
 # ? TODO!
+CMD ["npm", "run", "dev"]

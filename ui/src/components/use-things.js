@@ -71,7 +71,7 @@ export const ThingsProvider = ({
     }
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://localhost:8080`)
+        const socket = new WebSocket(`ws://${window.location.hostname}:8081`)
         socketRef.current  = socket
         socket.onopen = () => {
             socketRef.current = socket

@@ -195,6 +195,7 @@ export const makeTradfriGateway = async ({
 				}
 			})
 			.on('device removed', removeThing)
+			.on('error', console.error)
 			.observeDevices()
 		DEBUG && console.log('TRADFRI: credentials provided')
 	}
