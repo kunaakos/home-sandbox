@@ -10,9 +10,7 @@ import {
 	AccessoryTypes
 } from "node-tradfri-client"
 
-import {
-	makeThingTools
-} from '../thing-tools'
+import { makeThing } from '../thing-tools'
 
 const DEBUG = true
 
@@ -74,15 +72,15 @@ const makeSwitchFromTradfriLightbulb = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI LIGHTBULB: initializing/updating ${id}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'switch',
-		id,
-		label: labelFrom(device)
-	})
-
-	let { state } = mapTradfriLightbulbToSwitchState(device)
+	const { state } = mapTradfriLightbulbToSwitchState(device)
 
 	return makeThing({
+		type: 'switch',
+		id,
+		label: labelFrom(device),
+		hidden: false,
+		publishStateChange: () => {}
+	})({
 		state: {
 			get: () => state,
 			set: async newState => {
@@ -111,15 +109,15 @@ const makeSwitchFromTradfriPlug = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI PLUG: initializing/updating ${id}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'switch',
-		id,
-		label: labelFrom(device)
-	})
-
 	let { state } = mapTradfriPlugToSwitchState(device)
 
 	return makeThing({
+		type: 'switch',
+		id,
+		label: labelFrom(device),
+		hidden: false,
+		publishStateChange: () => {}
+	})({
 		state: {
 			get: () => state,
 			set: async newState => {

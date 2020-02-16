@@ -1,4 +1,4 @@
-import { makeThingTools } from '../thing-tools'
+import { makeThing } from '../thing-tools'
 
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
@@ -8,16 +8,12 @@ const DEBUG = true
 export const makeThermostat = async ({
 	id,
 	label,
+	hidden,
+	publishChange,
 	initialValues = {}
 }) => {
 
 	DEBUG && console.log(`THERMOSTAT: initializing ${id}`)
-
-	const { makeThing, stateChanged } = makeThingTools({
-		type: 'thermostat',
-		id,
-		label
-	})
 
 	let {
 		targetTemperature = 0,
@@ -33,7 +29,7 @@ export const makeThermostat = async ({
 
 	const setHeatRequest = async newState => {
 		heatRequest = newState
-		stateChanged(['heatRequest'])
+		publishChange(id)(['heatRequest'])
 	}
 
 	const tick = async () => {
@@ -75,6 +71,12 @@ export const makeThermostat = async ({
 	
 	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
 	return makeThing({
+		type: 'thermostat',
+		id,
+		label,
+		hidden,
+		publishChange
+	})({
 		targetTemperature: {
 			get: () => targetTemperature,
 			set: async newTargetTemperature => {

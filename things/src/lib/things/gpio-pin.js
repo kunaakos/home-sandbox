@@ -1,4 +1,4 @@
-import { makeThingTools } from '../thing-tools'
+import { makeThing } from '../thing-tools'
 
 const gpio = process.env.REAL_GPIO
 	? require('rpi-gpio').promise
@@ -10,17 +10,11 @@ export const makeGpioPin = async ({
 	id,
 	label,
 	hidden,
-	pinNr,
+	publishChange,
+	pinNr
 }) => {
 
 	DEBUG && console.log(`GPIO: initializing using pin #${pinNr}`)
-
-	const { makeThing } = makeThingTools({
-		type: 'switch',
-		id,
-		label,
-		hidden
-	})
 
 	let pinState = false
 
@@ -33,6 +27,12 @@ export const makeGpioPin = async ({
 	await updatePinState()
 
 	return makeThing({
+		type: 'switch',
+		id,
+		label,
+		hidden,
+		publishChange
+	})({
 		state: {
 			get: () => pinState,
 			set: async newState => {

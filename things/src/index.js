@@ -6,11 +6,7 @@ import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 
 import { makeThingStore } from './lib/thing-store'
 import { handleSubscriptions } from './lib/thing-subscriptions'
-import {
-	thingStateChanged,
-	subscribeToThingStateChanges,
-	unsubscribeFromThingStateChanges
-} from './lib/thing-tools'
+import { makeThingEvents } from './lib/thing-events'
 
 import { initializeWebsocketApi } from './websocket-api'
 
@@ -57,29 +53,32 @@ const initializeGateway = async config => {
 
 const main = async () => {
 
+	const {
+		publishChange,
+		subscribeToChanges,
+		unsubscribeFromChanges
+	} = makeThingEvents()
+
 	const things = makeThingStore({
-		thingStateChanged
+		publishChange
 	})
 
 	handleSubscriptions({
 		subscriptions,
 		things,
-		subscribeToThingStateChanges
+		subscribeToChanges
 	})
 
-	thingConfigs.forEach(async thingConfig => {
-		things.add(await initializeThing(thingConfig))
-	})
+	const injectThingDependencies = config => ({ ...config, publishChange })
+	thingConfigs.forEach(async thingConfig => things.add(await initializeThing(injectThingDependencies(thingConfig))))
 
-	const injectGatewayDependencies = config => ({ ...config, things, thingStateChanged })
-	gatewayConfigs.forEach(async gatewayConfig => {
-		await initializeGateway(injectGatewayDependencies(gatewayConfig))
-	})
+	const injectGatewayDependencies = config => ({ ...config, things, publishChange })
+	gatewayConfigs.forEach(async gatewayConfig => await initializeGateway(injectGatewayDependencies(gatewayConfig)))
 
 	initializeWebsocketApi({
 		things,
-		subscribeToThingStateChanges,
-		unsubscribeFromThingStateChanges
+		subscribeToChanges,
+		unsubscribeFromChanges
 	})
 
 }

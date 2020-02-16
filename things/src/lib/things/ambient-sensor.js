@@ -1,4 +1,4 @@
-import { makeThingTools } from '../thing-tools' 
+import { makeThing } from '../thing-tools' 
 
 const DEBUG = true
 
@@ -6,21 +6,21 @@ export const makeAmbientSensor = async ({
 	id,
 	label,
 	hidden = true,
+	publishChange,
 	initialValues = {}
 }) => {
 
 	DEBUG && console.log(`SENSOR: initializing ${id}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'ambient-sensor',
-		id,
-		label,
-		hidden
-	})
-
 	let { temperature } = initialValues
 
 	return makeThing ({
+		type: 'ambient-sensor',
+		id,
+		label,
+		hidden,
+		publishChange
+	})({
 		temperature: {
 			set: async newValue => {
 				temperature = newValue

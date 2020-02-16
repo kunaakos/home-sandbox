@@ -8,7 +8,7 @@ function ThingStore (functions) {
 }
 
 export const makeThingStore = ({
-	thingStateChanged
+	publishChange
 }) => {
 
 	const things = {}
@@ -23,7 +23,7 @@ export const makeThingStore = ({
 	const add = thing => {
 		const thingId = thing.id
 		things[thingId] = thing
-		thingStateChanged(thingId)() // advertise state when added
+		publishChange(thingId)()
 	}
 	
 	const remove = id => { delete things[id] }
