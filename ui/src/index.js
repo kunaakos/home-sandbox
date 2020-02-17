@@ -1,5 +1,11 @@
+import debounce from 'lodash/debounce'
+
 import * as React from 'react'
 import ReactDOM from 'react-dom'
+import {
+	useEffect,
+	useRef
+} from 'react'
 
 import {
 	ThingsProvider,
@@ -8,7 +14,7 @@ import {
 
 const UnsupportedThing = ({ thing }) => (
 	<div>
-		<h3>{thing.label}</h3>
+		<h3>⁉️ {thing.label}</h3>
 		<p>I'm not familiar with this thing 😕</p>
 	</div>
 )
@@ -26,9 +32,48 @@ const Switch = ({ thing, setThing }) => (
 	</div>
 )
 
+const Light = ({ thing, setThing }) => {
+
+	const brightnessSliderRef = useRef(null)
+	useEffect(() => {
+		brightnessSliderRef.current && (brightnessSliderRef.current.value = thing.brightness)
+	}, [thing.brightness])
+
+	const setThingDebounced = debounce(setThing, 200)
+
+	return (
+		<div>
+			<h3>💡 {thing.label}</h3>
+			<p>
+				It's {thing.isOn ? 'on ✅' : 'off ❌'}. I can {
+					thing.isOn
+						? (<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>)
+						: (<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>)
+				} for you{!isNaN(thing.brightness)
+					? <React.Fragment>
+						, or tweak
+						&nbsp;
+						<input
+							type="range"
+							min="1"
+							max="100"
+							defaultValue={thing.brightness}
+							ref={brightnessSliderRef}
+							onChange={e => { setThingDebounced(thing.id, { brightness: e.target.value }) }}
+						/>
+						&nbsp;
+						its brightness.
+					</React.Fragment>
+					: '.'
+				}
+			</p>
+		</div>
+	)
+}
+
 const Thermostat = ({ thing, setThing }) => {
 
-	const setTargetTemperature = value  => {
+	const setTargetTemperature = value => {
 		setThing(thing.id, {
 			targetTemperature: value
 		})
@@ -39,7 +84,7 @@ const Thermostat = ({ thing, setThing }) => {
 			<p>
 				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C. The heat should currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}.<br />
 				Do you need it to be a bit <button onClick={() => setTargetTemperature(thing.targetTemperature + 0.5)}>warmer</button> or <button onClick={() => setTargetTemperature(thing.targetTemperature - 0.5)}>cooler</button>?<br />
-		</p>
+			</p>
 		</div>
 	)
 }
@@ -48,6 +93,8 @@ const Thing = ({ thing, setThing }) => {
 	switch (thing.type) {
 		case 'switch':
 			return (<Switch thing={thing} setThing={setThing} />)
+		case 'dimmable-light':
+			return (<Light thing={thing} setThing={setThing} />)
 		case 'thermostat':
 			return (<Thermostat thing={thing} setThing={setThing} />)
 		default:
