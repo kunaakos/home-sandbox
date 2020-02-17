@@ -2,7 +2,7 @@ import { Server as WebSocketServer } from 'ws'
 
 const DEBUG = true
 
-export const initializeWebsocketApi = async ({
+export const initializeWebsocketApi = ({
 	things,
 	subscribeToChanges,
 	unsubscribeFromChanges
@@ -10,14 +10,14 @@ export const initializeWebsocketApi = async ({
 
 	DEBUG && console.log('WSAPI: initializing')
 
-	const messageHandler = async messageString => {
+	const messageHandler = messageString => {
 		DEBUG && console.log(`WSAPI: received message`)
 		try {
 			const message = JSON.parse(messageString)
 
 			if (message.type === 'set-state' && message.payload) {
 				const { id, ...values } = message.payload
-				await things.set(id, values)
+				things.set(id, values)
 			}
 
 		} catch (error) {
@@ -38,8 +38,8 @@ export const initializeWebsocketApi = async ({
 			payload: things.getAll()
 		}))
 
-		const subscriptionId = subscribeToChanges(async ({ id }) => {
-			const thingState = await things.get(id)
+		const subscriptionId = subscribeToChanges(({ id }) => {
+			const thingState = things.get(id)
 			socket.send(JSON.stringify({
 				type: 'thing-state',
 				payload: thingState

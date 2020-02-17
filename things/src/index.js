@@ -17,7 +17,7 @@ import {
 	gatewayDefinitions
 } from './config'
 
-const initializeThing = ({ publishChange }) => async ({ type, description, config }) => {
+const initializeThing = ({ publishChange }) => ({ type, description, config }) => {
 
 	switch (type) {
 
@@ -33,7 +33,7 @@ const initializeThing = ({ publishChange }) => async ({ type, description, confi
 	}
 }
 
-const initializeGateway = ({ publishChange, things }) => async ({ type, description, config }) => {
+const initializeGateway = ({ publishChange, things }) => ({ type, description, config }) => {
 
 	switch (type) {
 
@@ -72,7 +72,7 @@ const main = async () => {
 	})
 
 	const initializeThingWithDeps = initializeThing({ publishChange })
-	thingDefinitions.forEach(async thingDefinition => { things.add(await initializeThingWithDeps(thingDefinition)) })
+	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
 
 	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
 	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })

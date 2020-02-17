@@ -63,7 +63,7 @@ const setTradfriLightbulbState = async (device, newState) => {
 		: await device.lightList[0].turnOff()
 }
 
-const makeSwitchFromTradfriLightbulb = async device =>
+const makeSwitchFromTradfriLightbulb = device =>
 	makeSwitch({
 		description: {
 			id: thingIdFrom(device.instanceId),
@@ -86,7 +86,7 @@ const setTradfriPlugState = async (device, newState) => {
 		: await device.plugList[0].turnOff()
 }
 
-const makeSwitchFromTradfriPlug = async device =>
+const makeSwitchFromTradfriPlug = device =>
 	makeSwitch({
 		description: {
 			id: thingIdFrom(device.instanceId),
@@ -102,7 +102,7 @@ const makeSwitchFromTradfriPlug = async device =>
 		}
 	})
 
-export const makeTradfriGateway = async ({
+export const makeTradfriGateway = ({
 	description,
 	config,
 	things
@@ -118,14 +118,14 @@ export const makeTradfriGateway = async ({
 	// stopped working after a state change and keeping tradfri lib and
 	// app state in sync was painful.
 	// This works, might cause a memory leak, revisit if it does.
-	const addOrReplaceThing = async device => {
+	const addOrReplaceThing = device => {
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				things.add(await makeSwitchFromTradfriLightbulb(device))
+				things.add(makeSwitchFromTradfriLightbulb(device))
 				break
 			case AccessoryTypes.plug:
-				things.add(await makeSwitchFromTradfriPlug(device))
+				things.add(makeSwitchFromTradfriPlug(device))
 				break
 
 			default:
@@ -155,24 +155,24 @@ export const makeTradfriGateway = async ({
 	) {
 		DEBUG && console.log('TRADFRI: credentials not provided, continuing in mock mode')
 	} else {
-		const tradfriClient = await connect({
+		connect({
 			gatewayAddressOrHost,
 			identity,
 			psk
+		}).then(tradfriClient => {
+			tradfriClient
+				.on('device updated', device => {
+					if (unsupportedInstanceIds.includes(device.instanceId)) {
+						// unsupported device updated, do nothing
+					} else {
+						addOrReplaceThing(device)
+					}
+				})
+				.on('device removed', removeThing)
+				.on('error', console.error)
+				.observeDevices()
+			DEBUG && console.log('TRADFRI: credentials provided')
 		})
-
-		tradfriClient
-			.on('device updated', device => {
-				if (unsupportedInstanceIds.includes(device.instanceId)) {
-					// unsupported device updated, do nothing
-				} else {
-					addOrReplaceThing(device)
-				}
-			})
-			.on('device removed', removeThing)
-			.on('error', console.error)
-			.observeDevices()
-		DEBUG && console.log('TRADFRI: credentials provided')
 	}
 
 	return {

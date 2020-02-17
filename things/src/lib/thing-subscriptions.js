@@ -26,7 +26,7 @@ export const handleSubscriptions = ({
 	subscriptions
 }) => {
 
-	const propagateStateChanges = async ({
+	const propagateStateChanges = ({
 		id,
 		keys // TODO: propagate only if relevant values changed
 	}) => {

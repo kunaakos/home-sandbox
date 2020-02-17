@@ -2,7 +2,7 @@ import { makeThing } from '../thing'
 
 const DEBUG = true
 
-export const makeSwitch = async ({
+export const makeSwitch = ({
 	description,
     effects,
     initialState,

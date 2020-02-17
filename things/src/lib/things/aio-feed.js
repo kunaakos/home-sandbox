@@ -37,7 +37,6 @@ const updateAioFeed = ({
 export const makeAioFeed = ({
 	description,
 	config,
-	// initialState,
 	publishChange
 }) => {
 

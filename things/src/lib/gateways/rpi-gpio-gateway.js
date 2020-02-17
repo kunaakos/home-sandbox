@@ -21,7 +21,7 @@ const initOutputPin = async pinNr => {
     }
 }
 
-export const makeRpiGpioGateway = async ({
+export const makeRpiGpioGateway = ({
     description,
     config,
     things,

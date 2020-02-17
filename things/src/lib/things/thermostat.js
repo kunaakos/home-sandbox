@@ -5,9 +5,8 @@ const TWO_MINUTES = 1000 * 60 * 2
 
 const DEBUG = true
 
-export const makeThermostat = async ({
+export const makeThermostat = ({
 	description,
-	// config,
 	initialState,
 	publishChange
 }) => {
@@ -26,12 +25,12 @@ export const makeThermostat = async ({
 	let heatRequest = false
 	let lastCurrentTemperatureUpdate
 
-	const setHeatRequest = async newState => {
+	const setHeatRequest = newState => {
 		heatRequest = newState
 		publishChange(description.id)(['heatRequest'])
 	}
 
-	const tick = async () => {
+	const tick = () => {
 
 		// shut down if not updated in a long time
 		// TODO: implement watchdog timer utility
@@ -66,7 +65,7 @@ export const makeThermostat = async ({
 
 	}
 
-	const tickIntervalHandle = setInterval(() => tick().catch(error => console.error(error)), tickInterval)
+	const tickIntervalHandle = setInterval(() => tick(), tickInterval)
 
 	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
 	return makeThing({
