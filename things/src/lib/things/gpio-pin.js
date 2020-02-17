@@ -28,15 +28,16 @@ export const makeGpioPin = async ({
 	return makeThing({
 		type: 'switch',
 		description,
-		publishChange
-	})({
-		state: {
-			get: () => pinState,
-			set: async newState => {
-				if (pinState === Boolean(newState)) { return false }
-				pinState = Boolean(newState)
-				await updatePinState()
-				return true
+		publishChange,
+		mutators: {
+			state: {
+				get: () => pinState,
+				set: async newState => {
+					if (pinState === Boolean(newState)) { return false }
+					pinState = Boolean(newState)
+					await updatePinState()
+					return true
+				}
 			}
 		}
 	})

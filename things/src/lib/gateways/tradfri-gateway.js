@@ -64,7 +64,7 @@ const setTradfriLightbulbState = async (device, newState) => {
 }
 
 const mapTradfriLightbulbToSwitchState = device => ({
-	state: getTradfriLightbulbState(device)
+	isOn: getTradfriLightbulbState(device)
 })
 
 const makeSwitchFromTradfriLightbulb = async device => {
@@ -72,7 +72,7 @@ const makeSwitchFromTradfriLightbulb = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI LIGHTBULB: initializing/updating ${id}`)
 
-	const { state } = mapTradfriLightbulbToSwitchState(device)
+	const { isOn } = mapTradfriLightbulbToSwitchState(device)
 
 	return makeThing({
 		type: 'switch',
@@ -81,15 +81,16 @@ const makeSwitchFromTradfriLightbulb = async device => {
 			label: labelFrom(device),
 			hidden: false,
 		},
-		publishChange: () => {}
-	})({
-		state: {
-			get: () => state,
-			set: async newState => {
-				if (state === Boolean(newState)) { return false }
-				await setTradfriLightbulbState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
-				DEBUG && console.log(`TRADFRI LIGHTBULB: ${id} set to ${state}`)
-				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
+		publishChange: () => { },
+		mutators: {
+			isOn: {
+				get: () => isOn,
+				set: async newState => {
+					if (isOn === Boolean(newState)) { return false }
+					await setTradfriLightbulbState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+					DEBUG && console.log(`TRADFRI LIGHTBULB: ${id} set to ${isOn}`)
+					return false // TODO: thing instances created by the tradfri gateway are nuked after every state change so changes should not be propagated
+				}
 			}
 		}
 	})
@@ -103,7 +104,7 @@ const setTradfriPlugState = async (device, newState) => {
 }
 
 const mapTradfriPlugToSwitchState = device => ({
-	state: getTradfriPlugState(device)
+	isOn: getTradfriPlugState(device)
 })
 
 const makeSwitchFromTradfriPlug = async device => {
@@ -111,7 +112,7 @@ const makeSwitchFromTradfriPlug = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI PLUG: initializing/updating ${id}`)
 
-	let { state } = mapTradfriPlugToSwitchState(device)
+	let { isOn } = mapTradfriPlugToSwitchState(device)
 
 	return makeThing({
 		type: 'switch',
@@ -120,15 +121,16 @@ const makeSwitchFromTradfriPlug = async device => {
 			label: labelFrom(device),
 			hidden: false,
 		},
-		publishChange: () => {}
-	})({
-		state: {
-			get: () => state,
-			set: async newState => {
-				if (state === Boolean(newState)) { return false }
-				await setTradfriPlugState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
-				DEBUG && console.log(`TRADFRI PLUG: ${id} set to ${state}`)
-				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
+		publishChange: () => { },
+		mutators: {
+			isOn: {
+				get: () => isOn,
+				set: async newState => {
+					if (isOn === Boolean(newState)) { return false }
+					await setTradfriPlugState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+					DEBUG && console.log(`TRADFRI PLUG: ${id} set to ${isOn}`)
+					return false // TODO: thing instances created by the tradfri gateway are nuked after every state change so changes should not be propagated
+				}
 			}
 		}
 	})

@@ -67,36 +67,37 @@ export const makeThermostat = async ({
 	}
 
 	const tickIntervalHandle = setInterval(() => tick().catch(error => console.error(error)), tickInterval)
-	
+
 	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
 	return makeThing({
 		type: 'thermostat',
 		description,
-		publishChange
-	})({
-		targetTemperature: {
-			get: () => targetTemperature,
-			set: async newTargetTemperature => {
-				if (newTargetTemperature === targetTemperature) { return false } 
-				targetTemperature = newTargetTemperature
-				DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
-				tick() // <- here
-				return true
+		publishChange,
+		mutators: {
+			targetTemperature: {
+				get: () => targetTemperature,
+				set: async newTargetTemperature => {
+					if (newTargetTemperature === targetTemperature) { return false }
+					targetTemperature = newTargetTemperature
+					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
+					tick() // <- here
+					return true
+				}
+			},
+			currentTemperature: {
+				get: () => currentTemperature,
+				set: async newCurrentTemperature => {
+					if (newCurrentTemperature === currentTemperature) { return false }
+					currentTemperature = newCurrentTemperature
+					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
+					tick() // <- and here
+					return true
+				}
+			},
+			heatRequest: {
+				get: () => heatRequest,
+				set: async () => false // read-only
 			}
-		},
-		currentTemperature: {
-			get: () => currentTemperature,
-			set: async newCurrentTemperature => {
-				if (newCurrentTemperature === currentTemperature) { return false } 
-				currentTemperature = newCurrentTemperature
-				DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
-				tick() // <- and here
-				return true
-			}
-		},
-		heatRequest: {
-			get: ()  => heatRequest,
-			set: async () => false // read-only
 		}
 	})
 }

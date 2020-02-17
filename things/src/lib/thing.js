@@ -1,4 +1,3 @@
-// Don't use this to create things, just for runtime checks!
 function Thing(functions) {
 	Object.assign(this, functions)
 }
@@ -6,13 +5,14 @@ function Thing(functions) {
 export const makeThing = ({
 	type,
 	description,
-	publishChange
-}) => (values = {}) => {
+	publishChange,
+	mutators
+}) => {
 
 	// get is synchronous, so should all getters on things be
 	const get = () => {
 
-		const currentState = Object.entries(values)
+		const currentState = Object.entries(mutators)
 			.reduce(
 				(acc, [key, { get }]) => {
 					acc[key] = get()
@@ -30,22 +30,19 @@ export const makeThing = ({
 
 	// set is an asynchronous operation, will complete when all values are updated
 	// it is the responsibility of thing implementations to ensure that setters are async and resolve after values were updated
-	const set = async newValues => {
+	const set = async newState => {
 		const changes = await Promise.all(
-			Object.entries(newValues)
-				.map(([key, newValue]) => {
-					if (values.hasOwnProperty(key)) {
-						return values[key].set(newValue)
-							.then(hasChanged => {
-								return hasChanged
-									? key
-									: null
-							})
+			Object.entries(newState)
+				.map(async ([key, newValue]) => {
+					if (mutators.hasOwnProperty(key)) {
+						return await mutators[key].set(newValue)
+							? key
+							: null
 					} else {
 						return null // TODO: warn if non-existing key was changed
 					}
 				})
-				.filter(Boolean) // filter out falsy values, only Promises are kept
+				.filter(Boolean) // filter out falsy values, only Promises should be left in the array
 		)
 		const changedKeys = changes.filter(Boolean)
 		if (changedKeys.length) {

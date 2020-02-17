@@ -62,14 +62,15 @@ export const makeAioFeed = ({
 	return makeThing({
 		type: 'metrics',
 		description,
-		publishChange
-	})({
-		value: {
-			set: async newValue => {
-				updateFeed && await updateFeed(newValue)
-				return false
-			},
-			get: () => null
+		publishChange,
+		mutators: {
+			value: {
+				set: async newValue => {
+					updateFeed && await updateFeed(newValue)
+					return false
+				},
+				get: () => null
+			}
 		}
 	})
 }
