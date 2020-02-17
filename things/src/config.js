@@ -46,16 +46,28 @@ export const thingDefinitions = [
     }
 ]
 
-export const gatewayConfigs = [
+export const gatewayDefinitions = [
     {
         type: 'serial-gateway',
-        path: process.env.SERIAL_DEVICE_PATH
+        description: {
+            id: 'nrf24-serial',
+            label: `NRF24 radio gateway attached to ${process.env.SERIAL_DEVICE_PATH}`
+        },
+        config: {
+            path: process.env.SERIAL_DEVICE_PATH
+        }
     },
     {
         type: 'tradfri-gateway',
-        gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
-        identity: process.env.TRADFRI_IDENTITY,
-        psk: process.env.TRADFRI_PSK
+        description: {
+            id: 'tradfri',
+            label: `IKEA TRADFRI Gateway at ${process.env.TRADFRI_ADDRESS}`
+        },
+        config: {
+            gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
+            identity: process.env.TRADFRI_IDENTITY,
+            psk: process.env.TRADFRI_PSK
+        }
     }
 ]
 

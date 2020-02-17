@@ -13,7 +13,7 @@ import { initializeWebsocketApi } from './websocket-api'
 import {
 	subscriptions,
 	thingDefinitions,
-	gatewayConfigs
+	gatewayDefinitions
 } from './config'
 
 const initializeThing = ({ publishChange }) => async ({ type, description, config }) => {
@@ -35,18 +35,18 @@ const initializeThing = ({ publishChange }) => async ({ type, description, confi
 	}
 }
 
-const initializeGateway = async config => {
+const initializeGateway = ({ publishChange, things }) => async ({ type, description, config }) => {
 
-	switch (config.type) {
+	switch (type) {
 
 		case 'tradfri-gateway':
-			return makeTradfriGateway(config)
+			return makeTradfriGateway({ description, config, publishChange, things })
 
 		case 'serial-gateway':
-			return makeSerialGateway(config)
+			return makeSerialGateway({ description, config, publishChange, things })
 
 		default:
-			throw new Error(`Unsupported gateway config: ${config.type}.`)
+			throw new Error(`Unsupported gateway config: ${type}.`)
 
 	}
 
@@ -73,8 +73,8 @@ const main = async () => {
 	const initializeThingWithDeps = initializeThing({ publishChange })
 	thingDefinitions.forEach(async thingDefinition => { things.add(await initializeThingWithDeps(thingDefinition)) })
 
-	const injectGatewayDependencies = config => ({ ...config, things, publishChange })
-	gatewayConfigs.forEach(async gatewayConfig => await initializeGateway(injectGatewayDependencies(gatewayConfig)))
+	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
+	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
 	initializeWebsocketApi({
 		things,

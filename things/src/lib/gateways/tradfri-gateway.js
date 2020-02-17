@@ -135,10 +135,9 @@ const makeSwitchFromTradfriPlug = async device => {
 }
 
 export const makeTradfriGateway = async ({
-	things,
-	gatewayAddressOrHost,
-	identity,
-	psk
+	description,
+	config,
+	things
 }) => {
 
 	DEBUG && console.log('TRADFRI: initializing')
@@ -175,6 +174,12 @@ export const makeTradfriGateway = async ({
 		unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
 	}
 
+	const {
+		gatewayAddressOrHost,
+		identity,
+		psk
+	} = config
+
 	if (
 		!gatewayAddressOrHost ||
 		!identity ||
@@ -203,6 +208,7 @@ export const makeTradfriGateway = async ({
 	}
 
 	return {
-		type: 'ikea-tradfri-gateway'
+		type: 'ikea-tradfri-gateway',
+		id: description.id
 	}
 }
