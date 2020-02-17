@@ -1,8 +1,9 @@
-import { makeGpioPin } from './lib/things/gpio-pin'
 import { makeThermostat } from './lib/things/thermostat'
 import { makeAioFeed } from './lib/things/aio-feed'
+
 import { makeSerialGateway } from './lib/gateways/serial-gateway'
 import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
+import { makeRpiGpioGateway } from './lib/gateways/rpi-gpio-gateway'
 
 import { makeThingStore } from './lib/thing-store'
 import { handleSubscriptions } from './lib/thing-subscriptions'
@@ -19,9 +20,6 @@ import {
 const initializeThing = ({ publishChange }) => async ({ type, description, config }) => {
 
 	switch (type) {
-
-		case 'gpio-pin':
-			return makeGpioPin({ description, config, publishChange, initialState: {} })
 
 		case 'thermostat':
 			return makeThermostat({ description, config, publishChange, initialState: {} })
@@ -44,6 +42,9 @@ const initializeGateway = ({ publishChange, things }) => async ({ type, descript
 
 		case 'serial-gateway':
 			return makeSerialGateway({ description, config, publishChange, things })
+		
+		case 'rpi-gpio-gateway':
+			return makeRpiGpioGateway({ description, config, publishChange, things })
 
 		default:
 			throw new Error(`Unsupported gateway config: ${type}.`)

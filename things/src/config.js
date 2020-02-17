@@ -1,16 +1,5 @@
 export const thingDefinitions = [
     {
-        type: 'gpio-pin',
-        description: {
-            id: 'heat-request',
-            label: 'Heat request',
-            hidden: true,
-        },
-        config: {
-            pinNr: 7
-        }
-    },
-    {
         type: 'thermostat',
         description: {
             id: 'thermostat',
@@ -68,6 +57,30 @@ export const gatewayDefinitions = [
             identity: process.env.TRADFRI_IDENTITY,
             psk: process.env.TRADFRI_PSK
         }
+    },
+    {
+        type: 'rpi-gpio-gateway',
+        description: {
+            id: 'rpi-gpio',
+            label: `devices connected to GPIO pins`
+        },
+        config: {
+            thingDefinitions: [
+                {
+                    description: {
+                        id: 'heat-request',
+                        label: 'Heat request',
+                        hidden: true
+                    },
+                    config: {
+                        pinNr: 7
+                    },
+                    initialState: {
+                        isOn: false
+                    }
+                }
+            ]
+        }
     }
 ]
 
@@ -83,7 +96,7 @@ export const subscriptions = {
     },
     'thermostat': {
         'heat-request': {
-            'heatRequest': 'state'
+            'heatRequest': 'isOn'
         }
     },
     // TODO: need to cast boolean to number...
