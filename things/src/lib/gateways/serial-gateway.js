@@ -13,7 +13,7 @@ const DEBUG = true
 
 const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 
-export const makeSerialGateway = async ({
+export const makeSerialGateway = ({
 	description,
 	config,
 	things,
@@ -22,7 +22,7 @@ export const makeSerialGateway = async ({
 
 	DEBUG && console.log('SERIAL: initializing')
 
-	const onDataReceived = async data => {
+	const onDataReceived = data => {
 		try {
 			const reading = JSON.parse(data)
 			const { id: sensorId, t: temperature } = reading
@@ -34,7 +34,7 @@ export const makeSerialGateway = async ({
 				DEBUG && console.log(`SERIAL: Received data for ambient sensor with id ${thingId}`)
 			} else {
 
-				const ambientSensor = await makeAmbientSensor({
+				const ambientSensor = makeAmbientSensor({
 					description: {
 						id: thingId,
 						label: `Sensor with ID "${sensorId}" reporting via serial.`,

@@ -2,9 +2,8 @@ import { makeThing } from '../thing'
 
 const DEBUG = true
 
-export const makeAmbientSensor = async ({
+export const makeAmbientSensor = ({
 	description,
-	// config,
 	initialState,
 	publishChange
 }) => {
