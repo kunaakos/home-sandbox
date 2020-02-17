@@ -11,6 +11,7 @@ import {
 } from "node-tradfri-client"
 
 import { makeSwitch } from "../things/switch"
+import { makeDimmableLight } from "../things/dimmable-light"
 
 const DEBUG = true
 
@@ -63,18 +64,23 @@ const setTradfriLightbulbState = async (device, newState) => {
 		: await device.lightList[0].turnOff()
 }
 
-const makeSwitchFromTradfriLightbulb = device =>
-	makeSwitch({
+const getTradfriLightbulbBrightness = device => device.lightList[0].dimmer
+const setTradfriLightbulbBrightness = async (device, brightness) => device.lightList[0].setBrightness(brightness)
+
+const makeLightFromTradfriLightbulb = device =>
+	makeDimmableLight({
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
 			hidden: false,
 		},
 		initialState: {
-			isOn: getTradfriLightbulbState(device)
+			isOn: getTradfriLightbulbState(device),
+			brightness: getTradfriLightbulbBrightness(device)
 		},
 		effects: {
-			changeState: async newState => { await setTradfriLightbulbState(device, Boolean(newState)) }
+			changeState: async newState => { await setTradfriLightbulbState(device, Boolean(newState)) },
+			changeBrightness: async newBrightness => { await setTradfriLightbulbBrightness(device, newBrightness) }
 		},
 		publishChange: () => { }
 	})
@@ -122,7 +128,7 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				things.add(makeSwitchFromTradfriLightbulb(device))
+				things.add(makeLightFromTradfriLightbulb(device))
 				break
 			case AccessoryTypes.plug:
 				things.add(makeSwitchFromTradfriPlug(device))
