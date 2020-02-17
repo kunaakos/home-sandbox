@@ -11,7 +11,7 @@ import {
 } from "node-tradfri-client"
 
 import { makeSwitch } from "../things/switch"
-import { makeDimmableLight } from "../things/dimmable-light"
+import { makeLight } from "../things/light"
 
 const DEBUG = true
 
@@ -68,7 +68,7 @@ const getTradfriLightbulbBrightness = device => device.lightList[0].dimmer
 const setTradfriLightbulbBrightness = async (device, brightness) => device.lightList[0].setBrightness(brightness)
 
 const makeLightFromTradfriLightbulb = device =>
-	makeDimmableLight({
+	makeLight({
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),

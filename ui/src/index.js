@@ -93,7 +93,7 @@ const Thing = ({ thing, setThing }) => {
 	switch (thing.type) {
 		case 'switch':
 			return (<Switch thing={thing} setThing={setThing} />)
-		case 'dimmable-light':
+		case 'light':
 			return (<Light thing={thing} setThing={setThing} />)
 		case 'thermostat':
 			return (<Thermostat thing={thing} setThing={setThing} />)

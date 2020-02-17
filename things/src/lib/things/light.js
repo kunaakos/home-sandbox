@@ -2,14 +2,14 @@ import { makeThing } from '../thing'
 
 const DEBUG = true
 
-export const makeDimmableLight = ({
+export const makeLight = ({
 	description,
 	effects,
 	initialState,
 	publishChange
 }) => {
 
-	DEBUG && console.log(`DIMMABLE LIGHT: initializing ${description.id}`)
+	DEBUG && console.log(`LIGHT: initializing ${description.id}`)
 
 	let {
         isOn = false,
@@ -17,7 +17,7 @@ export const makeDimmableLight = ({
     } = initialState
 
 	return makeThing({
-		type: 'dimmable-light',
+		type: 'light',
 		description,
 		publishChange,
 		mutators: {
@@ -28,7 +28,7 @@ export const makeDimmableLight = ({
 					const hasChanged = await effects.changeState(newState)
 					if (hasChanged) {
 						isOn = Boolean(newState)
-						DEBUG && console.log(`DIMMABLE LIGHT: ${description.id} turned ${isOn ? 'on' : 'off'}`)
+						DEBUG && console.log(`LIGHT: ${description.id} turned ${isOn ? 'on' : 'off'}`)
 						return true
 					} else {
 						return false
@@ -42,7 +42,7 @@ export const makeDimmableLight = ({
                     const hasChanged = await effects.changeBrightness(newBrightness)
                     if (hasChanged) {
                         brightness = newBrightness
-						DEBUG && console.log(`DIMMABLE LIGHT: ${description.id} brightness set to ${brightness}%`)
+						DEBUG && console.log(`LIGHT: ${description.id} brightness set to ${brightness}%`)
                         return true
                     } else {
                         return false
