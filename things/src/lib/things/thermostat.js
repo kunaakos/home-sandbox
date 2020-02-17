@@ -67,7 +67,6 @@ export const makeThermostat = ({
 
 	const tickIntervalHandle = setInterval(() => tick(), tickInterval)
 
-	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
 	return makeThing({
 		type: 'thermostat',
 		description,
@@ -79,7 +78,7 @@ export const makeThermostat = ({
 					if (newTargetTemperature === targetTemperature) { return false }
 					targetTemperature = newTargetTemperature
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
-					tick() // <- here
+					tick()
 					return true
 				}
 			},
@@ -89,7 +88,7 @@ export const makeThermostat = ({
 					if (newCurrentTemperature === currentTemperature) { return false }
 					currentTemperature = newCurrentTemperature
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
-					tick() // <- and here
+					tick()
 					return true
 				}
 			},
