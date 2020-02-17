@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-import { makeThingTools } from '../thing-tools'
+import { makeThing } from '../thing'
 
 const DEBUG = true
 
@@ -35,21 +35,19 @@ const updateAioFeed = ({
 }
 
 export const makeAioFeed = ({
-	id,
-	label,
-	username,
-	aioKey,
-	feedKey
+	description,
+	config,
+	// initialState,
+	publishChange
 }) => {
 
 	DEBUG && console.log(`AIO: initializing ${feedKey}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'metrics',
-		id,
-		label,
-		hidden: true,
-	})
+	const {
+		username,
+		aioKey,
+		feedKey
+	} = config
 
 	const updateFeed = username && aioKey && feedKey
 		? updateAioFeed({ username, aioKey, feedKey })
@@ -62,12 +60,17 @@ export const makeAioFeed = ({
 	// this thing is write-only, so it does not report state changes
 	// nor does it return any value when read
 	return makeThing({
-		value: {
-			set: async newValue => {
-				updateFeed && await updateFeed(newValue)
-				return false
-			},
-			get: () => null
+		type: 'metrics',
+		description,
+		publishChange,
+		mutators: {
+			value: {
+				set: async newValue => {
+					updateFeed && await updateFeed(newValue)
+					return false
+				},
+				get: () => null
+			}
 		}
 	})
 }

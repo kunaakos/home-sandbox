@@ -4,8 +4,8 @@ const DEBUG = true
 
 export const initializeWebsocketApi = async ({
 	things,
-	subscribeToThingStateChanges,
-	unsubscribeFromThingStateChanges
+	subscribeToChanges,
+	unsubscribeFromChanges
 }) => {
 
 	DEBUG && console.log('WSAPI: initializing')
@@ -13,7 +13,7 @@ export const initializeWebsocketApi = async ({
 	const messageHandler = async messageString => {
 		DEBUG && console.log(`WSAPI: received message`)
 		try {
-			const message  = JSON.parse(messageString)
+			const message = JSON.parse(messageString)
 
 			if (message.type === 'set-state' && message.payload) {
 				const { id, ...values } = message.payload
@@ -24,7 +24,6 @@ export const initializeWebsocketApi = async ({
 			console.error(error)
 		}
 	}
-
 
 	const webSocketServer = new WebSocketServer({ port: process.env.WS_API_PORT || 8080 })
 
@@ -39,7 +38,7 @@ export const initializeWebsocketApi = async ({
 			payload: things.getAll()
 		}))
 
-		const subscriptionId = subscribeToThingStateChanges(async ({id}) => {
+		const subscriptionId = subscribeToChanges(async ({ id }) => {
 			const thingState = await things.get(id)
 			socket.send(JSON.stringify({
 				type: 'thing-state',
@@ -49,12 +48,11 @@ export const initializeWebsocketApi = async ({
 		})
 
 		socket.on('close', () => {
-			unsubscribeFromThingStateChanges(subscriptionId)
+			unsubscribeFromChanges(subscriptionId)
 			DEBUG && console.log('WSAPI: connection closed')
 		})
 
 		socket.on('message', messageHandler)
 
-		
 	})
 }

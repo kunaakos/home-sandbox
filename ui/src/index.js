@@ -2,10 +2,6 @@ import * as React from 'react'
 import ReactDOM from 'react-dom'
 
 import {
-	useState
-} from 'react'
-
-import {
 	ThingsProvider,
 	useThings
 } from './components/use-things'
@@ -21,10 +17,10 @@ const Switch = ({ thing, setThing }) => (
 	<div>
 		<h3>🔌 {thing.label}</h3>
 		<p>
-			It's {thing.state ? 'on ✅' : 'off ❌'}. I can {
-				thing.state
-					? (<button onClick={() => { setThing(thing.id, { state: false }) }}>switch it off</button>)
-					: (<button href="#" onClick={() => { setThing(thing.id, { state: true }) }}>turn it on</button>)
+			It's {thing.isOn ? 'on ✅' : 'off ❌'}. I can {
+				thing.isOn
+					? (<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>)
+					: (<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>)
 			} for you.
 		</p>
 	</div>

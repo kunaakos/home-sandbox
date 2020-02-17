@@ -10,9 +10,7 @@ import {
 	AccessoryTypes
 } from "node-tradfri-client"
 
-import {
-	makeThingTools
-} from '../thing-tools'
+import { makeThing } from '../thing'
 
 const DEBUG = true
 
@@ -66,7 +64,7 @@ const setTradfriLightbulbState = async (device, newState) => {
 }
 
 const mapTradfriLightbulbToSwitchState = device => ({
-	state: getTradfriLightbulbState(device)
+	isOn: getTradfriLightbulbState(device)
 })
 
 const makeSwitchFromTradfriLightbulb = async device => {
@@ -74,22 +72,25 @@ const makeSwitchFromTradfriLightbulb = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI LIGHTBULB: initializing/updating ${id}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'switch',
-		id,
-		label: labelFrom(device)
-	})
-
-	let { state } = mapTradfriLightbulbToSwitchState(device)
+	const { isOn } = mapTradfriLightbulbToSwitchState(device)
 
 	return makeThing({
-		state: {
-			get: () => state,
-			set: async newState => {
-				if (state === Boolean(newState)) { return false }
-				await setTradfriLightbulbState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
-				DEBUG && console.log(`TRADFRI LIGHTBULB: ${id} set to ${state}`)
-				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
+		type: 'switch',
+		description: {
+			id,
+			label: labelFrom(device),
+			hidden: false,
+		},
+		publishChange: () => { },
+		mutators: {
+			isOn: {
+				get: () => isOn,
+				set: async newState => {
+					if (isOn === Boolean(newState)) { return false }
+					await setTradfriLightbulbState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+					DEBUG && console.log(`TRADFRI LIGHTBULB: ${id} set to ${isOn}`)
+					return false // TODO: thing instances created by the tradfri gateway are nuked after every state change so changes should not be propagated
+				}
 			}
 		}
 	})
@@ -103,7 +104,7 @@ const setTradfriPlugState = async (device, newState) => {
 }
 
 const mapTradfriPlugToSwitchState = device => ({
-	state: getTradfriPlugState(device)
+	isOn: getTradfriPlugState(device)
 })
 
 const makeSwitchFromTradfriPlug = async device => {
@@ -111,32 +112,34 @@ const makeSwitchFromTradfriPlug = async device => {
 	const id = thingIdFrom(device.instanceId)
 	DEBUG && console.log(`TRADFRI PLUG: initializing/updating ${id}`)
 
-	const { makeThing } = makeThingTools({
-		type: 'switch',
-		id,
-		label: labelFrom(device)
-	})
-
-	let { state } = mapTradfriPlugToSwitchState(device)
+	let { isOn } = mapTradfriPlugToSwitchState(device)
 
 	return makeThing({
-		state: {
-			get: () => state,
-			set: async newState => {
-				if (state === Boolean(newState)) { return false }
-				await setTradfriPlugState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
-				DEBUG && console.log(`TRADFRI PLUG: ${id} set to ${state}`)
-				return false // TODO: thing instances created by the tradfri gatewat are nuked after evert state change so changes should not be propagated
+		type: 'switch',
+		description: {
+			id,
+			label: labelFrom(device),
+			hidden: false,
+		},
+		publishChange: () => { },
+		mutators: {
+			isOn: {
+				get: () => isOn,
+				set: async newState => {
+					if (isOn === Boolean(newState)) { return false }
+					await setTradfriPlugState(device, Boolean(newState)) // this will eventually trigger a tradfri lib 'device updated' event, watch out for loops
+					DEBUG && console.log(`TRADFRI PLUG: ${id} set to ${isOn}`)
+					return false // TODO: thing instances created by the tradfri gateway are nuked after every state change so changes should not be propagated
+				}
 			}
 		}
 	})
 }
 
 export const makeTradfriGateway = async ({
-	things,
-	gatewayAddressOrHost,
-	identity,
-	psk
+	description,
+	config,
+	things
 }) => {
 
 	DEBUG && console.log('TRADFRI: initializing')
@@ -173,6 +176,12 @@ export const makeTradfriGateway = async ({
 		unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
 	}
 
+	const {
+		gatewayAddressOrHost,
+		identity,
+		psk
+	} = config
+
 	if (
 		!gatewayAddressOrHost ||
 		!identity ||
@@ -201,6 +210,7 @@ export const makeTradfriGateway = async ({
 	}
 
 	return {
-		type: 'ikea-tradfri-gateway'
+		type: 'ikea-tradfri-gateway',
+		id: description.id
 	}
 }

@@ -1,44 +1,73 @@
-export const thingConfigs = [
+export const thingDefinitions = [
     {
         type: 'gpio-pin',
-        id: 'heat-request',
-        label: 'Heat request',
-        hidden: true,
-        pinNr: 7
+        description: {
+            id: 'heat-request',
+            label: 'Heat request',
+            hidden: true,
+        },
+        config: {
+            pinNr: 7
+        }
     },
     {
         type: 'thermostat',
-        id: 'thermostat',
-        label: 'Thermostat',
+        description: {
+            id: 'thermostat',
+            label: 'Thermostat',
+            hidden: false,
+        }
     },
     {
         type: 'adafruit-io-feed',
-        id: 'aio-temp',
-        label: 'adafruit.io "temperature" feed',
-        username: process.env.AIO_USERNAME,
-        aioKey: process.env.AIO_KEY,
-        feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
+        description: {
+            id: 'aio-temp',
+            label: 'adafruit.io "temperature" feed',
+            hidden: true,
+        },
+        config: {
+            username: process.env.AIO_USERNAME,
+            aioKey: process.env.AIO_KEY,
+            feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
+        }
     },
     {
         type: 'adafruit-io-feed',
-        id: 'aio-heat',
-        label: 'adafruit.io "heat" feed',
-        username: process.env.AIO_USERNAME,
-        aioKey: process.env.AIO_KEY,
-        feedKey: process.env.AIO_FEED_KEY_HEAT
+        description: {
+            id: 'aio-heat',
+            label: 'adafruit.io "heat" feed',
+            hidden: true,
+        },
+        config: {
+            username: process.env.AIO_USERNAME,
+            aioKey: process.env.AIO_KEY,
+            feedKey: process.env.AIO_FEED_KEY_HEAT
+        }
     }
 ]
 
-export const gatewayConfigs = [
+export const gatewayDefinitions = [
     {
         type: 'serial-gateway',
-        path: process.env.SERIAL_DEVICE_PATH
+        description: {
+            id: 'nrf24-serial',
+            label: `NRF24 radio gateway attached to ${process.env.SERIAL_DEVICE_PATH}`
+        },
+        config: {
+            path: process.env.SERIAL_DEVICE_PATH
+        }
     },
     {
         type: 'tradfri-gateway',
-        gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
-        identity: process.env.TRADFRI_IDENTITY,
-        psk: process.env.TRADFRI_PSK
+        description: {
+            id: 'tradfri',
+            label: `IKEA TRADFRI Gateway at ${process.env.TRADFRI_ADDRESS}`
+        },
+        config: {
+            gatewayAddressOrHost: process.env.TRADFRI_ADDRESS,
+            identity: process.env.TRADFRI_IDENTITY,
+            psk: process.env.TRADFRI_PSK
+        }
     }
 ]
 

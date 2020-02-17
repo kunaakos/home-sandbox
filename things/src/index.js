@@ -6,50 +6,47 @@ import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 
 import { makeThingStore } from './lib/thing-store'
 import { handleSubscriptions } from './lib/thing-subscriptions'
-import {
-	thingStateChanged,
-	subscribeToThingStateChanges,
-	unsubscribeFromThingStateChanges
-} from './lib/thing-tools'
+import { makeThingEvents } from './lib/thing-events'
 
 import { initializeWebsocketApi } from './websocket-api'
 
 import {
 	subscriptions,
-	thingConfigs,
-	gatewayConfigs
+	thingDefinitions,
+	gatewayDefinitions
 } from './config'
 
-const initializeThing = async config => {
+const initializeThing = ({ publishChange }) => async ({ type, description, config }) => {
 
-	switch (config.type) {
+	switch (type) {
 
 		case 'gpio-pin':
-			return makeGpioPin(config)
+			return makeGpioPin({ description, config, publishChange, initialState: {} })
 
 		case 'thermostat':
-			return makeThermostat(config)
+			return makeThermostat({ description, config, publishChange, initialState: {} })
 
 		case 'adafruit-io-feed':
-			return makeAioFeed(config)
+			return makeAioFeed({ description, config, publishChange, initialState: {} })
+
 		default:
-			throw new Error(`Unsupported gateway config: ${config.type}.`)
+			throw new Error(`Unsupported thing config: ${type}.`)
 
 	}
 }
 
-const initializeGateway = async config => {
+const initializeGateway = ({ publishChange, things }) => async ({ type, description, config }) => {
 
-	switch (config.type) {
+	switch (type) {
 
 		case 'tradfri-gateway':
-			return makeTradfriGateway(config)
+			return makeTradfriGateway({ description, config, publishChange, things })
 
 		case 'serial-gateway':
-			return makeSerialGateway(config)
+			return makeSerialGateway({ description, config, publishChange, things })
 
 		default:
-			throw new Error(`Unsupported thing config: ${config.type}.`)
+			throw new Error(`Unsupported gateway config: ${type}.`)
 
 	}
 
@@ -57,29 +54,32 @@ const initializeGateway = async config => {
 
 const main = async () => {
 
+	const {
+		publishChange,
+		subscribeToChanges,
+		unsubscribeFromChanges
+	} = makeThingEvents()
+
 	const things = makeThingStore({
-		thingStateChanged
+		publishChange
 	})
 
 	handleSubscriptions({
 		subscriptions,
 		things,
-		subscribeToThingStateChanges
+		subscribeToChanges
 	})
 
-	thingConfigs.forEach(async thingConfig => {
-		things.add(await initializeThing(thingConfig))
-	})
+	const initializeThingWithDeps = initializeThing({ publishChange })
+	thingDefinitions.forEach(async thingDefinition => { things.add(await initializeThingWithDeps(thingDefinition)) })
 
-	const injectGatewayDependencies = config => ({ ...config, things, thingStateChanged })
-	gatewayConfigs.forEach(async gatewayConfig => {
-		await initializeGateway(injectGatewayDependencies(gatewayConfig))
-	})
+	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
+	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
 	initializeWebsocketApi({
 		things,
-		subscribeToThingStateChanges,
-		unsubscribeFromThingStateChanges
+		subscribeToChanges,
+		unsubscribeFromChanges
 	})
 
 }
