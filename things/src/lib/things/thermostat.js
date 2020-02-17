@@ -6,14 +6,13 @@ const TWO_MINUTES = 1000 * 60 * 2
 const DEBUG = true
 
 export const makeThermostat = async ({
-	id,
-	label,
-	hidden,
-	publishChange,
-	initialValues = {}
+	description,
+	// config,
+	initialState,
+	publishChange
 }) => {
 
-	DEBUG && console.log(`THERMOSTAT: initializing ${id}`)
+	DEBUG && console.log(`THERMOSTAT: initializing ${description.id}`)
 
 	let {
 		targetTemperature = 0,
@@ -22,14 +21,14 @@ export const makeThermostat = async ({
 		underrun = 0.2,
 		watchdogTimeout = TWO_MINUTES,
 		tickInterval = THIRTY_SECONDS
-	} = initialValues
+	} = initialState
 
 	let heatRequest = false
 	let lastCurrentTemperatureUpdate
 
 	const setHeatRequest = async newState => {
 		heatRequest = newState
-		publishChange(id)(['heatRequest'])
+		publishChange(description.id)(['heatRequest'])
 	}
 
 	const tick = async () => {
@@ -72,9 +71,7 @@ export const makeThermostat = async ({
 	// TODO: see if setters return before or after a tick is finished - tick could change heatRequest state
 	return makeThing({
 		type: 'thermostat',
-		id,
-		label,
-		hidden,
+		description,
 		publishChange
 	})({
 		targetTemperature: {

@@ -34,11 +34,13 @@ export const makeSerialGateway = async ({
 			} else {
 
 				const ambientSensor = await makeAmbientSensor({
-					id: thingId,
-					label: `Sensor with ID "${sensorId}" reporting via serial.`,
-					hidden: true,
-					publishChange,
-					initialValues: {
+					description: {
+						id: thingId,
+						label: `Sensor with ID "${sensorId}" reporting via serial.`,
+						hidden: true,
+						publishChange,
+					},
+					initialState: {
 						temperature
 					}
 				})

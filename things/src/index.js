@@ -12,24 +12,25 @@ import { initializeWebsocketApi } from './websocket-api'
 
 import {
 	subscriptions,
-	thingConfigs,
+	thingDefinitions,
 	gatewayConfigs
 } from './config'
 
-const initializeThing = async config => {
+const initializeThing = ({ publishChange }) => async ({ type, description, config }) => {
 
-	switch (config.type) {
+	switch (type) {
 
 		case 'gpio-pin':
-			return makeGpioPin(config)
+			return makeGpioPin({ description, config, publishChange, initialState: {} })
 
 		case 'thermostat':
-			return makeThermostat(config)
+			return makeThermostat({ description, config, publishChange, initialState: {} })
 
 		case 'adafruit-io-feed':
-			return makeAioFeed(config)
+			return makeAioFeed({ description, config, publishChange, initialState: {} })
+
 		default:
-			throw new Error(`Unsupported gateway config: ${config.type}.`)
+			throw new Error(`Unsupported thing config: ${type}.`)
 
 	}
 }
@@ -45,7 +46,7 @@ const initializeGateway = async config => {
 			return makeSerialGateway(config)
 
 		default:
-			throw new Error(`Unsupported thing config: ${config.type}.`)
+			throw new Error(`Unsupported gateway config: ${config.type}.`)
 
 	}
 
@@ -69,8 +70,8 @@ const main = async () => {
 		subscribeToChanges
 	})
 
-	const injectThingDependencies = config => ({ ...config, publishChange })
-	thingConfigs.forEach(async thingConfig => things.add(await initializeThing(injectThingDependencies(thingConfig))))
+	const initializeThingWithDeps = initializeThing({ publishChange })
+	thingDefinitions.forEach(async thingDefinition => { things.add(await initializeThingWithDeps(thingDefinition)) })
 
 	const injectGatewayDependencies = config => ({ ...config, things, publishChange })
 	gatewayConfigs.forEach(async gatewayConfig => await initializeGateway(injectGatewayDependencies(gatewayConfig)))

@@ -5,16 +5,14 @@ function Thing(functions) {
 
 export const makeThing = ({
 	type,
-	id,
-	label,
-	hidden = false,
+	description,
 	publishChange
 }) => (values = {}) => {
 
 	// get is synchronous, so should all getters on things be
 	const get = () => {
 
-		const resolvedValues = Object.entries(values)
+		const currentState = Object.entries(values)
 			.reduce(
 				(acc, [key, { get }]) => {
 					acc[key] = get()
@@ -25,10 +23,8 @@ export const makeThing = ({
 
 		return {
 			type,
-			id,
-			label,
-			hidden,
-			...resolvedValues
+			...description,
+			...currentState
 		}
 	}
 
@@ -53,13 +49,13 @@ export const makeThing = ({
 		)
 		const changedKeys = changes.filter(Boolean)
 		if (changedKeys.length) {
-			publishChange(id)(changedKeys)
+			publishChange(description.id)(changedKeys)
 		}
 	}
 
 	return new Thing({
 		type,
-		id,
+		id: description.id,
 		set,
 		get
 	})

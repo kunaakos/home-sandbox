@@ -7,30 +7,27 @@ const gpio = process.env.REAL_GPIO
 const DEBUG = true
 
 export const makeGpioPin = async ({
-	id,
-	label,
-	hidden,
-	publishChange,
-	pinNr
+	description,
+	config,
+	initialState,
+	publishChange
 }) => {
 
-	DEBUG && console.log(`GPIO: initializing using pin #${pinNr}`)
+	DEBUG && console.log(`GPIO: initializing using pin #${config.pinNr}`)
 
-	let pinState = false
+	let { pinState = false } = initialState
 
 	const updatePinState = async () => {
-		gpio && await gpio.write(pinNr, pinState)
-		DEBUG && console.log(`GPIO: pin #${pinNr} set to ${pinState}`)
+		gpio && await gpio.write(config.pinNr, pinState)
+		DEBUG && console.log(`GPIO: pin #${config.pinNr} set to ${pinState}`)
 	}
 
-	gpio && await gpio.setup(pinNr, gpio.DIR_OUT)
+	gpio && await gpio.setup(config.pinNr, gpio.DIR_OUT)
 	await updatePinState()
 
 	return makeThing({
 		type: 'switch',
-		id,
-		label,
-		hidden,
+		description,
 		publishChange
 	})({
 		state: {

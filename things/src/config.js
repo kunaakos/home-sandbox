@@ -1,34 +1,48 @@
-export const thingConfigs = [
+export const thingDefinitions = [
     {
         type: 'gpio-pin',
-        id: 'heat-request',
-        label: 'Heat request',
-        hidden: true,
-        pinNr: 7
+        description: {
+            id: 'heat-request',
+            label: 'Heat request',
+            hidden: true,
+        },
+        config: {
+            pinNr: 7
+        }
     },
     {
         type: 'thermostat',
-        id: 'thermostat',
-        label: 'Thermostat',
-        hidden: false,
+        description: {
+            id: 'thermostat',
+            label: 'Thermostat',
+            hidden: false,
+        }
     },
     {
         type: 'adafruit-io-feed',
-        id: 'aio-temp',
-        label: 'adafruit.io "temperature" feed',
-        hidden: true,
-        username: process.env.AIO_USERNAME,
-        aioKey: process.env.AIO_KEY,
-        feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
+        description: {
+            id: 'aio-temp',
+            label: 'adafruit.io "temperature" feed',
+            hidden: true,
+        },
+        config: {
+            username: process.env.AIO_USERNAME,
+            aioKey: process.env.AIO_KEY,
+            feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
+        }
     },
     {
         type: 'adafruit-io-feed',
-        id: 'aio-heat',
-        label: 'adafruit.io "heat" feed',
-        hidden: true,
-        username: process.env.AIO_USERNAME,
-        aioKey: process.env.AIO_KEY,
-        feedKey: process.env.AIO_FEED_KEY_HEAT
+        description: {
+            id: 'aio-heat',
+            label: 'adafruit.io "heat" feed',
+            hidden: true,
+        },
+        config: {
+            username: process.env.AIO_USERNAME,
+            aioKey: process.env.AIO_KEY,
+            feedKey: process.env.AIO_FEED_KEY_HEAT
+        }
     }
 ]
 

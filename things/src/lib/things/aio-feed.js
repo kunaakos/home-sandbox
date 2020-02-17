@@ -35,15 +35,19 @@ const updateAioFeed = ({
 }
 
 export const makeAioFeed = ({
-	id,
-	label,
-	publishChange,
-	username,
-	aioKey,
-	feedKey
+	description,
+	config,
+	// initialState,
+	publishChange
 }) => {
 
 	DEBUG && console.log(`AIO: initializing ${feedKey}`)
+
+	const {
+		username,
+		aioKey,
+		feedKey
+	} = config
 
 	const updateFeed = username && aioKey && feedKey
 		? updateAioFeed({ username, aioKey, feedKey })
@@ -57,9 +61,7 @@ export const makeAioFeed = ({
 	// nor does it return any value when read
 	return makeThing({
 		type: 'metrics',
-		id,
-		label,
-		hidden: true,
+		description,
 		publishChange
 	})({
 		value: {

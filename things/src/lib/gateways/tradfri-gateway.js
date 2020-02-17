@@ -76,10 +76,12 @@ const makeSwitchFromTradfriLightbulb = async device => {
 
 	return makeThing({
 		type: 'switch',
-		id,
-		label: labelFrom(device),
-		hidden: false,
-		publishStateChange: () => {}
+		description: {
+			id,
+			label: labelFrom(device),
+			hidden: false,
+		},
+		publishChange: () => {}
 	})({
 		state: {
 			get: () => state,
@@ -113,10 +115,12 @@ const makeSwitchFromTradfriPlug = async device => {
 
 	return makeThing({
 		type: 'switch',
-		id,
-		label: labelFrom(device),
-		hidden: false,
-		publishStateChange: () => {}
+		description: {
+			id,
+			label: labelFrom(device),
+			hidden: false,
+		},
+		publishChange: () => {}
 	})({
 		state: {
 			get: () => state,
