@@ -9,7 +9,7 @@ import EventEmitter from 'events'
 
 import { generateUuid } from './utils'
 
-function ThingEvents (functions) {
+function ThingEvents(functions) {
 	Object.assign(this, functions)
 }
 

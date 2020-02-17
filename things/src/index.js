@@ -42,7 +42,7 @@ const initializeGateway = ({ publishChange, things }) => ({ type, description, c
 
 		case 'serial-gateway':
 			return makeSerialGateway({ description, config, publishChange, things })
-		
+
 		case 'rpi-gpio-gateway':
 			return makeRpiGpioGateway({ description, config, publishChange, things })
 

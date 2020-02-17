@@ -4,8 +4,8 @@ const DEBUG = true
 
 export const makeSwitch = ({
 	description,
-    effects,
-    initialState,
+	effects,
+	initialState,
 	publishChange
 }) => {
 
@@ -23,13 +23,13 @@ export const makeSwitch = ({
 				set: async newState => {
 					if (isOn === Boolean(newState)) { return false }
 					const hasChanged = await effects.changeState(newState)
-                    if (hasChanged) {
-                        isOn = Boolean(newState)
-                        DEBUG && console.log(`SWITCH: ${description.id} turned ${ isOn ? 'on' : 'off'}`)
-                        return true
-                    } else {
-                        return false
-                    }
+					if (hasChanged) {
+						isOn = Boolean(newState)
+						DEBUG && console.log(`SWITCH: ${description.id} turned ${isOn ? 'on' : 'off'}`)
+						return true
+					} else {
+						return false
+					}
 				}
 			}
 		}
