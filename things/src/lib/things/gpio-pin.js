@@ -1,4 +1,4 @@
-import { makeThing } from '../thing-tools'
+import { makeThing } from '../thing'
 
 const gpio = process.env.REAL_GPIO
 	? require('rpi-gpio').promise

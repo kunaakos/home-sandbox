@@ -1,4 +1,4 @@
-import { makeThing } from '../thing-tools' 
+import { makeThing } from '../thing' 
 
 const DEBUG = true
 

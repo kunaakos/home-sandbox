@@ -1,4 +1,4 @@
-import { makeThing } from '../thing-tools'
+import { makeThing } from '../thing'
 
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
