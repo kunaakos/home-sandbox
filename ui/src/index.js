@@ -35,14 +35,28 @@ const Switch = ({ thing, setThing }) => (
 const Light = ({ thing, setThing }) => {
 
 	const brightnessSliderRef = useRef(null)
+	const temperatureSliderRef = useRef(null)
+	const colorPickerRef = useRef(null)
+
 	useEffect(() => {
 		brightnessSliderRef.current && (brightnessSliderRef.current.value = thing.brightness)
 	}, [thing.brightness])
 
-	const setThingDebounced = debounce(setThing, 200)
+	useEffect(() => {
+		temperatureSliderRef.current && (temperatureSliderRef.current.value = thing.colorTemperature)
+	}, [thing.colorTemperature])
 
-	const showDimmer = thing.isDimmable
+	useEffect(() => {
+		colorPickerRef.current && (colorPickerRef.current.value = `#${thing.color}`)
+	}, [thing.color])
+
+	const setThingDebounced = debounce(setThing, 300)
+
+	const showBrightnessSlider = thing.isDimmable
+	const showTemperatureSlider = Boolean(thing.colorTemperatureRange)
 	const showColorPicker = thing.isColor
+
+	const numberOfControls = Number(showBrightnessSlider) + Number(showTemperatureSlider) + Number(showColorPicker)
 
 	return (
 		<div data-id={thing.id}>
@@ -54,8 +68,8 @@ const Light = ({ thing, setThing }) => {
 							I can
 							&nbsp;<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>&nbsp;
 							for you
-							{showDimmer || showColorPicker ? ' or adjust its ' : null}
-							{showDimmer && <React.Fragment>
+							{numberOfControls > 0 ? ' or adjust its ' : null}
+							{showBrightnessSlider && <React.Fragment>
 								brightness
 								&nbsp;<input
 									type="range"
@@ -66,13 +80,25 @@ const Light = ({ thing, setThing }) => {
 									onChange={e => { setThingDebounced(thing.id, { brightness: e.target.value }) }}
 								/>&nbsp;
 							</React.Fragment>}
-							{showDimmer && showColorPicker ? ' and ' : null}
+							{numberOfControls > 1 ? ' and ' : null}
 							{showColorPicker && <React.Fragment>
 								color
 								&nbsp;<input
 									type="color"
 									defaultValue={`#${thing.color}`}
+									ref={colorPickerRef}
 									onChange={e => { setThingDebounced(thing.id, { color: e.target.value.replace(/#/, '') }) }}
+								/>&nbsp;
+							</React.Fragment>}
+							{showTemperatureSlider && <React.Fragment>
+								color temperature
+								&nbsp;<input
+									type="range"
+									min={thing.colorTemperatureRange[0]}
+									max={thing.colorTemperatureRange[1]}
+									defaultValue={thing.colorTemperature}
+									ref={temperatureSliderRef}
+									onChange={e => { setThingDebounced(thing.id, { colorTemperature: e.target.value }) }}
 								/>&nbsp;
 							</React.Fragment>}
 							.

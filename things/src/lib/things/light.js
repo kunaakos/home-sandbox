@@ -14,12 +14,14 @@ export const makeLight = ({
 	const {
 		isColor,
 		isDimmable,
+		colorTemperatureRange
 	} = description
 
 	let {
 		isOn = false,
 		brightness = 100,
-		color= 'ffffff',
+		color = 'ffffff', // TODO: hue/saturation values instead of RGB? makes more sense for lights
+		colorTemperature = 4000
 	} = initialState
 
 	return makeThing({
@@ -66,6 +68,22 @@ export const makeLight = ({
 						if (hasChanged) {
 							color = newColor
 							DEBUG && console.log(`LIGHT: ${description.id} color set to ${color}%`)
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+			}),
+			...(Boolean(colorTemperatureRange) && {
+				colorTemperature: {
+					get: () => colorTemperature,
+					set: async newColorTemperature => {
+						if (colorTemperature === newColorTemperature) { return false }
+						const hasChanged = await effects.changeColorTemperature(newColorTemperature)
+						if (hasChanged) {
+							colorTemperature = newColorTemperature
+							DEBUG && console.log(`LIGHT: ${description.id} colorTemperature set to ${colorTemperature}%`)
 							return true
 						} else {
 							return false
