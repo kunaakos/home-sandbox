@@ -67,23 +67,36 @@ const setTradfriLightbulbState = async (device, newState) => {
 const getTradfriLightbulbBrightness = device => device.lightList[0].dimmer
 const setTradfriLightbulbBrightness = async (device, brightness) => device.lightList[0].setBrightness(brightness)
 
-const makeLightFromTradfriLightbulb = device =>
-	makeLight({
+const getTradfriLightbulbColor = device => device.lightList[0].color
+const setTradfriLightbulbColor = async (device, color) => await device.lightList[0].setColor(color)
+
+const makeLightFromTradfriLightbulb = device => {
+	
+	const isDimmable = device.lightList[0].isDimmable
+	const isColor = device.lightList[0].spectrum === 'rgb'
+	
+	return makeLight({
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
 			hidden: false,
+			isDimmable,
+			isColor
 		},
 		initialState: {
 			isOn: getTradfriLightbulbState(device),
-			brightness: getTradfriLightbulbBrightness(device)
+			...(isDimmable && { brightness: getTradfriLightbulbBrightness(device) }),
+			...(isColor && { color: getTradfriLightbulbColor(device) })
 		},
 		effects: {
 			changeState: async newState => { await setTradfriLightbulbState(device, Boolean(newState)) },
-			changeBrightness: async newBrightness => { await setTradfriLightbulbBrightness(device, newBrightness) }
+			...(isDimmable && { changeBrightness: async newBrightness => { await setTradfriLightbulbBrightness(device, newBrightness) } }),
+			...(isColor && { changeColor: async newColor => { await setTradfriLightbulbColor(device, newColor) } })
 		},
 		publishChange: () => { }
 	})
+
+}
 
 const getTradfriPlugState = device => device.plugList[0].onOff
 const setTradfriPlugState = async (device, newState) => {

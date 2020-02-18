@@ -11,10 +11,16 @@ export const makeLight = ({
 
 	DEBUG && console.log(`LIGHT: initializing ${description.id}`)
 
+	const {
+		isColor,
+		isDimmable,
+	} = description
+
 	let {
-        isOn = false,
-        brightness = 100
-    } = initialState
+		isOn = false,
+		brightness = 100,
+		color= 'ffffff',
+	} = initialState
 
 	return makeThing({
 		type: 'light',
@@ -34,22 +40,39 @@ export const makeLight = ({
 						return false
 					}
 				}
-            },
-            brightness: {
-                get: () => brightness,
-                set: async newBrightness => {
-                    if (brightness === newBrightness) { return false }
-                    const hasChanged = await effects.changeBrightness(newBrightness)
-                    if (hasChanged) {
-                        brightness = newBrightness
-						DEBUG && console.log(`LIGHT: ${description.id} brightness set to ${brightness}%`)
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-            }
-        
+			},
+			...(isDimmable && {
+				brightness: {
+					get: () => brightness,
+					set: async newBrightness => {
+						if (brightness === newBrightness) { return false }
+						const hasChanged = await effects.changeBrightness(newBrightness)
+						if (hasChanged) {
+							brightness = newBrightness
+							DEBUG && console.log(`LIGHT: ${description.id} brightness set to ${brightness}%`)
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+			}),
+			...(isColor && {
+				color: {
+					get: () => color,
+					set: async newColor => {
+						if (color === newColor) { return false }
+						const hasChanged = await effects.changeColor(newColor)
+						if (hasChanged) {
+							color = newColor
+							DEBUG && console.log(`LIGHT: ${description.id} color set to ${color}%`)
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+			})
 		}
 	})
 }

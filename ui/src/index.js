@@ -20,7 +20,7 @@ const UnsupportedThing = ({ thing }) => (
 )
 
 const Switch = ({ thing, setThing }) => (
-	<div>
+	<div data-id={thing.id}>
 		<h3>🔌 {thing.label}</h3>
 		<p>
 			It's {thing.isOn ? 'on ✅' : 'off ❌'}. I can {
@@ -41,30 +41,47 @@ const Light = ({ thing, setThing }) => {
 
 	const setThingDebounced = debounce(setThing, 200)
 
+	const showDimmer = thing.isDimmable
+	const showColorPicker = thing.isColor
+
 	return (
-		<div>
+		<div data-id={thing.id}>
 			<h3>💡 {thing.label}</h3>
 			<p>
-				It's {thing.isOn ? 'on ✅' : 'off ❌'}. I can {
-					thing.isOn
-						? (<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>)
-						: (<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>)
-				} for you{!isNaN(thing.brightness)
-					? <React.Fragment>
-						, or tweak
-						&nbsp;
-						<input
-							type="range"
-							min="1"
-							max="100"
-							defaultValue={thing.brightness}
-							ref={brightnessSliderRef}
-							onChange={e => { setThingDebounced(thing.id, { brightness: e.target.value }) }}
-						/>
-						&nbsp;
-						its brightness.
-					</React.Fragment>
-					: '.'
+				It's {thing.isOn ? 'on ✅. ' : 'off ❌. '}
+				{thing.isOn
+						? <React.Fragment>
+							I can
+							&nbsp;<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>&nbsp;
+							for you
+							{showDimmer || showColorPicker ? ' or adjust its ' : null}
+							{showDimmer && <React.Fragment>
+								brightness
+								&nbsp;<input
+									type="range"
+									min="1"
+									max="100"
+									defaultValue={thing.brightness}
+									ref={brightnessSliderRef}
+									onChange={e => { setThingDebounced(thing.id, { brightness: e.target.value }) }}
+								/>&nbsp;
+							</React.Fragment>}
+							{showDimmer && showColorPicker ? ' and ' : null}
+							{showColorPicker && <React.Fragment>
+								color
+								&nbsp;<input
+									type="color"
+									defaultValue={`#${thing.color}`}
+									onChange={e => { setThingDebounced(thing.id, { color: e.target.value.replace(/#/, '') }) }}
+								/>&nbsp;
+							</React.Fragment>}
+							.
+						</React.Fragment>
+						: <React.Fragment>
+							I can
+							&nbsp;<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>&nbsp;
+							for you.
+						</React.Fragment>
 				}
 			</p>
 		</div>
@@ -79,7 +96,7 @@ const Thermostat = ({ thing, setThing }) => {
 		})
 	}
 	return (
-		<div>
+		<div data-id={thing.id}>
 			<h3>🌡 {thing.label}</h3>
 			<p>
 				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C. The heat should currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}.<br />
