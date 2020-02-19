@@ -1,4 +1,7 @@
-import { makeThing } from '../thing'
+import {
+	makeThing,
+	setterFromEffect
+} from '../thing'
 
 const DEBUG = true
 
@@ -17,12 +20,23 @@ export const makeLight = ({
 		colorTemperatureRange
 	} = description
 
-	let {
-		isOn = false,
-		brightness = 100,
-		color = 'ffffff', // TODO: hue/saturation values instead of RGB? makes more sense for lights
-		colorTemperature = 4000
-	} = initialState
+	const defaults = {
+		isOn: false,
+		...(Boolean(isDimmable) && {
+			brightness: 100
+		}),
+		...(Boolean(isColor) && {
+			color: 'ffffff'
+		}),
+		...(Boolean(colorTemperatureRange) && {
+			colorTemperature: 4000
+		})
+	}
+
+	const state = {
+		defaults,
+		...initialState
+	}
 
 	return makeThing({
 		type: 'light',
@@ -30,65 +44,25 @@ export const makeLight = ({
 		publishChange,
 		mutators: {
 			isOn: {
-				get: () => isOn,
-				set: async newState => {
-					if (isOn === Boolean(newState)) { return false }
-					const hasChanged = await effects.changeState(newState)
-					if (hasChanged) {
-						isOn = Boolean(newState)
-						DEBUG && console.log(`LIGHT: ${description.id} turned ${isOn ? 'on' : 'off'}`)
-						return true
-					} else {
-						return false
-					}
-				}
+				get: () => state.isOn,
+				set: setterFromEffect(effects.changeState, state, 'isOn') 
 			},
 			...(isDimmable && {
 				brightness: {
-					get: () => brightness,
-					set: async newBrightness => {
-						if (brightness === newBrightness) { return false }
-						const hasChanged = await effects.changeBrightness(newBrightness)
-						if (hasChanged) {
-							brightness = newBrightness
-							DEBUG && console.log(`LIGHT: ${description.id} brightness set to ${brightness}%`)
-							return true
-						} else {
-							return false
-						}
-					}
+					get: () => state.brightness,
+					set: setterFromEffect(effects.changeBrightness, state, 'brightness')
 				}
 			}),
 			...(isColor && {
 				color: {
-					get: () => color,
-					set: async newColor => {
-						if (color === newColor) { return false }
-						const hasChanged = await effects.changeColor(newColor)
-						if (hasChanged) {
-							color = newColor
-							DEBUG && console.log(`LIGHT: ${description.id} color set to ${color}%`)
-							return true
-						} else {
-							return false
-						}
-					}
+					get: () => state.color,
+					set: setterFromEffect(effects.changeColor, state, 'color')
 				}
 			}),
 			...(Boolean(colorTemperatureRange) && {
 				colorTemperature: {
-					get: () => colorTemperature,
-					set: async newColorTemperature => {
-						if (colorTemperature === newColorTemperature) { return false }
-						const hasChanged = await effects.changeColorTemperature(newColorTemperature)
-						if (hasChanged) {
-							colorTemperature = newColorTemperature
-							DEBUG && console.log(`LIGHT: ${description.id} colorTemperature set to ${colorTemperature}%`)
-							return true
-						} else {
-							return false
-						}
-					}
+					get: () => state.colorTemperature,
+					set: setterFromEffect(effects.changeColorTemperature, state, 'colorTemperature')
 				}
 			})
 		}

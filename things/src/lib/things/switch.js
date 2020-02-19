@@ -1,4 +1,7 @@
-import { makeThing } from '../thing'
+import {
+	makeThing,
+	setterFromEffect
+} from '../thing'
 
 const DEBUG = true
 
@@ -11,7 +14,10 @@ export const makeSwitch = ({
 
 	DEBUG && console.log(`SWITCH: initializing ${description.id}`)
 
-	let { isOn = false } = initialState
+	const state = {
+		isOn: false,
+		...initialState
+	}
 
 	return makeThing({
 		type: 'switch',
@@ -19,18 +25,8 @@ export const makeSwitch = ({
 		publishChange,
 		mutators: {
 			isOn: {
-				get: () => isOn,
-				set: async newState => {
-					if (isOn === Boolean(newState)) { return false }
-					const hasChanged = await effects.changeState(newState)
-					if (hasChanged) {
-						isOn = Boolean(newState)
-						DEBUG && console.log(`SWITCH: ${description.id} turned ${isOn ? 'on' : 'off'}`)
-						return true
-					} else {
-						return false
-					}
-				}
+				get: () => state.isOn,
+				set: setterFromEffect(effects.changeState, state, 'isOn')
 			}
 		}
 	})
