@@ -65,10 +65,13 @@ export const makeAioFeed = ({
 		mutators: {
 			value: {
 				set: async newValue => {
-					updateFeed && await updateFeed(newValue)
-					return false
-				},
-				get: () => null
+					try {
+						updateFeed && await updateFeed(newValue)
+						return true
+					} catch (error) {
+						return false
+					}
+				}
 			}
 		}
 	})
