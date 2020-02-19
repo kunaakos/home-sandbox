@@ -72,9 +72,10 @@ export const makeThing = ({
 			// attempt a mutation if needed
 			.map(
 				async ([key, newValue]) => {
-					const attemptMutation = isReadable(mutators, key)
-						? mutators[key].get() !== newValue // no need for a mutation if the value hasn't changed
-						: true // write-only properties are always mutated
+					const attemptMutation =
+						!isReadable(mutators, key) || // write-only properties...
+						Boolean(mutators[key].skipEqualityCheck) || // or those that are set to skip the following check are always mutated
+						mutators[key].get() !== newValue // if the equality check is enabled, mutations are only attempted for changed
 
 					return attemptMutation
 						? [key, await mutators[key].set(newValue)] // TODO: check if value returned by setter was indeed a boolean! something went wrong if not

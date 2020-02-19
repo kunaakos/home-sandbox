@@ -22,30 +22,32 @@ export const makeThermostat = ({
 		tickInterval = THIRTY_SECONDS
 	} = initialState
 
-	let heatRequest = false
-	let lastCurrentTemperatureUpdate
+	const state = {
+		heatRequest: false,
+		lastCurrentTemperatureUpdate: 0,
+		timedOut: true
+	}
 
-	const setHeatRequest = newState => {
-		heatRequest = newState
+	const setHeatRequest = newHeatRequestState => {
+		state.heatRequest = newHeatRequestState
 		publishChange(description.id)(['heatRequest'])
 	}
 
 	const tick = () => {
 
-		// shut down if not updated in a long time
 		// TODO: implement watchdog timer utility
-		if (
-			heatRequest === true &&
-			Date.now() - lastCurrentTemperatureUpdate > watchdogTimeout
-		) {
-			DEBUG && console.log(`THERMOSTAT: temperatures not updated, turning off heating`)
+		if (state.timedOut) {
+			return
+		} else if (Date.now() - state.lastCurrentTemperatureUpdate > watchdogTimeout) {
+			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
+			state.timedOut = true
 			setHeatRequest(false)
 			return
 		}
 
 		// turn ON if temperature drops below target - threshold
 		if (
-			heatRequest === false &&
+			state.heatRequest === false &&
 			currentTemperature < targetTemperature - underrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
@@ -55,7 +57,7 @@ export const makeThermostat = ({
 
 		// turn OFF if temperature reached target
 		if (
-			heatRequest === true &&
+			state.heatRequest === true &&
 			currentTemperature > targetTemperature + overrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
@@ -75,7 +77,6 @@ export const makeThermostat = ({
 			targetTemperature: {
 				get: () => targetTemperature,
 				set: async newTargetTemperature => {
-					if (newTargetTemperature === targetTemperature) { return false }
 					targetTemperature = newTargetTemperature
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
 					tick()
@@ -83,9 +84,11 @@ export const makeThermostat = ({
 				}
 			},
 			currentTemperature: {
+				skipEqualityCheck: true,
 				get: () => currentTemperature,
 				set: async newCurrentTemperature => {
-					if (newCurrentTemperature === currentTemperature) { return false }
+					state.lastCurrentTemperatureUpdate = Date.now()
+					state.timedOut = false
 					currentTemperature = newCurrentTemperature
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
 					tick()
@@ -93,8 +96,7 @@ export const makeThermostat = ({
 				}
 			},
 			heatRequest: {
-				get: () => heatRequest,
-				set: async () => false // read-only
+				get: () => state.heatRequest,
 			}
 		}
 	})
