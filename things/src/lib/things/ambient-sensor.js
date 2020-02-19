@@ -18,6 +18,7 @@ export const makeAmbientSensor = ({
 		publishChange,
 		mutators: {
 			temperature: {
+				type: 'number',
 				skipEqualityCheck: true,
 				set: async newValue => {
 					temperature = newValue

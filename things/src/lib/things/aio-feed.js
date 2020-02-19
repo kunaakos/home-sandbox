@@ -64,6 +64,7 @@ export const makeAioFeed = ({
 		publishChange,
 		mutators: {
 			value: {
+				type: 'number',
 				set: async newValue => {
 					try {
 						updateFeed && await updateFeed(newValue)

@@ -25,6 +25,7 @@ export const makeSwitch = ({
 		publishChange,
 		mutators: {
 			isOn: {
+				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect(effects.changeState, state, 'isOn')
 			}

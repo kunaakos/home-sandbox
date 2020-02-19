@@ -75,6 +75,7 @@ export const makeThermostat = ({
 		publishChange,
 		mutators: {
 			targetTemperature: {
+				type: 'number',
 				get: () => targetTemperature,
 				set: async newTargetTemperature => {
 					targetTemperature = newTargetTemperature
@@ -84,6 +85,7 @@ export const makeThermostat = ({
 				}
 			},
 			currentTemperature: {
+				type: 'number',
 				skipEqualityCheck: true,
 				get: () => currentTemperature,
 				set: async newCurrentTemperature => {
@@ -96,6 +98,7 @@ export const makeThermostat = ({
 				}
 			},
 			heatRequest: {
+				type: 'boolean',
 				get: () => state.heatRequest,
 			}
 		}

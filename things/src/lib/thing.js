@@ -93,11 +93,14 @@ export const makeThing = ({
 		}
 	}
 
+	const typeOf = key => mutators[key] && mutators[key].type
+
 	return new Thing({
 		type,
 		id: description.id,
 		set,
-		get
+		get,
+		typeOf
 	})
 }
 
