@@ -56,27 +56,37 @@ export const connect = async ({
 	}
 }
 
+const neverPublishChange = () => () => { console.warn('Something is borked, a tradfri device advertised a state change.') }
+
 const thingIdFrom = instanceId => `TRADFRI__${instanceId}`
 const labelFrom = device => device.name
 
 const getTradfriLightbulbState = device => device.lightList[0].onOff
-const setTradfriLightbulbState = async (device, newState) => {
+const setTradfriLightbulbState = device => async newState => {
 	newState
 		? await device.lightList[0].turnOn()
 		: await device.lightList[0].turnOff()
+	return null
 }
 
 const getTradfriLightbulbBrightness = device => device.lightList[0].dimmer
-const setTradfriLightbulbBrightness = async (device, brightness) => device.lightList[0].setBrightness(brightness)
+const setTradfriLightbulbBrightness = device => async brightness => {
+	await device.lightList[0].setBrightness(brightness)
+	return null
+}
 
 const getTradfriLightbulbColor = device => device.lightList[0].color
-const setTradfriLightbulbColor = async (device, color) => await device.lightList[0].setColor(color)
+const setTradfriLightbulbColor = device => async color => {
+	await device.lightList[0].setColor(color)
+	return null
+}
 
 // the tradfri client api takes a value between 0 and 100, where 0 stands for 4000k and 100 stands for 2200k
 const getTradfriLightbulbColorTemperature = device => Math.abs(100 - device.lightList[0].colorTemperature) * 18 + 2200
-const setTradfriLightbulbColorTemperature = async (device, colorTemperature) => {
+const setTradfriLightbulbColorTemperature = device => async colorTemperature => {
 	const percentage = Math.abs(100 -Math.round((clamp(colorTemperature, 2200, 4000) - 2200) / 18))
 	await device.lightList[0].setColorTemperature(percentage)
+	return null
 }
 
 const makeLightFromTradfriLightbulb = device => {
@@ -101,12 +111,12 @@ const makeLightFromTradfriLightbulb = device => {
 			...(isAdjustableColorTemperature && { colorTemperature: getTradfriLightbulbColorTemperature(device) })
 		},
 		effects: {
-			changeState: async newState => { await setTradfriLightbulbState(device, Boolean(newState)) },
-			...(isDimmable && { changeBrightness: async newBrightness => { await setTradfriLightbulbBrightness(device, newBrightness) } }),
-			...(isColor && { changeColor: async newColor => { await setTradfriLightbulbColor(device, newColor) } }),
-			...(isAdjustableColorTemperature && { changeColorTemperature: async newColorTemperature => { await setTradfriLightbulbColorTemperature(device, newColorTemperature) } })
+			changeState: setTradfriLightbulbState(device),
+			...(isDimmable && { changeBrightness: setTradfriLightbulbBrightness(device) }),
+			...(isColor && { changeColor: setTradfriLightbulbColor(device) }),
+			...(isAdjustableColorTemperature && { changeColorTemperature: setTradfriLightbulbColorTemperature(device) })
 		},
-		publishChange: () => { }
+		publishChange: neverPublishChange
 	})
 
 }
@@ -128,7 +138,7 @@ const makeSwitchFromTradfriPlug = device =>
 		initialState: {
 			isOn: getTradfriPlugState(device)
 		},
-		publishChange: () => { },
+		publishChange: neverPublishChange,
 		effects: {
 			changeState: async newState => { await setTradfriPlugState(device, Boolean(newState)) }
 		}

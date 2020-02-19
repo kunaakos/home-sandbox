@@ -77,7 +77,7 @@ export const makeThing = ({
 						: true // write-only properties are always mutated
 
 					return attemptMutation
-						? [key, await mutators[key].set(newValue)]
+						? [key, await mutators[key].set(newValue)] // TODO: check if value returned by setter was indeed a boolean! something went wrong if not
 						: [key, null]
 				}	
 			)
@@ -86,7 +86,7 @@ export const makeThing = ({
 		const changedKeys = mutationResults
 			.filter(([, result]) => Boolean(result)) // no need to publish changes for failed or unattempted mutations
 			.map(([key,]) => key)
-
+		
 		if (changedKeys.length) {
 			publishChange(description.id)(changedKeys)
 		}
@@ -98,4 +98,15 @@ export const makeThing = ({
 		set,
 		get
 	})
-} 
+}
+
+export const setterFromEffect = (effect, state, key) => async newValue => {
+	const result = await effect(newValue)
+	if (result === null) {
+		return false
+	} else {
+		// the new state should be a validated, rounded etc. value returned by the effect
+		state[key] = result
+		return true
+	}
+}
