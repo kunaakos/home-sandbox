@@ -4,7 +4,7 @@
  * Creates things and updates them.
  */
 
- import clamp from 'lodash/clamp'
+import clamp from 'lodash/clamp'
 
 import {
 	discoverGateway,
@@ -84,17 +84,17 @@ const setTradfriLightbulbColor = device => async color => {
 // the tradfri client api takes a value between 0 and 100, where 0 stands for 4000k and 100 stands for 2200k
 const getTradfriLightbulbColorTemperature = device => Math.abs(100 - device.lightList[0].colorTemperature) * 18 + 2200
 const setTradfriLightbulbColorTemperature = device => async colorTemperature => {
-	const percentage = Math.abs(100 -Math.round((clamp(colorTemperature, 2200, 4000) - 2200) / 18))
+	const percentage = Math.abs(100 - Math.round((clamp(colorTemperature, 2200, 4000) - 2200) / 18))
 	await device.lightList[0].setColorTemperature(percentage)
 	return null
 }
 
 const makeLightFromTradfriLightbulb = device => {
-	
+
 	const isDimmable = device.lightList[0].isDimmable
 	const isColor = device.lightList[0].spectrum === 'rgb'
 	const isAdjustableColorTemperature = device.lightList[0].spectrum === 'white'
-	
+
 	return makeLight({
 		description: {
 			id: thingIdFrom(device.instanceId),
@@ -122,10 +122,11 @@ const makeLightFromTradfriLightbulb = device => {
 }
 
 const getTradfriPlugState = device => device.plugList[0].onOff
-const setTradfriPlugState = async (device, newState) => {
+const setTradfriPlugState = device => async newState => {
 	newState
 		? await device.plugList[0].turnOn()
 		: await device.plugList[0].turnOff()
+	return null
 }
 
 const makeSwitchFromTradfriPlug = device =>
@@ -138,10 +139,10 @@ const makeSwitchFromTradfriPlug = device =>
 		initialState: {
 			isOn: getTradfriPlugState(device)
 		},
-		publishChange: neverPublishChange,
 		effects: {
-			changeState: async newState => { await setTradfriPlugState(device, Boolean(newState)) }
-		}
+			changeState: setTradfriPlugState(device)
+		},
+		publishChange: neverPublishChange
 	})
 
 export const makeTradfriGateway = ({

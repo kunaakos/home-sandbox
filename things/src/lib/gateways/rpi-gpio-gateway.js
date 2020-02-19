@@ -14,10 +14,12 @@ const DEBUG = true
 // initialize pin as output and return async function that can be called to set pin state
 const initOutputPin = async pinNr => {
 	gpio && await gpio.setup(pinNr, gpio.DIR_OUT)
+
+	// return value is an effect function
 	return async newState => {
 		gpio && await gpio.write(pinNr, newState)
 		DEBUG && console.log(`RPI GPIO: pin #${pinNr} set to ${newState}`)
-		return true
+		return newState
 	}
 }
 
@@ -37,7 +39,7 @@ export const makeRpiGpioGateway = ({
 		const changeState = await initOutputPin(config.pinNr)
 		await changeState(initialState.isOn)
 
-		things.add(await makeSwitch({
+		things.add(makeSwitch({
 			description,
 			initialState,
 			publishChange,
