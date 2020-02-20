@@ -1,3 +1,4 @@
+import { makeWatchdog } from '../watchdog'
 import { makeThing } from '../thing'
 
 const THIRTY_SECONDS = 1000 * 30
@@ -23,29 +24,28 @@ export const makeThermostat = ({
 	} = initialState
 
 	const state = {
-		heatRequest: false,
-		lastCurrentTemperatureUpdate: 0,
-		timedOut: true
+		heatRequest: false
 	}
+
+	const watchdog = makeWatchdog({
+		onTimedOut: () => {
+			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
+			setHeatRequest(false)
+		},
+		interval: watchdogTimeout
+	})
 
 	const setHeatRequest = newHeatRequestState => {
 		state.heatRequest = newHeatRequestState
 		publishChange(description.id)(['heatRequest'])
 	}
 
-	const tick = () => {
+	const updateHeatRequest = () => {
 
-		// TODO: implement watchdog timer utility
-		if (state.timedOut) {
-			return
-		} else if (Date.now() - state.lastCurrentTemperatureUpdate > watchdogTimeout) {
-			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
-			state.timedOut = true
-			setHeatRequest(false)
+		if (watchdog.timedOut()) {
 			return
 		}
 
-		// turn ON if temperature drops below target - threshold
 		if (
 			state.heatRequest === false &&
 			currentTemperature < targetTemperature - underrun
@@ -55,7 +55,6 @@ export const makeThermostat = ({
 			return
 		}
 
-		// turn OFF if temperature reached target
 		if (
 			state.heatRequest === true &&
 			currentTemperature > targetTemperature + overrun
@@ -67,7 +66,7 @@ export const makeThermostat = ({
 
 	}
 
-	const tickIntervalHandle = setInterval(() => tick(), tickInterval)
+	const tickIntervalHandle = setInterval(updateHeatRequest, tickInterval)
 
 	return makeThing({
 		type: 'thermostat',
@@ -80,7 +79,7 @@ export const makeThermostat = ({
 				set: async newTargetTemperature => {
 					targetTemperature = newTargetTemperature
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
-					tick()
+					updateHeatRequest()
 					return true
 				}
 			},
@@ -89,11 +88,10 @@ export const makeThermostat = ({
 				skipEqualityCheck: true,
 				get: () => currentTemperature,
 				set: async newCurrentTemperature => {
-					state.lastCurrentTemperatureUpdate = Date.now()
-					state.timedOut = false
+					watchdog.pet()
 					currentTemperature = newCurrentTemperature
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
-					tick()
+					updateHeatRequest()
 					return true
 				}
 			},
