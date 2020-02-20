@@ -8,23 +8,25 @@ const DEBUG = process.env.DEBUG
 
 export const makeThermostat = ({
 	description,
-	initialState,
+	config = {},
+	initialState = {},
 	publishChange
 }) => {
 
 	DEBUG && console.log(`THERMOSTAT: initializing ${description.id}`)
 
 	let {
-		targetTemperature = 0,
-		currentTemperature = 0,
 		overrun = 0.1,
 		underrun = 0.2,
 		watchdogTimeout = TWO_MINUTES,
 		tickInterval = THIRTY_SECONDS
-	} = initialState
+	} = config
 
 	const state = {
-		heatRequest: false
+		heatRequest: false,
+		targetTemperature: 0,
+		currentTemperature: 0,
+		...initialState
 	}
 
 	const watchdog = makeWatchdog({
@@ -48,7 +50,7 @@ export const makeThermostat = ({
 
 		if (
 			state.heatRequest === false &&
-			currentTemperature < targetTemperature - underrun
+			state.currentTemperature < state.targetTemperature - underrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
 			setHeatRequest(true)
@@ -57,7 +59,7 @@ export const makeThermostat = ({
 
 		if (
 			state.heatRequest === true &&
-			currentTemperature > targetTemperature + overrun
+			state.currentTemperature > state.targetTemperature + overrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
 			setHeatRequest(false)
@@ -75,10 +77,10 @@ export const makeThermostat = ({
 		mutators: {
 			targetTemperature: {
 				type: 'number',
-				get: () => targetTemperature,
+				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
-					targetTemperature = newTargetTemperature
-					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
+					state.targetTemperature = newTargetTemperature
+					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
 					updateHeatRequest()
 					return true
 				}
@@ -86,11 +88,11 @@ export const makeThermostat = ({
 			currentTemperature: {
 				type: 'number',
 				skipEqualityCheck: true,
-				get: () => currentTemperature,
+				get: () => state.currentTemperature,
 				set: async newCurrentTemperature => {
 					watchdog.pet()
-					currentTemperature = newCurrentTemperature
-					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
+					state.currentTemperature = newCurrentTemperature
+					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
 					updateHeatRequest()
 					return true
 				}
