@@ -32,20 +32,18 @@ export const makeThermostat = ({
 	const watchdog = makeWatchdog({
 		onTimedOut: () => {
 			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
-			setHeatRequest(false)
+			state.heatRequest = false
+			publishChange(description.id)(['heatRequest'])
 		},
 		interval: watchdogTimeout
 	})
 
-	const setHeatRequest = newHeatRequestState => {
-		state.heatRequest = newHeatRequestState
-		publishChange(description.id)(['heatRequest'])
-	}
-
+	// return value is true if a state change occured, false otherwise
+	// NOTE: this does function does NOT advertise a state change, make sure to call publishChange if it returned true
 	const updateHeatRequest = () => {
 
 		if (watchdog.timedOut()) {
-			return
+			return false
 		}
 
 		if (
@@ -53,8 +51,8 @@ export const makeThermostat = ({
 			state.currentTemperature < state.targetTemperature - underrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
-			setHeatRequest(true)
-			return
+			state.heatRequest = true
+			return true
 		}
 
 		if (
@@ -62,9 +60,11 @@ export const makeThermostat = ({
 			state.currentTemperature > state.targetTemperature + overrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
-			setHeatRequest(false)
-			return
+			state.heatRequest = false
+			return true
 		}
+
+		return false
 
 	}
 
@@ -82,7 +82,9 @@ export const makeThermostat = ({
 					state.targetTemperature = newTargetTemperature
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
 					updateHeatRequest()
-					return true
+						? publishChange(description.id)(['heatRequest', 'targetTemperature'])
+						: publishChange(description.id)(['targetTemperature'])
+					return false
 				}
 			},
 			currentTemperature: {
@@ -94,7 +96,9 @@ export const makeThermostat = ({
 					state.currentTemperature = newCurrentTemperature
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
 					updateHeatRequest()
-					return true
+						? publishChange(description.id)(['heatRequest', 'currentTemperature'])
+						: publishChange(description.id)(['currentTemperature'])
+					return false
 				}
 			},
 			heatRequest: {
