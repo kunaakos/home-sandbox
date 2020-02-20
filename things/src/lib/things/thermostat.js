@@ -3,7 +3,7 @@ import { makeThing } from '../thing'
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 export const makeThermostat = ({
 	description,
@@ -75,6 +75,7 @@ export const makeThermostat = ({
 		publishChange,
 		mutators: {
 			targetTemperature: {
+				type: 'number',
 				get: () => targetTemperature,
 				set: async newTargetTemperature => {
 					targetTemperature = newTargetTemperature
@@ -84,6 +85,7 @@ export const makeThermostat = ({
 				}
 			},
 			currentTemperature: {
+				type: 'number',
 				skipEqualityCheck: true,
 				get: () => currentTemperature,
 				set: async newCurrentTemperature => {
@@ -96,6 +98,7 @@ export const makeThermostat = ({
 				}
 			},
 			heatRequest: {
+				type: 'boolean',
 				get: () => state.heatRequest,
 			}
 		}

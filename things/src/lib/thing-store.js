@@ -33,12 +33,15 @@ export const makeThingStore = ({
 		await things[id].set(values)
 	}
 
+	const typeOf = (id, key) => things[id].typeOf(key) 
+
 	return new ThingStore({
 		has,
 		get,
 		getAll,
 		add,
 		remove,
-		set
+		set,
+		typeOf
 	})
 }

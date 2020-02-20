@@ -9,7 +9,7 @@ import Readline from '@serialport/parser-readline'
 
 import { makeAmbientSensor } from '../things/ambient-sensor'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 

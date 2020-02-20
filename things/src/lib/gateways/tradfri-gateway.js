@@ -15,7 +15,7 @@ import {
 import { makeSwitch } from "../things/switch"
 import { makeLight } from "../things/light"
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 // NOTE: used during auth flow
 export const discover = async () => {

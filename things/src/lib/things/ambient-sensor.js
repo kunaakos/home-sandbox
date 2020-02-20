@@ -1,6 +1,6 @@
 import { makeThing } from '../thing'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 export const makeAmbientSensor = ({
 	description,
@@ -18,6 +18,7 @@ export const makeAmbientSensor = ({
 		publishChange,
 		mutators: {
 			temperature: {
+				type: 'number',
 				skipEqualityCheck: true,
 				set: async newValue => {
 					temperature = newValue

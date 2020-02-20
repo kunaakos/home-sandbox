@@ -3,7 +3,7 @@ import {
 	setterFromEffect
 } from '../thing'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 export const makeSwitch = ({
 	description,
@@ -25,6 +25,7 @@ export const makeSwitch = ({
 		publishChange,
 		mutators: {
 			isOn: {
+				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect(effects.changeState, state, 'isOn')
 			}

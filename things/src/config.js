@@ -87,22 +87,21 @@ export const gatewayDefinitions = [
 // NOTE: see things-store for schema
 export const subscriptions = {
 	'SERIAL__66': {
-		'thermostat': {
-			'temperature': 'currentTemperature'
-		},
-		'aio-temp': {
-			'temperature': 'value'
-		}
+		'thermostat': [
+			['temperature', 'currentTemperature']
+		],
+		'aio-temp': [
+			['temperature', 'value']
+		]
 	},
 	'thermostat': {
-		'heat-request': {
-			'heatRequest': 'isOn'
-		}
+		'heat-request': [
+			['heatRequest', 'isOn']
+		]
 	},
-	// TODO: need to cast boolean to number...
-	// 'heat-request': {
-	//     'aio-heat': {
-	//         'state': 'value'
-	//     }
-	// }
+	'heat-request': {
+	    'aio-heat': [
+	        ['isOn', 'value']
+		]
+	}
 }

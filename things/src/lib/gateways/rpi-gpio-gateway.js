@@ -9,7 +9,7 @@ const gpio = process.env.REAL_GPIO
 
 import { makeSwitch } from '../things/switch'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 // initialize pin as output and return async function that can be called to set pin state
 const initOutputPin = async pinNr => {
