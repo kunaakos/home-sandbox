@@ -125,7 +125,14 @@ const Thermostat = ({ thing, setThing }) => {
 		<div data-id={thing.id}>
 			<h3>🌡 {thing.label}</h3>
 			<p>
-				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C. The heat should currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}.<br />
+				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C.
+				<br />
+				Heat should currently be {thing.heatRequest ? 'on ✅' : 'off ❌'}
+				{thing.timedOut
+					? <React.Fragment> because ⚠️ <strong>the thermostat did not receive a temperature update in a while</strong> ⚠️ - check your temperature sensor maybe? 🤔</React.Fragment>
+					: '.'
+				}
+				<br />
 				Do you need it to be a bit <button onClick={() => setTargetTemperature(thing.targetTemperature + 0.5)}>warmer</button> or <button onClick={() => setTargetTemperature(thing.targetTemperature - 0.5)}>cooler</button>?<br />
 			</p>
 		</div>

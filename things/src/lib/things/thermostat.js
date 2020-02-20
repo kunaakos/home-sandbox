@@ -33,7 +33,7 @@ export const makeThermostat = ({
 		onTimedOut: () => {
 			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
 			state.heatRequest = false
-			publishChange(description.id)(['heatRequest'])
+			publishChange(description.id)(['heatRequest', 'timedOut'])
 		},
 		interval: watchdogTimeout
 	})
@@ -104,6 +104,10 @@ export const makeThermostat = ({
 			heatRequest: {
 				type: 'boolean',
 				get: () => state.heatRequest,
+			},
+			timedOut: {
+				type: 'boolean',
+				get: () => watchdog.timedOut()
 			}
 		}
 	})
