@@ -1,3 +1,4 @@
+import { makeWatchdog } from '../watchdog'
 import { makeThing } from '../thing'
 
 const THIRTY_SECONDS = 1000 * 30
@@ -7,67 +8,67 @@ const DEBUG = process.env.DEBUG
 
 export const makeThermostat = ({
 	description,
-	initialState,
+	config = {},
+	initialState = {},
 	publishChange
 }) => {
 
 	DEBUG && console.log(`THERMOSTAT: initializing ${description.id}`)
 
 	let {
-		targetTemperature = 0,
-		currentTemperature = 0,
 		overrun = 0.1,
 		underrun = 0.2,
 		watchdogTimeout = TWO_MINUTES,
 		tickInterval = THIRTY_SECONDS
-	} = initialState
+	} = config
 
 	const state = {
 		heatRequest: false,
-		lastCurrentTemperatureUpdate: 0,
-		timedOut: true
+		targetTemperature: 0,
+		currentTemperature: 0,
+		...initialState
 	}
 
-	const setHeatRequest = newHeatRequestState => {
-		state.heatRequest = newHeatRequestState
-		publishChange(description.id)(['heatRequest'])
-	}
-
-	const tick = () => {
-
-		// TODO: implement watchdog timer utility
-		if (state.timedOut) {
-			return
-		} else if (Date.now() - state.lastCurrentTemperatureUpdate > watchdogTimeout) {
+	const watchdog = makeWatchdog({
+		onTimedOut: () => {
 			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
-			state.timedOut = true
-			setHeatRequest(false)
-			return
+			state.heatRequest = false
+			publishChange(description.id)(['heatRequest', 'timedOut'])
+		},
+		interval: watchdogTimeout
+	})
+
+	// return value is true if a state change occured, false otherwise
+	// NOTE: this does function does NOT advertise a state change, make sure to call publishChange if it returned true
+	const updateHeatRequest = () => {
+
+		if (watchdog.timedOut()) {
+			return false
 		}
 
-		// turn ON if temperature drops below target - threshold
 		if (
 			state.heatRequest === false &&
-			currentTemperature < targetTemperature - underrun
+			state.currentTemperature < state.targetTemperature - underrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
-			setHeatRequest(true)
-			return
+			state.heatRequest = true
+			return true
 		}
 
-		// turn OFF if temperature reached target
 		if (
 			state.heatRequest === true &&
-			currentTemperature > targetTemperature + overrun
+			state.currentTemperature > state.targetTemperature + overrun
 		) {
 			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
-			setHeatRequest(false)
-			return
+			state.heatRequest = false
+			return true
 		}
+
+		return false
 
 	}
 
-	const tickIntervalHandle = setInterval(() => tick(), tickInterval)
+	const tickIntervalHandle = setInterval(updateHeatRequest, tickInterval)
 
 	return makeThing({
 		type: 'thermostat',
@@ -76,30 +77,37 @@ export const makeThermostat = ({
 		mutators: {
 			targetTemperature: {
 				type: 'number',
-				get: () => targetTemperature,
+				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
-					targetTemperature = newTargetTemperature
-					DEBUG && console.log(`THERMOSTAT: target temperature set to ${targetTemperature}`)
-					tick()
-					return true
+					state.targetTemperature = newTargetTemperature
+					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
+					updateHeatRequest()
+						? publishChange(description.id)(['heatRequest', 'targetTemperature'])
+						: publishChange(description.id)(['targetTemperature'])
+					return false
 				}
 			},
 			currentTemperature: {
 				type: 'number',
 				skipEqualityCheck: true,
-				get: () => currentTemperature,
+				get: () => state.currentTemperature,
 				set: async newCurrentTemperature => {
-					state.lastCurrentTemperatureUpdate = Date.now()
-					state.timedOut = false
-					currentTemperature = newCurrentTemperature
-					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${currentTemperature}`)
-					tick()
-					return true
+					watchdog.pet()
+					state.currentTemperature = newCurrentTemperature
+					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
+					updateHeatRequest()
+						? publishChange(description.id)(['heatRequest', 'currentTemperature'])
+						: publishChange(description.id)(['currentTemperature'])
+					return false
 				}
 			},
 			heatRequest: {
 				type: 'boolean',
 				get: () => state.heatRequest,
+			},
+			timedOut: {
+				type: 'boolean',
+				get: () => watchdog.timedOut()
 			}
 		}
 	})
