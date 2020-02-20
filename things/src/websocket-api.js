@@ -1,6 +1,6 @@
 import { Server as WebSocketServer } from 'ws'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 export const initializeWebsocketApi = ({
 	things,

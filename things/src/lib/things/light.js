@@ -3,8 +3,7 @@ import {
 	setterFromEffect
 } from '../thing'
 
-const DEBUG = true
-
+const DEBUG = process.env.DEBUG
 export const makeLight = ({
 	description,
 	effects,

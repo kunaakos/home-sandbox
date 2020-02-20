@@ -2,14 +2,13 @@ import fetch from 'node-fetch'
 
 import { makeThing } from '../thing'
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 const updateAioFeed = ({
 	username,
 	aioKey,
 	feedKey
 }) => async data => {
-	DEBUG && console.log(`AIO: updating ${feedKey}`)
 
 	const response = await fetch(
 		`https://io.adafruit.com/api/v2/${username}/feeds/${feedKey}/data`,
@@ -27,9 +26,6 @@ const updateAioFeed = ({
 
 	if (responseBody.error) {
 		throw new Error(responseBody.error)
-	} else {
-		DEBUG && console.log(`AIO: updated "${feedKey}" feed with value ${data}`)
-		return responseBody
 	}
 
 }
@@ -40,13 +36,13 @@ export const makeAioFeed = ({
 	publishChange
 }) => {
 
-	DEBUG && console.log(`AIO: initializing ${feedKey}`)
-
 	const {
 		username,
 		aioKey,
 		feedKey
 	} = config
+
+	DEBUG && console.log(`AIO: initializing ${feedKey} with id ${description.id}`)
 
 	const updateFeed = username && aioKey && feedKey
 		? updateAioFeed({ username, aioKey, feedKey })
@@ -67,6 +63,7 @@ export const makeAioFeed = ({
 				type: 'number',
 				set: async newValue => {
 					try {
+						DEBUG && console.log(`AIO: updating ${feedKey} with ${newValue}`)
 						updateFeed && await updateFeed(newValue)
 						return true
 					} catch (error) {

@@ -3,7 +3,7 @@ import { makeThing } from '../thing'
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
-const DEBUG = true
+const DEBUG = process.env.DEBUG
 
 export const makeThermostat = ({
 	description,
