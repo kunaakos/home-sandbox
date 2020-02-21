@@ -39,7 +39,6 @@ export const makeThermostat = ({
 	})
 
 	// return value is true if a state change occured, false otherwise
-	// NOTE: this does function does NOT advertise a state change, make sure to call publishChange if it returned true
 	const updateHeatRequest = () => {
 
 		if (watchdog.timedOut()) {
@@ -81,10 +80,9 @@ export const makeThermostat = ({
 				set: async newTargetTemperature => {
 					state.targetTemperature = newTargetTemperature
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
-					updateHeatRequest()
-						? publishChange(description.id)(['heatRequest', 'targetTemperature'])
-						: publishChange(description.id)(['targetTemperature'])
-					return false
+					return updateHeatRequest()
+						? ['heatRequest', 'targetTemperature']
+						: true
 				}
 			},
 			currentTemperature: {
@@ -95,10 +93,9 @@ export const makeThermostat = ({
 					watchdog.pet()
 					state.currentTemperature = newCurrentTemperature
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
-					updateHeatRequest()
-						? publishChange(description.id)(['heatRequest', 'currentTemperature'])
-						: publishChange(description.id)(['currentTemperature'])
-					return false
+					return updateHeatRequest()
+						? ['heatRequest', 'currentTemperature']
+						: true
 				}
 			},
 			heatRequest: {
