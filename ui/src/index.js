@@ -79,7 +79,7 @@ const Light = ({ thing, setThing }) => {
 									max="100"
 									defaultValue={thing.brightness}
 									ref={brightnessSliderRef}
-									onChange={e => { setThingDebounced(thing.id, { brightness: e.target.value }) }}
+									onChange={e => { setThingDebounced(thing.id, { brightness: parseInt(e.target.value) }) }}
 								/>&nbsp;
 							</React.Fragment>}
 							{numberOfControls > 1 ? ' and ' : null}
@@ -100,7 +100,7 @@ const Light = ({ thing, setThing }) => {
 									max={thing.colorTemperatureRange[1]}
 									defaultValue={thing.colorTemperature}
 									ref={temperatureSliderRef}
-									onChange={e => { setThingDebounced(thing.id, { colorTemperature: e.target.value }) }}
+									onChange={e => { setThingDebounced(thing.id, { colorTemperature: parseInt(e.target.value) }) }}
 								/>&nbsp;
 							</React.Fragment>}
 							.
