@@ -1,3 +1,5 @@
+import { preciseRound } from '../utils'
+
 import { makeWatchdog } from '../watchdog'
 import { makeThing } from '../thing'
 
@@ -78,7 +80,7 @@ export const makeThermostat = ({
 				type: 'number',
 				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
-					state.targetTemperature = newTargetTemperature
+					state.targetTemperature = preciseRound(newTargetTemperature, 1)
 					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
 					return updateHeatRequest()
 						? ['heatRequest', 'targetTemperature']
@@ -91,7 +93,7 @@ export const makeThermostat = ({
 				get: () => state.currentTemperature,
 				set: async newCurrentTemperature => {
 					watchdog.pet()
-					state.currentTemperature = newCurrentTemperature
+					state.currentTemperature = preciseRound(newCurrentTemperature, 1)
 					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
 					return updateHeatRequest()
 						? ['heatRequest', 'currentTemperature']

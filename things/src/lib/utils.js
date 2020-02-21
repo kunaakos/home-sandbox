@@ -14,6 +14,8 @@ export const generateUuid = placeholder =>
 		? (placeholder ^ Math.random() * 16 >> placeholder / 4).toString(16)
 		: ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, generateUuid)
 
+export const preciseRound = (number, decimals) => Math.round((number + Number.EPSILON) * 10 * decimals) / (10 * decimals)
+
 // a strict set of rules about typecasting - not every possible cast would make sense in this application
 export const typecast = (value, toType) => {
 
