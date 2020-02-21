@@ -1,13 +1,13 @@
 import { makeThermostat } from './lib/things/thermostat'
-import { makeAioFeed } from './lib/things/aio-feed'
 
 import { makeSerialGateway } from './lib/gateways/serial-gateway'
 import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 import { makeRpiGpioGateway } from './lib/gateways/rpi-gpio-gateway'
+import { makeAioGateway } from './lib/gateways/aio-gateway'
 
 import { makeThingStore } from './lib/thing-store'
-import { handleSubscriptions } from './lib/thing-subscriptions'
 import { makeThingEvents } from './lib/thing-events'
+import { handleSubscriptions } from './lib/thing-subscriptions'
 
 import { initializeWebsocketApi } from './websocket-api'
 
@@ -23,9 +23,6 @@ const initializeThing = ({ publishChange }) => ({ type, description, config }) =
 
 		case 'thermostat':
 			return makeThermostat({ description, config, publishChange, initialState: {} })
-
-		case 'adafruit-io-feed':
-			return makeAioFeed({ description, config, publishChange, initialState: {} })
 
 		default:
 			throw new Error(`Unsupported thing config: ${type}.`)
@@ -45,6 +42,9 @@ const initializeGateway = ({ publishChange, things }) => ({ type, description, c
 
 		case 'rpi-gpio-gateway':
 			return makeRpiGpioGateway({ description, config, publishChange, things })
+
+		case 'aio-gateway':
+			return makeAioGateway({ description, config, publishChange, things })
 
 		default:
 			throw new Error(`Unsupported gateway config: ${type}.`)

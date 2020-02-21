@@ -1,3 +1,5 @@
+const FIVE_MINUTES = 5 * 60 * 1000
+
 export const thingDefinitions = [
 	{
 		type: 'thermostat',
@@ -5,32 +7,6 @@ export const thingDefinitions = [
 			id: 'thermostat',
 			label: 'Thermostat',
 			hidden: false,
-		}
-	},
-	{
-		type: 'adafruit-io-feed',
-		description: {
-			id: 'aio-temp',
-			label: 'adafruit.io "temperature" feed',
-			hidden: true,
-		},
-		config: {
-			username: process.env.AIO_USERNAME,
-			aioKey: process.env.AIO_KEY,
-			feedKey: process.env.AIO_FEED_KEY_TEMPERATURE
-		}
-	},
-	{
-		type: 'adafruit-io-feed',
-		description: {
-			id: 'aio-heat',
-			label: 'adafruit.io "heat" feed',
-			hidden: true,
-		},
-		config: {
-			username: process.env.AIO_USERNAME,
-			aioKey: process.env.AIO_KEY,
-			feedKey: process.env.AIO_FEED_KEY_HEAT
 		}
 	}
 ]
@@ -81,27 +57,56 @@ export const gatewayDefinitions = [
 				}
 			]
 		}
+	},
+	{
+		type: 'aio-gateway',
+		description: {
+			id: 'aio',
+			label: `adafruit.io feeds`
+		},
+		config: {
+			username: process.env.AIO_USERNAME,
+			aioKey: process.env.AIO_KEY,
+			groupKey: process.env.AIO_FEED_GROUP_KEY,
+			feeds: [
+				{
+					key: 'targetTemperature',
+					feedKey: process.env.AIO_FEED_KEY_TARGET_TEMPERATURE,
+					reportOnUpdate: true,
+					reportInterval: FIVE_MINUTES
+
+				},
+				{
+					key: 'currentTemperature',
+					feedKey: process.env.AIO_FEED_KEY_TEMPERATURE,
+					reportOnUpdate: true
+				},
+				{
+					key: 'heatRequest',
+					feedKey: process.env.AIO_FEED_KEY_HEAT,
+					reportOnUpdate: true,
+					reportInterval: FIVE_MINUTES
+				}
+			]
+		}
 	}
 ]
 
-// NOTE: see things-store for schema
+// NOTE: see things-subscriptions for schema
 export const subscriptions = {
 	'SERIAL__66': {
 		'thermostat': [
 			['temperature', 'currentTemperature']
-		],
-		'aio-temp': [
-			['temperature', 'value']
 		]
 	},
 	'thermostat': {
 		'heat-request': [
 			['heatRequest', 'isOn']
-		]
-	},
-	'heat-request': {
-	    'aio-heat': [
-	        ['isOn', 'value']
+		],
+		'aio-feeds': [
+			['currentTemperature', 'currentTemperature'],
+			['targetTemperature', 'targetTemperature'],
+			['heatRequest', 'heatRequest']
 		]
 	}
 }
