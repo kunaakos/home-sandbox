@@ -1,3 +1,7 @@
+import uniq from 'lodash/uniq'
+
+import { typecast } from './utils'
+
 function Thing(functions) {
 	Object.assign(this, functions)
 }
@@ -28,7 +32,7 @@ export const makeThing = ({
 						? get() // get current value of readable properties
 						: null // return null for write-only properties
 				])
-			) 
+			)
 			.reduce(
 				(acc, [key, value]) => {
 					acc[key] = value
@@ -47,15 +51,10 @@ export const makeThing = ({
 	// set will complete when all attempted mutations were finished
 	const set = async newState => {
 
-		// an array of async functions that resolve with:
-		// ['key', null] - if a mutation wasn't attempted
-		// ['key', true] - if the mutation was successful
-		// ['key', false] - if the mutation failed
 		const mutations = Object.entries(newState)
-
-			// check if property exists and is writeable
 			.filter(
-				([key,]) => {
+				// check if a mutation is possible and needed
+				([key, newValue]) => {
 					const { isReadable, isWriteable } = checkPermissions(mutators, key)
 					if (!isReadable && !isWriteable) {
 						console.warn(`Attempted mutation of inexistent property ${key} of ${description.id}.`)
@@ -64,30 +63,46 @@ export const makeThing = ({
 						console.warn(`Attempted mutation of read-only property ${key} of ${description.id}.`)
 						return false
 					} else {
-						return true
+						const skipEqualityCheck = !isReadable || Boolean(mutators[key].skipEqualityCheck)
+						return skipEqualityCheck
+							? true
+							: mutators[key].get() !== newValue
 					}
 				}
 			)
-
-			// attempt a mutation if needed
 			.map(
+				// attempt mutation
 				async ([key, newValue]) => {
-					const attemptMutation =
-						!isReadable(mutators, key) || // write-only properties...
-						Boolean(mutators[key].skipEqualityCheck) || // or those that are set to skip the following check are always mutated
-						mutators[key].get() !== newValue // if the equality check is enabled, mutations are only attempted for changed
 
-					return attemptMutation
-						? [key, await mutators[key].set(newValue)] // TODO: check if value returned by setter was indeed a boolean! something went wrong if not
-						: [key, null]
-				}	
+					try {
+						const result = await mutators[key].set(typecast(newValue, mutators[key].type))
+
+						if (typeof result === 'boolean') {
+							// the setter changed the value it was declared for, or nothing
+							return result ? [key] : []
+						} else if (
+							Array.isArray(result) &&
+							result.every(element => typeof element === 'string')
+						) {
+							// the setter returned with an array of keys for the values it changed
+							return result
+						} else {
+							// the setter is probably borked
+							throw new Error(`Setter '${key}' of thing '${description.id}' returned with invalid value: ${result}`)
+						}
+
+					} catch (error) {
+						// mutation failed
+						console.error(error)
+						return []
+					}
+
+				}
 			)
 
-		const mutationResults = await Promise.all(mutations)
-		const changedKeys = mutationResults
-			.filter(([, result]) => Boolean(result)) // no need to publish changes for failed or unattempted mutations
-			.map(([key,]) => key)
-		
+		const results = await Promise.all(mutations)
+		const changedKeys = uniq(results.flat())
+
 		if (changedKeys.length) {
 			publishChange(description.id)(changedKeys)
 		}
