@@ -1,5 +1,12 @@
 /**
- *  Subscriptions object schema:
+ * This module propagates state changes.
+ * It's not optimized for anything other than brevity and readability.
+ * It's similar to a pub/sub implementation, but does not hold references
+ * to subscribers (things), because things are never guaranteed to be present.
+ * They may become disconnected from the network for various reasons:
+ * a battery dies, someone takes a device with them etc.
+ * 
+ * Subscriptions object schema:
  * 
  *  const schema = {
  *  	'thingId': {
@@ -14,6 +21,11 @@
  * 
  */
 
+import { delay } from './utils'
+
+const ONE_SECOND = 1000
+const TOTAL_UPDATE_ATTEMPTS = 3
+
 // a strict set of rules about typecasting - not every possible cast would make sense in this application
 const typecast = (value, toType) => {
 
@@ -22,7 +34,7 @@ const typecast = (value, toType) => {
 	if (!['string', 'number', 'boolean'].includes(typeof fromType)) {
 		throw new Error(`Attempted to cast ${fromType}.`)
 	}
-	
+
 	switch (typeof value) {
 
 		case 'string':
@@ -35,11 +47,11 @@ const typecast = (value, toType) => {
 				default:
 					throw new Error(`Cannot cast from ${fromType} to unkown type ${toType}`)
 			}
-		
+
 		case 'number':
 			switch (toType) {
 				case 'string':
-					return `${value}`				
+					return `${value}`
 				case 'number':
 					return value
 				case 'boolean':
@@ -47,7 +59,7 @@ const typecast = (value, toType) => {
 				default:
 					throw new Error(`Cannot cast from ${fromType} to unkown type ${toType}`)
 			}
-		
+
 		case 'boolean':
 			switch (toType) {
 				case 'string':
@@ -59,7 +71,7 @@ const typecast = (value, toType) => {
 				default:
 					throw new Error(`Cannot cast from ${fromType} to unkown type ${toType}`)
 			}
-			
+
 		default:
 			throw new Error(`Cannot cast from unknown type ${fromType}`)
 
@@ -81,38 +93,54 @@ export const handleSubscriptions = ({
 		// nothing is subscribed to this thing
 		if (!subscriptions[publisherId]) { return }
 
-		const publisherState = things.get(publisherId)
 		const thingSubscriptions = Object.entries(subscriptions[publisherId]) // array of [subscriberId, [[publisherKey, subscriberKey]...]]
 
 		thingSubscriptions.forEach(
 			([subscriberId, keyMaps]) => {
 
-				if (!things.has(subscriberId)) {
-					console.warn(`subscriber with id ${subscriberId} is offline.`)
-					return
+				// this recursive function will attempt an updating a subscriber three times with a one second delay between retries
+				// it's needed during bootstrapping, when things are being added in no particular order
+				// TODO: make this configurable if needed (most things are permanently connected at the time of writing this)
+				const attemptSubscriberUpdate = async attemptNr => {
+
+					if (attemptNr >= TOTAL_UPDATE_ATTEMPTS) {
+						console.warn(`subscriber with id ${subscriberId} is offline.`)
+						return
+					}
+
+					if (!things.has(subscriberId)) {
+						await delay(ONE_SECOND)
+						return attemptSubscriberUpdate(attemptNr + 1)
+					}
+
+					const publisherState = things.get(publisherId)
+
+					const newValues = keyMaps
+						.filter(
+							([publisherKey,]) => Boolean(changedKeys) // if a list of changed keys were not passed, we're assuming all have changed
+								? changedKeys.includes(publisherKey)
+								: true
+						)
+						.reduce(
+							(acc, [publisherKey, subscriberKey]) => {
+								const value = publisherState[publisherKey]
+								acc[subscriberKey] = typecast(
+									value,
+									things.typeOf(subscriberId, subscriberKey) // cannot duck-type write-only values
+								)
+								return acc
+							},
+							{}
+						)
+
+					if (!Object.keys(newValues).length) { return }
+
+					things.set(subscriberId, newValues)
+
 				}
 
-				const newValues = keyMaps
-					.filter(
-						([publisherKey, ]) => Boolean(changedKeys) // if a list of changed keys were not passed, we're assuming all have changed
-							? changedKeys.includes(publisherKey)
-							: true	
-					)
-					.reduce(
-						(acc, [publisherKey, subscriberKey]) => {
-							const value = publisherState[publisherKey]
-							acc[subscriberKey] = typecast(
-								value,
-								things.typeOf(subscriberId, subscriberKey) // cannot duck-type write-only values
-							)
-							return acc
-						},
-						{}
-					)
+				attemptSubscriberUpdate(1).catch(error => console.error)
 
-				if (!Object.keys(newValues).length) { return }
-
-				things.set(subscriberId, newValues)
 			}
 		)
 

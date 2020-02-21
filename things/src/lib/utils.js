@@ -2,7 +2,7 @@
  * Misc. utility functions.
  */
 
-export const promiseThatResolvesIn = (miliseconds) => {
+export const delay = miliseconds => {
 	return new Promise(resolve => {
 		setTimeout(resolve, miliseconds)
 	})
