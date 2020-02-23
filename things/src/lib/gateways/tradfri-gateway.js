@@ -185,13 +185,6 @@ export const makeTradfriGateway = ({
 		}
 	}
 
-	// NOTE: not yet tested
-	const removeThing = instanceId => {
-		const thingId = thingIdFrom(instanceId)
-		things.remove(thingId)
-		unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
-	}
-
 	const {
 		gatewayAddressOrHost,
 		identity,
@@ -210,20 +203,38 @@ export const makeTradfriGateway = ({
 			gatewayAddressOrHost,
 			identity,
 			psk
-		}).then(tradfriClient => {
-			tradfriClient
-				.on('device updated', device => {
-					if (unsupportedInstanceIds.includes(device.instanceId)) {
-						// unsupported device updated, do nothing
-					} else {
-						addOrReplaceThing(device)
-					}
-				})
-				.on('device removed', removeThing)
-				.on('error', err => logger.error(err))
-				.observeDevices()
-			logger.info(`IKEA Tradfri gateway #${description.id} connected`)
 		})
+			.then(tradfriClient => {
+
+				tradfriClient
+					.on('device updated', device => {
+						try {
+							if (unsupportedInstanceIds.includes(device.instanceId)) {
+								// unsupported device updated, do nothing
+							} else {
+								addOrReplaceThing(device)
+							}
+						} catch (error) {
+							logger.error(error)
+						}
+					})
+					.on('device removed', instanceId => {
+						try {
+							const thingId = thingIdFrom(instanceId)
+							things.remove(thingId)
+							unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
+						} catch (error) {
+							logger.error(error)
+
+						}
+					})
+					.on('error', error => logger.error(error))
+					.observeDevices()
+
+				logger.info(`IKEA Tradfri gateway #${description.id} connected`)
+
+			})
+			.catch(err => logger.error(err))
 	}
 
 	return {
