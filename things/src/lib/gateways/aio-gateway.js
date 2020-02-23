@@ -8,7 +8,7 @@ const mockUpdateAioFeed = ({
 	groupKey,
 	feedKey
 }) => async data => {
-	logger.debug(`adafruit.io feed '${groupKey ? `${groupKey}.` : ''}${feedKey}' updated with data '${data}'`)
+	logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`)
 }
 
 const updateAioFeed = ({
@@ -35,7 +35,7 @@ const updateAioFeed = ({
 	if (responseBody.error) {
 		throw new Error(responseBody.error)
 	} else {
-		logger.debug(`adafruit.io feed '${groupKey ? `${groupKey}.` : ''}${feedKey}' updated with data '${data}'`)
+		logger.trace(`adafruit.io feed '${groupKey ? `${groupKey}.` : ''}${feedKey}' updated with data '${data}'`)
 	}
 
 }

@@ -51,7 +51,7 @@ export const makeDataSink = ({
 					type,
 					skipEqualityCheck: true,
 					set: async newValue => {
-						logger.debug(`data sink #${description.id} property '${key}' updated with value '${newValue}'`)
+						logger.trace(`data sink #${description.id} property '${key}' updated with value '${newValue}'`)
 						if (reportOnUpdate) {
 							watchdog && watchdog.pet()
 							value = newValue

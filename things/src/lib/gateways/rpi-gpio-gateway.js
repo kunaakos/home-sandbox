@@ -17,7 +17,7 @@ const initOutputPin = async ({logger, pinNr}) => {
 	// return value is an effect function
 	return async newState => {
 		gpio && await gpio.write(pinNr, newState)
-		logger.debug(`${gpio ? '' : 'mock '}GPIO pin '${pinNr}' set to ${newState}`)
+		logger.trace(`${gpio ? '' : 'mock '}GPIO pin '${pinNr}' set to ${newState}`)
 		return newState
 	}
 }

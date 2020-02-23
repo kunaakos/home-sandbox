@@ -24,7 +24,7 @@ export const makeAmbientSensor = ({
 				skipEqualityCheck: true,
 				set: async newValue => {
 					temperature = newValue
-					logger.debug(`ambient sensor #${description.id} property 'temperature' updated with value '${temperature}'`)
+					logger.trace(`ambient sensor #${description.id} property 'temperature' updated with value '${temperature}'`)
 					return true
 				},
 				get: () => temperature

@@ -31,7 +31,7 @@ export const makeSerialGateway = ({
 			const thingId = thingIdFrom(sensorId)
 
 			if (things.has(thingId)) {
-				logger.debug(`serial gateway #${description.id} received data for #${thingId}`)
+				logger.trace(`serial gateway #${description.id} received data for #${thingId}`)
 				things.set(thingId, { temperature })
 			} else {
 				logger.debug(`serial gateway #${description.id} initializing new sensor #${thingId}`)
@@ -53,7 +53,7 @@ export const makeSerialGateway = ({
 			}
 
 		} catch (error) {
-			console.error(error)
+			logger.error(error)
 		}
 	}
 

@@ -20,7 +20,7 @@ export const initializeWebsocketApi = ({
 			}
 
 		} catch (error) {
-			console.error(error)
+			logger.error(error)
 		}
 	}
 
@@ -43,7 +43,7 @@ export const initializeWebsocketApi = ({
 				type: 'thing-state',
 				payload: thingState
 			}))
-			logger.debug(`#${id} state sent to client via WebSocket API`)
+			logger.trace(`#${id} state sent to client via WebSocket API`)
 		})
 
 		socket.on('close', () => {

@@ -3,6 +3,8 @@ import chalk from 'chalk'
 
 const prettifyLevel = level => {
 	switch (level) {
+		case 10:
+			return chalk.bgGray.black(' TRC ')
 		case 20:
 			return chalk.bgGray(' DBG ')
 		case 30:

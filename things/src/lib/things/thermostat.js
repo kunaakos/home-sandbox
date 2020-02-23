@@ -81,7 +81,7 @@ export const makeThermostat = ({
 				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
 					state.targetTemperature = preciseRound(newTargetTemperature, 1)
-					logger.debug(`thermostat #${description.id} target temperature set to '${state.targetTemperature}'`)
+					logger.trace(`thermostat #${description.id} target temperature set to '${state.targetTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'targetTemperature']
 						: true
@@ -94,7 +94,7 @@ export const makeThermostat = ({
 				set: async newCurrentTemperature => {
 					watchdog.pet()
 					state.currentTemperature = preciseRound(newCurrentTemperature, 1)
-					logger.debug(`thermostat #${description.id} current temperature set to '${state.currentTemperature}'`)
+					logger.trace(`thermostat #${description.id} current temperature set to '${state.currentTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'currentTemperature']
 						: true
