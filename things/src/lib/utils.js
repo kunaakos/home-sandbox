@@ -22,7 +22,7 @@ export const typecast = (value, toType) => {
 	const fromType = typeof value
 
 	if (!['string', 'number', 'boolean'].includes(typeof fromType)) {
-		throw new TypeError(`Attempted to cast ${fromType}.`)
+		throw new TypeError(`Attempted to cast from unsupported type '${fromType}'.`)
 	}
 
 	switch (typeof value) {
@@ -33,9 +33,9 @@ export const typecast = (value, toType) => {
 					return value
 				case 'number':
 				case 'boolean':
-					throw new TypeError(`Cannot cast from ${fromType} to ${toType}`)
+					throw new TypeError(`Cannot cast from '${fromType}' to '${toType}'`)
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					throw new TypeError(`Cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
 
 		case 'number':
@@ -45,9 +45,9 @@ export const typecast = (value, toType) => {
 				case 'number':
 					return value
 				case 'boolean':
-					throw new TypeError(`Cannot cast from ${fromType} to ${toType}`)
+					throw new TypeError(`Cannot cast from '${fromType}' to '${toType}'`)
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					throw new TypeError(`Cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
 
 		case 'boolean':
@@ -59,11 +59,11 @@ export const typecast = (value, toType) => {
 				case 'boolean':
 					return value
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					throw new TypeError(`Cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
 
 		default:
-			throw new TypeError(`Cannot cast from unknown type ${fromType}`)
+			throw new TypeError(`Cannot cast from unknown type '${fromType}'`)
 
 	}
 

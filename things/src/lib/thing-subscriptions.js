@@ -83,7 +83,7 @@ export const handleSubscriptions = ({
 
 				}
 
-				attemptSubscriberUpdate(1).catch(error => console.error)
+				attemptSubscriberUpdate(1).catch(error => logger.error)
 
 			}
 		)

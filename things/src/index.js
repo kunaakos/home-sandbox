@@ -33,7 +33,7 @@ const initializeThing = deps => thingDefinition => {
 			return makeThermostat(args)
 
 		default:
-			throw new Error(`Unsupported thing config: ${type}.`)
+			throw new Error(`Unsupported thing config type '${type}'.`)
 
 	}
 }
@@ -60,7 +60,7 @@ const initializeGateway = deps => gatewayDefinition => {
 			return makeAioGateway(args)
 
 		default:
-			throw new Error(`Unsupported gateway config: ${type}.`)
+			throw new Error(`Unsupported gateway config type '${type}'.`)
 
 	}
 
