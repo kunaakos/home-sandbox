@@ -15,8 +15,6 @@ import {
 import { makeSwitch } from "../things/switch"
 import { makeLight } from "../things/light"
 
-const DEBUG = process.env.DEBUG
-
 // NOTE: used during auth flow
 export const discover = async () => {
 	return await discoverGateway()
@@ -32,11 +30,12 @@ export const authenticate = async ({
 		const { identity, psk } = await tradfriClient.authenticate(securityCode)
 		return { tradfriClient, identity, psk }
 	} catch (e) {
-		throw new Error(`Tradfri client authentication error: ${e.message}.`)
+		throw new Error(`Tradfri client authentication error '${e.message}'.`)
 	}
 }
 
 export const connect = async ({
+	customLogger,
 	gatewayAddressOrHost,
 	identity,
 	psk
@@ -46,13 +45,13 @@ export const connect = async ({
 			gatewayAddressOrHost,
 			{
 				watchConnection: true,
-				// customLogger: console.log
+				customLogger
 			}
 		)
 		await tradfriClient.connect(identity, psk)
 		return tradfriClient
 	} catch (e) {
-		throw new Error(`Tradfri client connection error: ${e.message}.`)
+		throw new Error(`Tradfri client connection error '${e.message}'.`)
 	}
 }
 
@@ -171,6 +170,7 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
+				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
 				things.add(makeLight(device))
 				break
 			case AccessoryTypes.plug:
@@ -205,6 +205,7 @@ export const makeTradfriGateway = ({
 		logger.warn(`IKEA Tradfri gateway #${description.id} credentials not provided, continuing in mock mode`)
 	} else {
 		connect({
+			// customLogger: msg => logger.trace(`NODE-TRADFRI: ${msg}`),
 			gatewayAddressOrHost,
 			identity,
 			psk
@@ -218,7 +219,7 @@ export const makeTradfriGateway = ({
 					}
 				})
 				.on('device removed', removeThing)
-				.on('error', console.error)
+				.on('error', err => logger.error(err))
 				.observeDevices()
 			logger.info(`IKEA Tradfri gateway #${description.id} connected`)
 		})

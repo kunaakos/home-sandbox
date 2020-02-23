@@ -1,7 +1,5 @@
 import { makeThing } from '../thing'
 
-const DEBUG = process.env.DEBUG
-
 export const makeAmbientSensor = ({
 	logger,
 	description,

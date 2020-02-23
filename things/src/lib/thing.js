@@ -89,7 +89,7 @@ export const makeThing = ({
 							return result
 						} else {
 							// the setter is probably borked
-							throw new Error(`Setter '${key}' of thing '${description.id}' returned with invalid value: ${result}`)
+							throw new Error(`Setter '${key}' of thing #${description.id} returned with invalid value '${result}'`)
 						}
 
 					} catch (error) {

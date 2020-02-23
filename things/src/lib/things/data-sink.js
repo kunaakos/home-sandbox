@@ -3,8 +3,6 @@ import upperFirst from 'lodash/upperFirst'
 import { makeThing } from '../thing'
 import { makeWatchdog } from '../watchdog'
 
-const DEBUG = process.env.DEBUG
-
 const neverPublishChange = () => () => { console.warn('Something is borked, a data sink advertised a state change.') }
 
 export const makeDataSink = ({
