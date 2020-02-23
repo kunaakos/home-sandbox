@@ -68,3 +68,24 @@ export const typecast = (value, toType) => {
 	}
 
 }
+
+export const setterFromEffect = ({
+	logger,
+	thingId,
+	effect,
+	state,
+	key
+}) => async newValue => {
+	const result = await effect(newValue)
+	if (result === null) {
+		logger.trace(`#${thingId} effect for property '${key}' returned with 'null', a state change is expected later.`)
+		return false
+	} else if (typeof result !== typeof newValue) {
+		logger.warn(`#${thingId} effect for property '${key}' returned with value of type '${typeof result}' instead of '${typeof newValue}'`)
+	} {
+		// the new state should be a validated, rounded etc. value returned by the effect
+		state[key] = result
+		logger.trace(`thing #${thingId} property '${key}' updated with value '${newValue}'`)
+		return true
+	}
+}

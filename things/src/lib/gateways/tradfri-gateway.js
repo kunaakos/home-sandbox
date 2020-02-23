@@ -170,10 +170,11 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
+				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on light #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
 				things.add(makeLight(device))
 				break
 			case AccessoryTypes.plug:
+				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on switch #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
 				things.add(makeSwitch(device))
 				break
 

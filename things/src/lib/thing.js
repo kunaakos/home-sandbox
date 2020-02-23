@@ -119,14 +119,3 @@ export const makeThing = ({
 		typeOf
 	})
 }
-
-export const setterFromEffect = (effect, state, key) => async newValue => {
-	const result = await effect(newValue)
-	if (result === null) {
-		return false
-	} else {
-		// the new state should be a validated, rounded etc. value returned by the effect
-		state[key] = result
-		return true
-	}
-}

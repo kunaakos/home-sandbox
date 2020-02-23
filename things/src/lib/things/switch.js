@@ -1,7 +1,5 @@
-import {
-	makeThing,
-	setterFromEffect
-} from '../thing'
+import { makeThing } from '../thing'
+import { setterFromEffect } from '../utils'
 
 export const makeSwitch = ({
 	logger,
@@ -27,7 +25,13 @@ export const makeSwitch = ({
 			isOn: {
 				type: 'boolean',
 				get: () => state.isOn,
-				set: setterFromEffect(effects.changeState, state, 'isOn')
+				set: setterFromEffect({
+					logger,
+					thingId: description.id,
+					effect: effects.changeState,
+					state,
+					key: 'isOn'
+				})
 			}
 		}
 	})

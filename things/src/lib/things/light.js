@@ -1,7 +1,5 @@
-import {
-	makeThing,
-	setterFromEffect
-} from '../thing'
+import { makeThing } from '../thing'
+import { setterFromEffect } from '../utils'
 
 export const makeLight = ({
 	logger,
@@ -46,27 +44,51 @@ export const makeLight = ({
 			isOn: {
 				type: 'number',
 				get: () => state.isOn,
-				set: setterFromEffect(effects.changeState, state, 'isOn') 
+				set: setterFromEffect({
+					logger,
+					thingId: description.id,
+					effect: effects.changeState,
+					state,
+					key: 'isOn'
+				})
 			},
 			...(isDimmable && {
 				brightness: {
 					type: 'number',
 					get: () => state.brightness,
-					set: setterFromEffect(effects.changeBrightness, state, 'brightness')
+					set: setterFromEffect({
+						logger,
+						thingId: description.id,
+						effect: effects.changeBrightness,
+						state,
+						key: 'brightness'
+					})
 				}
 			}),
 			...(isColor && {
 				color: {
 					type: 'string',
 					get: () => state.color,
-					set: setterFromEffect(effects.changeColor, state, 'color')
+					set: setterFromEffect({
+						logger,
+						thingId: description.id,
+						effect: effects.changeColor,
+						state,
+						key: 'color'
+					})
 				}
 			}),
 			...(Boolean(colorTemperatureRange) && {
 				colorTemperature: {
 					type: 'number',
 					get: () => state.colorTemperature,
-					set: setterFromEffect(effects.changeColorTemperature, state, 'colorTemperature')
+					set: setterFromEffect({
+						logger,
+						thingId: description.id,
+						effect: effects.changeColorTemperature,
+						state,
+						key: 'colorTemperature'
+					})
 				}
 			})
 		}
