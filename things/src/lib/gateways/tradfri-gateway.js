@@ -89,13 +89,14 @@ const setTradfriLightbulbColorTemperature = device => async colorTemperature => 
 	return null
 }
 
-const makeLightFromTradfriLightbulb = device => {
+const makeLightFromTradfriLightbulb = logger => device => {
 
 	const isDimmable = device.lightList[0].isDimmable
 	const isColor = device.lightList[0].spectrum === 'rgb'
 	const isAdjustableColorTemperature = device.lightList[0].spectrum === 'white'
 
 	return makeLight({
+		logger,
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
@@ -129,8 +130,9 @@ const setTradfriPlugState = device => async newState => {
 	return null
 }
 
-const makeSwitchFromTradfriPlug = device =>
+const makeSwitchFromTradfriPlug = logger => device =>
 	makeSwitch({
+		logger,
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
@@ -146,12 +148,16 @@ const makeSwitchFromTradfriPlug = device =>
 	})
 
 export const makeTradfriGateway = ({
+	logger,
 	description,
 	config,
 	things
 }) => {
 
-	DEBUG && console.log('TRADFRI: initializing')
+	logger.info(`initializing IKEA Tradfri gateway #${description.id}`)
+
+	const makeLight = makeLightFromTradfriLightbulb(logger)
+	const makeSwitch = makeSwitchFromTradfriPlug(logger)
 
 	const unsupportedInstanceIds = []
 
@@ -165,15 +171,15 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				things.add(makeLightFromTradfriLightbulb(device))
+				things.add(makeLight(device))
 				break
 			case AccessoryTypes.plug:
-				things.add(makeSwitchFromTradfriPlug(device))
+				things.add(makeSwitch(device))
 				break
 
 			default:
 				unsupportedInstanceIds.push(device.instanceId)
-				DEBUG && console.log(`TRADFRI: found unsupported device type ${device.type} with id ${device.instanceId}`)
+				logger.debug(`IKEA Tradfri gateway #${description.id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
 				break
 		}
 	}
@@ -196,7 +202,7 @@ export const makeTradfriGateway = ({
 		!identity ||
 		!psk
 	) {
-		DEBUG && console.log('TRADFRI: credentials not provided, continuing in mock mode')
+		logger.warn(`IKEA Tradfri gateway #${description.id} credentials not provided, continuing in mock mode`)
 	} else {
 		connect({
 			gatewayAddressOrHost,
@@ -214,7 +220,7 @@ export const makeTradfriGateway = ({
 				.on('device removed', removeThing)
 				.on('error', console.error)
 				.observeDevices()
-			DEBUG && console.log('TRADFRI: credentials provided')
+			logger.info(`IKEA Tradfri gateway #${description.id} connected`)
 		})
 	}
 

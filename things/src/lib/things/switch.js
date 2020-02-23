@@ -3,16 +3,15 @@ import {
 	setterFromEffect
 } from '../thing'
 
-const DEBUG = process.env.DEBUG
-
 export const makeSwitch = ({
+	logger,
 	description,
 	effects,
 	initialState,
 	publishChange
 }) => {
 
-	DEBUG && console.log(`SWITCH: initializing ${description.id}`)
+	logger.debug(`initializing switch #${description.id}`)
 
 	const state = {
 		isOn: false,
@@ -20,6 +19,7 @@ export const makeSwitch = ({
 	}
 
 	return makeThing({
+		logger,
 		type: 'switch',
 		description,
 		publishChange,

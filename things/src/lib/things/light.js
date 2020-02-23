@@ -3,15 +3,15 @@ import {
 	setterFromEffect
 } from '../thing'
 
-const DEBUG = process.env.DEBUG
 export const makeLight = ({
+	logger,
 	description,
 	effects,
 	initialState,
 	publishChange
 }) => {
 
-	DEBUG && console.log(`LIGHT: initializing ${description.id}`)
+	logger.debug(`initializing light #${description.id}`)
 
 	const {
 		isColor,
@@ -38,6 +38,7 @@ export const makeLight = ({
 	}
 
 	return makeThing({
+		logger,
 		type: 'light',
 		description,
 		publishChange,

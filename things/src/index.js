@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 import { makeThermostat } from './lib/things/thermostat'
 
 import { makeSerialGateway } from './lib/gateways/serial-gateway'
@@ -17,12 +19,18 @@ import {
 	gatewayDefinitions
 } from './config'
 
-const initializeThing = ({ publishChange }) => ({ type, description, config }) => {
+const initializeThing = deps => thingDefinition => {
 
-	switch (type) {
+	const args = {
+		...deps,
+		...thingDefinition,
+		initialState: {}
+	}
+	
+	switch (thingDefinition.type) {
 
 		case 'thermostat':
-			return makeThermostat({ description, config, publishChange, initialState: {} })
+			return makeThermostat(args)
 
 		default:
 			throw new Error(`Unsupported thing config: ${type}.`)
@@ -30,21 +38,26 @@ const initializeThing = ({ publishChange }) => ({ type, description, config }) =
 	}
 }
 
-const initializeGateway = ({ publishChange, things }) => ({ type, description, config }) => {
+const initializeGateway = deps => gatewayDefinition => {
 
-	switch (type) {
+	const args = {
+		...deps,
+		...gatewayDefinition
+	}
+
+	switch (gatewayDefinition.type) {
 
 		case 'tradfri-gateway':
-			return makeTradfriGateway({ description, config, publishChange, things })
+			return makeTradfriGateway(args)
 
 		case 'serial-gateway':
-			return makeSerialGateway({ description, config, publishChange, things })
+			return makeSerialGateway(args)
 
 		case 'rpi-gpio-gateway':
-			return makeRpiGpioGateway({ description, config, publishChange, things })
+			return makeRpiGpioGateway(args)
 
 		case 'aio-gateway':
-			return makeAioGateway({ description, config, publishChange, things })
+			return makeAioGateway(args)
 
 		default:
 			throw new Error(`Unsupported gateway config: ${type}.`)
@@ -71,13 +84,14 @@ const main = async () => {
 		subscribeToChanges
 	})
 
-	const initializeThingWithDeps = initializeThing({ publishChange })
+	const initializeThingWithDeps = initializeThing({ logger, publishChange })
 	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
 
-	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
+	const initializeGatewayWithDeps = initializeGateway({ logger, things, publishChange })
 	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
 	initializeWebsocketApi({
+		logger,
 		things,
 		subscribeToChanges,
 		unsubscribeFromChanges
@@ -85,4 +99,4 @@ const main = async () => {
 
 }
 
-main().catch(console.error)
+main().catch(logger.error)

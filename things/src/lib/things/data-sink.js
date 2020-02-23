@@ -8,12 +8,13 @@ const DEBUG = process.env.DEBUG
 const neverPublishChange = () => () => { console.warn('Something is borked, a data sink advertised a state change.') }
 
 export const makeDataSink = ({
+	logger,
 	description,
 	config,
 	effects
 }) => {
 
-	DEBUG && console.log(`DATA SINK: initializing '${description.id}'`)
+	logger.debug(`initializing data sink #${description.id}`)
 
 	const {
 		values
@@ -50,7 +51,7 @@ export const makeDataSink = ({
 					type,
 					skipEqualityCheck: true,
 					set: async newValue => {
-						DEBUG && console.log(`DATA SINK: '${description.id}' value '${key}' updated with ${newValue}`)
+						logger.debug(`data sink #${description.id} property '${key}' updated with value '${newValue}'`)
 						if (reportOnUpdate) {
 							watchdog && watchdog.pet()
 							value = newValue
@@ -68,6 +69,7 @@ export const makeDataSink = ({
 		)
 
 	return makeThing({
+		logger,
 		type: 'data-sink',
 		description,
 		mutators,

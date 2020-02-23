@@ -1,17 +1,16 @@
 import { Server as WebSocketServer } from 'ws'
 
-const DEBUG = process.env.DEBUG
-
 export const initializeWebsocketApi = ({
+	logger,
 	things,
 	subscribeToChanges,
 	unsubscribeFromChanges
 }) => {
 
-	DEBUG && console.log('WSAPI: initializing')
+	logger.debug('WebSocket API initializing')
 
 	const messageHandler = messageString => {
-		DEBUG && console.log(`WSAPI: received message`)
+		logger.debug(`WebSocket API received message`)
 		try {
 			const message = JSON.parse(messageString)
 
@@ -27,9 +26,9 @@ export const initializeWebsocketApi = ({
 
 	const webSocketServer = new WebSocketServer({ port: process.env.WS_API_PORT || 8080 })
 
-	webSocketServer.on('connection', socket => {
+	webSocketServer.on('connection', (socket) => {
 
-		DEBUG && console.log('WSAPI: new connection')
+		logger.debug(`new WebSocket API connection`)
 
 		// send a list with all thing states on init, only updates will be sent after this
 		// TODO, FIX: things removed after a client is connected will remain visible for the client until they reconnect
@@ -44,12 +43,12 @@ export const initializeWebsocketApi = ({
 				type: 'thing-state',
 				payload: thingState
 			}))
-			DEBUG && console.log(`WSAPI: sent updated thing ${id} state`)
+			logger.debug(`#${id} state sent to client via WebSocket API`)
 		})
 
 		socket.on('close', () => {
 			unsubscribeFromChanges(subscriptionId)
-			DEBUG && console.log('WSAPI: connection closed')
+			logger.debug(`closed WebSocket API connection`)
 		})
 
 		socket.on('message', messageHandler)

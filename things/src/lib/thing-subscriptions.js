@@ -27,6 +27,7 @@ const ONE_SECOND = 1000
 const TOTAL_UPDATE_ATTEMPTS = 3
 
 export const handleSubscriptions = ({
+	logger,
 	things,
 	subscriptions,
 	subscribeToChanges
@@ -51,7 +52,7 @@ export const handleSubscriptions = ({
 				const attemptSubscriberUpdate = async attemptNr => {
 
 					if (attemptNr >= TOTAL_UPDATE_ATTEMPTS) {
-						console.warn(`subscriber with id ${subscriberId} is offline.`)
+						logger.warn(`subscriber #${subscriberId} is offline.`)
 						return
 					}
 

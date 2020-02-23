@@ -3,16 +3,18 @@ import { makeThing } from '../thing'
 const DEBUG = process.env.DEBUG
 
 export const makeAmbientSensor = ({
+	logger,
 	description,
 	initialState,
 	publishChange
 }) => {
 
-	DEBUG && console.log(`SENSOR: initializing ${description.id}`)
+	logger.debug(`initializing ambient sensor #${description.id}`)
 
 	let { temperature = 0 } = initialState
 
 	return makeThing({
+		logger,
 		type: 'ambient-sensor',
 		description,
 		publishChange,
@@ -22,6 +24,7 @@ export const makeAmbientSensor = ({
 				skipEqualityCheck: true,
 				set: async newValue => {
 					temperature = newValue
+					logger.debug(`ambient sensor #${description.id} property 'temperature' updated with value '${temperature}'`)
 					return true
 				},
 				get: () => temperature

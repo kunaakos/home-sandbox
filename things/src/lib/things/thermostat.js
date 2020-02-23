@@ -6,16 +6,15 @@ import { makeThing } from '../thing'
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
-const DEBUG = process.env.DEBUG
-
 export const makeThermostat = ({
+	logger,
 	description,
 	config = {},
 	initialState = {},
 	publishChange
 }) => {
 
-	DEBUG && console.log(`THERMOSTAT: initializing ${description.id}`)
+	logger.debug(`initializing thermostat #${description.id}`)
 
 	let {
 		overrun = 0.1,
@@ -33,7 +32,7 @@ export const makeThermostat = ({
 
 	const watchdog = makeWatchdog({
 		onTimedOut: () => {
-			DEBUG && console.log(`THERMOSTAT: timed out, turning off heat`)
+			logger.warn(`thermostat #${description.id} timed out, turning heat 'OFF'`)
 			state.heatRequest = false
 			publishChange(description.id)(['heatRequest', 'timedOut'])
 		},
@@ -51,7 +50,7 @@ export const makeThermostat = ({
 			state.heatRequest === false &&
 			state.currentTemperature < state.targetTemperature - underrun
 		) {
-			DEBUG && console.log(`THERMOSTAT: turning heating ON`)
+			logger.debug(`thermostat #${description.id} turning heat 'ON'`)
 			state.heatRequest = true
 			return true
 		}
@@ -60,7 +59,7 @@ export const makeThermostat = ({
 			state.heatRequest === true &&
 			state.currentTemperature > state.targetTemperature + overrun
 		) {
-			DEBUG && console.log(`THERMOSTAT: turning heating OFF`)
+			logger.debug(`thermostat #${description.id} turning heat 'OFF'`)
 			state.heatRequest = false
 			return true
 		}
@@ -69,9 +68,10 @@ export const makeThermostat = ({
 
 	}
 
-	const tickIntervalHandle = setInterval(updateHeatRequest, tickInterval)
+	setInterval(updateHeatRequest, tickInterval)
 
 	return makeThing({
+		logger,
 		type: 'thermostat',
 		description,
 		publishChange,
@@ -81,7 +81,7 @@ export const makeThermostat = ({
 				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
 					state.targetTemperature = preciseRound(newTargetTemperature, 1)
-					DEBUG && console.log(`THERMOSTAT: target temperature set to ${state.targetTemperature}`)
+					logger.debug(`thermostat #${description.id} target temperature set to '${state.targetTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'targetTemperature']
 						: true
@@ -94,7 +94,7 @@ export const makeThermostat = ({
 				set: async newCurrentTemperature => {
 					watchdog.pet()
 					state.currentTemperature = preciseRound(newCurrentTemperature, 1)
-					DEBUG && console.log(`THERMOSTAT: current temperature updated to ${state.currentTemperature}`)
+					logger.debug(`thermostat #${description.id} current temperature set to '${state.currentTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'currentTemperature']
 						: true

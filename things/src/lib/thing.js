@@ -15,6 +15,7 @@ const checkPermissions = (mutators, key) => ({
 })
 
 export const makeThing = ({
+	logger,
 	type,
 	description,
 	publishChange,
@@ -57,10 +58,10 @@ export const makeThing = ({
 				([key, newValue]) => {
 					const { isReadable, isWriteable } = checkPermissions(mutators, key)
 					if (!isReadable && !isWriteable) {
-						console.warn(`Attempted mutation of inexistent property ${key} of ${description.id}.`)
+						logger.warn(`Attempted mutation of inexistent property '${key}' of #${description.id}.`)
 						return false
 					} else if (!isWriteable) {
-						console.warn(`Attempted mutation of read-only property ${key} of ${description.id}.`)
+						logger.warn(`Attempted mutation of read-only property '${key}' of #${description.id}.`)
 						return false
 					} else {
 						const skipEqualityCheck = !isReadable || Boolean(mutators[key].skipEqualityCheck)
@@ -93,7 +94,7 @@ export const makeThing = ({
 
 					} catch (error) {
 						// mutation failed
-						console.error(error)
+						logger.error(error)
 						return []
 					}
 
