@@ -18,18 +18,27 @@ const prettifyLevel = level => {
 	}
 }
 
-const prettifyMessage = msg => 
+const prettifyMessage = msg =>
 	msg
-		.replace(/#(\S*)/g, (_ ,id) => chalk.blue(id))
+		.replace(/#(\S*)/g, (_, id) => chalk.blue(id))
 		.replace(/'[^']*'/g, (betweenSingleQuotes) => chalk.cyan(betweenSingleQuotes))
 
+const prettifyStackTrace = stack =>
+	`\n${
+	stack
+		.split('\n')
+		.slice(1)// the first line is the message, not needed
+		.map(line => `      ${chalk.red(line.trim())}`) // indentation 
+		.join('\n')
+	}`
 
 const prettifier = () => ({
 	level,
-	msg
-}) => {
-	return `${prettifyLevel(level)} ${prettifyMessage(msg)}\n`
-}
+	msg,
+	stack
+}) =>
+	`${prettifyLevel(level)} ${prettifyMessage(msg)}${stack ? prettifyStackTrace(stack) : ''}\n`
+
 
 const getLoggerOptions = ({ ENV, LOGLEVEL }) => {
 
