@@ -12,32 +12,51 @@ const prettifyLevel = level => {
 		case 40:
 			return chalk.gray.bgYellow(' WRN ')
 		case 50:
-			return chalk.bgRed(' ERR ')
+			return chalk.gray.bgRed(' ERR ')
 		default:
 			return chalk.bgMagenta(' ??? ')
 	}
 }
 
-const prettifyMessage = msg =>
+const formatMessage = msg =>
 	msg
 		.replace(/#(\S*)/g, (_, id) => chalk.blue(id))
 		.replace(/'[^']*'/g, (betweenSingleQuotes) => chalk.cyan(betweenSingleQuotes))
 
-const prettifyStackTrace = stack =>
-	`\n${
-	stack
-		.split('\n')
-		.slice(1)// the first line is the message, not needed
-		.map(line => `      ${chalk.red(line.trim())}`) // indentation 
-		.join('\n')
-	}`
+const formatErrorMessage = msg =>
+	msg.replace(/#(\S*)/g, (_, id) => chalk.bold(id))
+
+const formatStackTraceLine = line =>
+	`      ${chalk.gray(line.trim())}\n`
+
+const prettifyStackTrace = stack => {
+	const [errorMessage, ...stackTraceLines] = stack.split('\n')
+	return [
+		// '\n',ß
+		`${chalk.gray(formatErrorMessage(errorMessage))}\n`,
+		...stackTraceLines.map(formatStackTraceLine),
+		'\n'
+	].join('')
+}
 
 const prettifier = () => ({
 	level,
 	msg,
 	stack
 }) =>
-	`${prettifyLevel(level)} ${prettifyMessage(msg)}${stack ? prettifyStackTrace(stack) : ''}\n`
+	`${
+		stack ? '\n' : ''
+	}${
+		prettifyLevel(level)
+	} ${
+		stack
+			? chalk.red(formatErrorMessage(msg))
+			: formatMessage(msg)
+	}\n${
+		stack
+			? prettifyStackTrace(stack)
+			: ''
+	}`
 
 
 const getLoggerOptions = ({ ENV, LOGLEVEL }) => {
