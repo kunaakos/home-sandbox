@@ -13,6 +13,8 @@ const prettifyLevel = level => {
 			return chalk.gray.bgYellow(' WRN ')
 		case 50:
 			return chalk.gray.bgRed(' ERR ')
+		case 60:
+			return chalk.gray.bgRed(' ✖╭╮✖ ')
 		default:
 			return chalk.bgMagenta(' ??? ')
 	}
@@ -32,7 +34,6 @@ const formatStackTraceLine = line =>
 const prettifyStackTrace = stack => {
 	const [errorMessage, ...stackTraceLines] = stack.split('\n')
 	return [
-		// '\n',ß
 		`${chalk.gray(formatErrorMessage(errorMessage))}\n`,
 		...stackTraceLines.map(formatStackTraceLine),
 		'\n'

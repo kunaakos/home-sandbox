@@ -26,7 +26,7 @@ const initializeThing = deps => thingDefinition => {
 		...thingDefinition,
 		initialState: {}
 	}
-	
+
 	switch (thingDefinition.type) {
 
 		case 'thermostat':
@@ -66,7 +66,7 @@ const initializeGateway = deps => gatewayDefinition => {
 
 }
 
-const main = async () => {
+const startApp = async () => {
 
 	const {
 		publishChange,
@@ -100,8 +100,12 @@ const main = async () => {
 	})
 
 }
-process.on('uncaughtException', (error, origin) => {
-	logger.error(error, origin)
-})
 
-main().catch(error => logger.error(error, 'application error'))
+const fatalErrorHandler = message => error => {
+	logger.fatal(error, message)
+	process.exit(1)
+}
+
+process.on('uncaughtException', fatalErrorHandler('uncaught exception'))
+process.on('unhandledRejection', fatalErrorHandler('unhandled promise rejection'))
+startApp().catch(fatalErrorHandler('application error'))
