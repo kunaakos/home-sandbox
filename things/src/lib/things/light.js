@@ -1,17 +1,15 @@
-import {
-	makeThing,
-	setterFromEffect
-} from '../thing'
+import { makeThing } from '../thing'
+import { setterFromEffect } from '../utils'
 
-const DEBUG = process.env.DEBUG
+import { logger } from '../../logger'
+
 export const makeLight = ({
 	description,
 	effects,
-	initialState,
-	publishChange
+	initialState
 }) => {
 
-	DEBUG && console.log(`LIGHT: initializing ${description.id}`)
+	logger.debug(`initializing light #${description.id}`)
 
 	const {
 		isColor,
@@ -40,32 +38,51 @@ export const makeLight = ({
 	return makeThing({
 		type: 'light',
 		description,
-		publishChange,
 		mutators: {
 			isOn: {
-				type: 'number',
+				type: 'boolean',
 				get: () => state.isOn,
-				set: setterFromEffect(effects.changeState, state, 'isOn') 
+				set: setterFromEffect({
+					thingId: description.id,
+					effect: effects.changeState,
+					state,
+					key: 'isOn'
+				})
 			},
 			...(isDimmable && {
 				brightness: {
 					type: 'number',
 					get: () => state.brightness,
-					set: setterFromEffect(effects.changeBrightness, state, 'brightness')
+					set: setterFromEffect({
+						thingId: description.id,
+						effect: effects.changeBrightness,
+						state,
+						key: 'brightness'
+					})
 				}
 			}),
 			...(isColor && {
 				color: {
 					type: 'string',
 					get: () => state.color,
-					set: setterFromEffect(effects.changeColor, state, 'color')
+					set: setterFromEffect({
+						thingId: description.id,
+						effect: effects.changeColor,
+						state,
+						key: 'color'
+					})
 				}
 			}),
 			...(Boolean(colorTemperatureRange) && {
 				colorTemperature: {
 					type: 'number',
 					get: () => state.colorTemperature,
-					set: setterFromEffect(effects.changeColorTemperature, state, 'colorTemperature')
+					set: setterFromEffect({
+						thingId: description.id,
+						effect: effects.changeColorTemperature,
+						state,
+						key: 'colorTemperature'
+					})
 				}
 			})
 		}

@@ -19,4 +19,4 @@ ENV UDEV=1
 
 # run apps when container starts up on the device
 # ? TODO!
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "staging"]

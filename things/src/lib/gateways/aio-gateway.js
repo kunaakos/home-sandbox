@@ -1,16 +1,9 @@
 import fetch from 'node-fetch'
 import upperFirst from 'lodash/upperFirst'
 
+import { logger } from '../../logger'
+
 import { makeDataSink } from '../things/data-sink'
-
-const DEBUG = process.env.DEBUG
-
-const mockUpdateAioFeed = ({
-	groupKey,
-	feedKey
-}) => async data => {
-	DEBUG && console.log(`AIO: '${groupKey ? `${groupKey}.` : ''}${feedKey}' updated with ${data}`)
-}
 
 const updateAioFeed = ({
 	username,
@@ -45,7 +38,7 @@ export const makeAioGateway = ({
 	things
 }) => {
 
-	DEBUG && console.log(`AIO: initializing '${description.id}'`)
+	logger.info(`initializing adafruit.io gateway #${description.id}`)
 
 	const {
 		username,
@@ -57,7 +50,7 @@ export const makeAioGateway = ({
 	const mockMode = !(username && aioKey)
 
 	if (mockMode) {
-		DEBUG && console.log(`AIO: credentials missing for '${description.id}', continuing in mock mode`)
+		logger.warn(`credentials missing for adafruit.io gateway #${description.id}, continuing in mock mode`)
 	}
 
 	const { values, effects } = feeds
@@ -71,7 +64,7 @@ export const makeAioGateway = ({
 					reportInterval
 				},
 				effect: mockMode
-					? mockUpdateAioFeed({ username, aioKey, groupKey, feedKey })
+					? data => { logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`) }
 					: updateAioFeed({ username, aioKey, groupKey, feedKey })
 			})
 		)

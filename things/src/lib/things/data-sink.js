@@ -3,7 +3,7 @@ import upperFirst from 'lodash/upperFirst'
 import { makeThing } from '../thing'
 import { makeWatchdog } from '../watchdog'
 
-const DEBUG = process.env.DEBUG
+import { logger } from '../../logger'
 
 const neverPublishChange = () => () => { console.warn('Something is borked, a data sink advertised a state change.') }
 
@@ -13,7 +13,7 @@ export const makeDataSink = ({
 	effects
 }) => {
 
-	DEBUG && console.log(`DATA SINK: initializing '${description.id}'`)
+	logger.debug(`initializing data sink #${description.id}`)
 
 	const {
 		values
@@ -50,15 +50,15 @@ export const makeDataSink = ({
 					type,
 					skipEqualityCheck: true,
 					set: async newValue => {
-						DEBUG && console.log(`DATA SINK: '${description.id}' value '${key}' updated with ${newValue}`)
+						logger.trace(`data sink #${description.id} property '${key}' updated with value '${newValue}'`)
 						if (reportOnUpdate) {
 							watchdog && watchdog.pet()
 							value = newValue
-							updateFeed(value)
+							await updateFeed(value)
 						} else {
 							state[key] = newValue
 						}
-						return false
+						return []
 					}
 				}
 

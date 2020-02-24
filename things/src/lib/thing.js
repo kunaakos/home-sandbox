@@ -17,95 +17,140 @@ const checkPermissions = (mutators, key) => ({
 export const makeThing = ({
 	type,
 	description,
-	publishChange,
 	mutators
 }) => {
 
-	// get is synchronous
+	// returns: State | Error
 	const get = () => {
 
-		const currentState = Object.entries(mutators)
-			.map(
-				([key, { get }]) => ([
-					key,
-					get
-						? get() // get current value of readable properties
-						: null // return null for write-only properties
-				])
-			)
-			.reduce(
-				(acc, [key, value]) => {
-					acc[key] = value
-					return acc
-				},
-				{}
-			)
+		try {
+			const currentState = Object.entries(mutators)
+				.reduce(
+					(acc, [key, { type, get }]) => {
+						if (!get) {
+							acc[key] = null // property is write-only
+							return acc
+						} else {
+							const result = get()
+							if (typeof result !== type) {
+								throw new Error(`getter for property '${key}' of #${description.id} returned with a value of type '${typeof value}' instead of expected '${type}'`)
+							} else {
+								acc[key] = result
+								return acc
+							}
+						}
+					},
+					{}
+				)
 
-		return {
-			type,
-			...description,
-			...currentState
+			return {
+				type,
+				...description,
+				...currentState
+			}
+		} catch (error) {
+			return error
 		}
+
 	}
 
-	// set will complete when all attempted mutations were finished
+	// returns: [string[], Error[]]
 	const set = async newState => {
 
 		const mutations = Object.entries(newState)
-			.filter(
-				// check if a mutation is possible and needed
-				([key, newValue]) => {
-					const { isReadable, isWriteable } = checkPermissions(mutators, key)
-					if (!isReadable && !isWriteable) {
-						console.warn(`Attempted mutation of inexistent property ${key} of ${description.id}.`)
-						return false
-					} else if (!isWriteable) {
-						console.warn(`Attempted mutation of read-only property ${key} of ${description.id}.`)
-						return false
-					} else {
-						const skipEqualityCheck = !isReadable || Boolean(mutators[key].skipEqualityCheck)
-						return skipEqualityCheck
-							? true
-							: mutators[key].get() !== newValue
-					}
-				}
-			)
 			.map(
-				// attempt mutation
-				async ([key, newValue]) => {
+				([key, newValue]) => {
 
 					try {
-						const result = await mutators[key].set(typecast(newValue, mutators[key].type))
+						const { isReadable, isWriteable } = checkPermissions(mutators, key)
 
-						if (typeof result === 'boolean') {
-							// the setter changed the value it was declared for, or nothing
-							return result ? [key] : []
-						} else if (
-							Array.isArray(result) &&
-							result.every(element => typeof element === 'string')
-						) {
-							// the setter returned with an array of keys for the values it changed
-							return result
+						// check if the mutation is possible (value exists and is writeable)
+						if (!isReadable && !isWriteable) {
+							return [key, null, new Error(`attempted mutation of inexistent property '${key}'`)]
+						} else if (!isWriteable) {
+							return [key, null, new Error(`attempted mutation of read-only property '${key}'`)]
 						} else {
-							// the setter is probably borked
-							throw new Error(`Setter '${key}' of thing '${description.id}' returned with invalid value: ${result}`)
+
+							// typecast new value
+							const typecastResult = typecast(newValue, mutators[key].type)
+							if (typecastResult instanceof Error) {
+								return [key, null, typecastResult]
+							}
+
+							// perform the equality check if needed
+							// always skip it for write-only values, or mutators that have equality checks disabled
+							const shouldUpdate =
+								!isReadable ||
+								mutators[key].skipEqualityCheck ||
+								mutators[key].get() !== typecastResult // NOTE: get() could throw if borked
+
+							if (shouldUpdate) {
+								return [key, typecastResult, null]
+							} else {
+								return [key, null, null]
+							}
+
 						}
 
 					} catch (error) {
-						// mutation failed
-						console.error(error)
-						return []
+						return [key, null, error]
 					}
 
 				}
 			)
 
-		const results = await Promise.all(mutations)
-		const changedKeys = uniq(results.flat())
+			.map(
 
-		if (changedKeys.length) {
-			publishChange(description.id)(changedKeys)
-		}
+				async ([
+					key, // string
+					newValue, // some value of expected type | null
+					error // null | Error
+				]) => {
+
+					try {
+						if (newValue === null || error !== null) {
+							return [key, newValue, error]
+						} else {
+
+							const result = await mutators[key].set(newValue) // NOTE: set() could throw if borked
+							if (
+								Array.isArray(result) &&
+								result.every(element => typeof element === 'string')
+							) {
+								return [key, result, null]
+							} else {
+								return [key, null, new Error(`setter for property '${key}' returned with invalid result ${JSON.stringify(result)}`)]
+							}
+						}
+
+					} catch (error) {
+						return [key, null, error]
+					}
+
+				}
+
+			)
+
+		const results = await Promise.all(mutations) // NOTE: Promise.all() could reject if the above implementation is borked
+
+		const { changedKeys, errors } = results
+			.reduce(
+				(acc, [, changedKeys, error]) => {
+					if (error !== null) {
+						acc.errors.push(error)
+					} else if (changedKeys !== null) {
+						acc.changedKeys = [acc.changedKeys, ...changedKeys]
+					}
+					return acc
+				},
+				{
+					changedKeys: [], // string[]
+					errors: [] // Error[]
+				}
+			)
+
+		return [uniq(changedKeys), errors]
+
 	}
 
 	const typeOf = key => mutators[key] && mutators[key].type
@@ -117,15 +162,4 @@ export const makeThing = ({
 		get,
 		typeOf
 	})
-}
-
-export const setterFromEffect = (effect, state, key) => async newValue => {
-	const result = await effect(newValue)
-	if (result === null) {
-		return false
-	} else {
-		// the new state should be a validated, rounded etc. value returned by the effect
-		state[key] = result
-		return true
-	}
 }

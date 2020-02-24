@@ -23,6 +23,8 @@
 
 import { delay } from './utils'
 
+import { logger } from '../logger'
+
 const ONE_SECOND = 1000
 const TOTAL_UPDATE_ATTEMPTS = 3
 
@@ -51,7 +53,7 @@ export const handleSubscriptions = ({
 				const attemptSubscriberUpdate = async attemptNr => {
 
 					if (attemptNr >= TOTAL_UPDATE_ATTEMPTS) {
-						console.warn(`subscriber with id ${subscriberId} is offline.`)
+						logger.warn(`subscriber #${subscriberId} is offline.`)
 						return
 					}
 
@@ -62,6 +64,10 @@ export const handleSubscriptions = ({
 
 					const publisherState = things.get(publisherId)
 
+					if (publisherState === null) {
+						throw new Error (`could not get current state of #${publisherId}`)
+					}
+
 					const newValues = keyMaps
 						.filter(
 							([publisherKey,]) => Boolean(changedKeys) // if a list of changed keys were not passed, we're assuming all have changed
@@ -70,6 +76,9 @@ export const handleSubscriptions = ({
 						)
 						.reduce(
 							(acc, [publisherKey, subscriberKey]) => {
+								if (!Reflect.has(publisherState, publisherKey)) {
+									throw new Error(`property '${publisherKey}' does not exist on #${publisherId}`)
+								}
 								acc[subscriberKey] = publisherState[publisherKey]
 								return acc
 							},
@@ -82,7 +91,7 @@ export const handleSubscriptions = ({
 
 				}
 
-				attemptSubscriberUpdate(1).catch(error => console.error)
+				attemptSubscriberUpdate(1).catch(error => logger.error(error, `subscriptions failed updating subscriber #${subscriberId} of #${publisherId}`))
 
 			}
 		)

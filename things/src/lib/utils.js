@@ -1,3 +1,5 @@
+import { logger } from '../logger'
+
 /**
  * Misc. utility functions.
  */
@@ -17,12 +19,13 @@ export const generateUuid = placeholder =>
 export const preciseRound = (number, decimals) => Math.round((number + Number.EPSILON) * 10 * decimals) / (10 * decimals)
 
 // a strict set of rules about typecasting - not every possible cast would make sense in this application
+// the result is either a value of the expected type or an error
 export const typecast = (value, toType) => {
 
 	const fromType = typeof value
 
 	if (!['string', 'number', 'boolean'].includes(typeof fromType)) {
-		throw new TypeError(`Attempted to cast ${fromType}.`)
+		return new TypeError(`cannot cast from unsupported type '${fromType}'.`)
 	}
 
 	switch (typeof value) {
@@ -33,9 +36,9 @@ export const typecast = (value, toType) => {
 					return value
 				case 'number':
 				case 'boolean':
-					throw new TypeError(`Cannot cast from ${fromType} to ${toType}`)
+					return new TypeError(`cannot cast from '${fromType}' to '${toType}'`)
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					return new TypeError(`cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
 
 		case 'number':
@@ -45,9 +48,9 @@ export const typecast = (value, toType) => {
 				case 'number':
 					return value
 				case 'boolean':
-					throw new TypeError(`Cannot cast from ${fromType} to ${toType}`)
+					return new TypeError(`cannot cast from '${fromType}' to '${toType}'`)
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					return new TypeError(`cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
 
 		case 'boolean':
@@ -59,12 +62,29 @@ export const typecast = (value, toType) => {
 				case 'boolean':
 					return value
 				default:
-					throw new TypeError(`Cannot cast from ${fromType} to unkown type ${toType}`)
+					return new TypeError(`cannot cast from '${fromType}' to unkown type '${toType}'`)
 			}
-
-		default:
-			throw new TypeError(`Cannot cast from unknown type ${fromType}`)
 
 	}
 
+}
+
+export const setterFromEffect = ({
+	thingId,
+	effect,
+	state,
+	key
+}) => async newValue => {
+	const result = await effect(newValue)
+	if (result === null) {
+		logger.trace(`#${thingId} effect for property '${key}' returned with 'null', a state change is expected later.`)
+		return []
+	} else if (typeof result !== typeof newValue) {
+		throw new Error(`#${thingId} effect for property '${key}' returned with value of type '${typeof result}' instead of '${typeof newValue}'`)
+	} {
+		// the new state should be a validated, rounded etc. value returned by the effect
+		state[key] = result
+		logger.trace(`thing #${thingId} property '${key}' updated with value '${newValue}'`)
+		return [key]
+	}
 }

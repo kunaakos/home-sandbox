@@ -12,10 +12,10 @@ import {
 	AccessoryTypes
 } from "node-tradfri-client"
 
+import { logger } from '../../logger'
+
 import { makeSwitch } from "../things/switch"
 import { makeLight } from "../things/light"
-
-const DEBUG = process.env.DEBUG
 
 // NOTE: used during auth flow
 export const discover = async () => {
@@ -27,33 +27,26 @@ export const authenticate = async ({
 	gatewayAddressOrHost,
 	securityCode
 }) => {
-	try {
-		const tradfriClient = new TradfriClient(gatewayAddressOrHost)
-		const { identity, psk } = await tradfriClient.authenticate(securityCode)
-		return { tradfriClient, identity, psk }
-	} catch (e) {
-		throw new Error(`Tradfri client authentication error: ${e.message}.`)
-	}
+	const tradfriClient = new TradfriClient(gatewayAddressOrHost)
+	const { identity, psk } = await tradfriClient.authenticate(securityCode)
+	return { tradfriClient, identity, psk }
 }
 
 export const connect = async ({
+	customLogger,
 	gatewayAddressOrHost,
 	identity,
 	psk
 }) => {
-	try {
-		const tradfriClient = new TradfriClient(
-			gatewayAddressOrHost,
-			{
-				watchConnection: true,
-				// customLogger: console.log
-			}
-		)
-		await tradfriClient.connect(identity, psk)
-		return tradfriClient
-	} catch (e) {
-		throw new Error(`Tradfri client connection error: ${e.message}.`)
-	}
+	const tradfriClient = new TradfriClient(
+		gatewayAddressOrHost,
+		{
+			watchConnection: true,
+			customLogger
+		}
+	)
+	await tradfriClient.connect(identity, psk)
+	return tradfriClient
 }
 
 const neverPublishChange = () => () => { console.warn('Something is borked, a tradfri device advertised a state change.') }
@@ -151,7 +144,7 @@ export const makeTradfriGateway = ({
 	things
 }) => {
 
-	DEBUG && console.log('TRADFRI: initializing')
+	logger.info(`initializing IKEA Tradfri gateway #${description.id}`)
 
 	const unsupportedInstanceIds = []
 
@@ -165,24 +158,19 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
+				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on light #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
 				things.add(makeLightFromTradfriLightbulb(device))
 				break
 			case AccessoryTypes.plug:
+				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on switch #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
 				things.add(makeSwitchFromTradfriPlug(device))
 				break
 
 			default:
 				unsupportedInstanceIds.push(device.instanceId)
-				DEBUG && console.log(`TRADFRI: found unsupported device type ${device.type} with id ${device.instanceId}`)
+				logger.debug(`IKEA Tradfri gateway #${description.id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
 				break
 		}
-	}
-
-	// NOTE: not yet tested
-	const removeThing = instanceId => {
-		const thingId = thingIdFrom(instanceId)
-		things.remove(thingId)
-		unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
 	}
 
 	const {
@@ -196,26 +184,45 @@ export const makeTradfriGateway = ({
 		!identity ||
 		!psk
 	) {
-		DEBUG && console.log('TRADFRI: credentials not provided, continuing in mock mode')
+		logger.warn(`IKEA Tradfri gateway #${description.id} credentials not provided, continuing in mock mode`)
 	} else {
 		connect({
+			// customLogger: msg => logger.trace(`NODE-TRADFRI: ${msg}`),
 			gatewayAddressOrHost,
 			identity,
 			psk
-		}).then(tradfriClient => {
-			tradfriClient
-				.on('device updated', device => {
-					if (unsupportedInstanceIds.includes(device.instanceId)) {
-						// unsupported device updated, do nothing
-					} else {
-						addOrReplaceThing(device)
-					}
-				})
-				.on('device removed', removeThing)
-				.on('error', console.error)
-				.observeDevices()
-			DEBUG && console.log('TRADFRI: credentials provided')
 		})
+			.then(tradfriClient => {
+
+				tradfriClient
+					.on('device updated', device => {
+						try {
+							if (unsupportedInstanceIds.includes(device.instanceId)) {
+								// unsupported device updated, do nothing
+							} else {
+								addOrReplaceThing(device)
+							}
+						} catch (error) {
+							logger.error(error, `error updating IKEA Tradfri device ${device.instanceId}`)
+						}
+					})
+					.on('device removed', instanceId => {
+						try {
+							const thingId = thingIdFrom(instanceId)
+							things.remove(thingId)
+							unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
+						} catch (error) {
+							logger.error(error, `error removing IKEA Tradfri device ${device.instanceId}`)
+
+						}
+					})
+					.on('error', error => logger.error(error, 'caught \'node-tradfri-client\' error'))
+					.observeDevices()
+
+				logger.info(`IKEA Tradfri gateway #${description.id} connected`)
+
+			})
+			.catch(err => logger.error(err, 'error connecting to IKEA Tradfri gateway'))
 	}
 
 	return {

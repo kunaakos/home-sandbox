@@ -7,9 +7,9 @@ import fs from 'fs'
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 
-import { makeAmbientSensor } from '../things/ambient-sensor'
+import { logger } from '../../logger'
 
-const DEBUG = process.env.DEBUG
+import { makeAmbientSensor } from '../things/ambient-sensor'
 
 const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 
@@ -20,19 +20,23 @@ export const makeSerialGateway = ({
 	publishChange
 }) => {
 
-	DEBUG && console.log('SERIAL: initializing')
+	logger.info(`initializing serial gateway #${description.id}`)
 
 	const onDataReceived = data => {
 		try {
 			const reading = JSON.parse(data)
 			const { id: sensorId, t: temperature } = reading
-			if (!sensorId || !temperature) { DEBUG && console.log('SERIAL: invalid data received') }
+			if (!sensorId || !temperature) {
+				logger.warn(`serial gateway #${description.id} received invalid data`)
+				return
+			}
 			const thingId = thingIdFrom(sensorId)
 
 			if (things.has(thingId)) {
+				logger.trace(`serial gateway #${description.id} received data for #${thingId}`)
 				things.set(thingId, { temperature })
-				DEBUG && console.log(`SERIAL: Received data for ambient sensor with id ${thingId}`)
 			} else {
+				logger.debug(`serial gateway #${description.id} initializing new sensor #${thingId}`)
 
 				const ambientSensor = makeAmbientSensor({
 					description: {
@@ -47,12 +51,10 @@ export const makeSerialGateway = ({
 					publishChange
 				})
 				things.add(ambientSensor)
-
-				DEBUG && console.log(`SERIAL: added ambient sensor with id ${thingId}`)
 			}
 
 		} catch (error) {
-			console.error(error)
+			logger.error(error, `error processing data received by #${description.id}`)
 		}
 	}
 
@@ -63,8 +65,9 @@ export const makeSerialGateway = ({
 		const parser = new Readline()
 		port.pipe(parser)
 		parser.on('data', onDataReceived)
+		logger.info(`serial gateway #${description.id} listening on port '${path}'`)
 	} else {
-		DEBUG && console.log('SERIAL: device not found, continuing in mock mode')
+		logger.warn(`port configured for serial gateway #${description.id} is not accessible, continuing in mock mode`)
 	}
 
 	return {
