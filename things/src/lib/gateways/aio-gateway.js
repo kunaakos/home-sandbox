@@ -1,6 +1,8 @@
 import fetch from 'node-fetch'
 import upperFirst from 'lodash/upperFirst'
 
+import { logger } from '../../logger'
+
 import { makeDataSink } from '../things/data-sink'
 
 const updateAioFeed = ({
@@ -31,7 +33,6 @@ const updateAioFeed = ({
 }
 
 export const makeAioGateway = ({
-	logger,
 	description,
 	config,
 	things
@@ -85,7 +86,6 @@ export const makeAioGateway = ({
 
 	things.add(
 		makeDataSink({
-			logger,
 			description: {
 				id: 'aio-feeds',
 				label: 'adafruit.io feeds',

@@ -12,6 +12,8 @@ import {
 	AccessoryTypes
 } from "node-tradfri-client"
 
+import { logger } from '../../logger'
+
 import { makeSwitch } from "../things/switch"
 import { makeLight } from "../things/light"
 
@@ -80,14 +82,13 @@ const setTradfriLightbulbColorTemperature = device => async colorTemperature => 
 	return null
 }
 
-const makeLightFromTradfriLightbulb = logger => device => {
+const makeLightFromTradfriLightbulb = device => {
 
 	const isDimmable = device.lightList[0].isDimmable
 	const isColor = device.lightList[0].spectrum === 'rgb'
 	const isAdjustableColorTemperature = device.lightList[0].spectrum === 'white'
 
 	return makeLight({
-		logger,
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
@@ -121,9 +122,8 @@ const setTradfriPlugState = device => async newState => {
 	return null
 }
 
-const makeSwitchFromTradfriPlug = logger => device =>
+const makeSwitchFromTradfriPlug = device =>
 	makeSwitch({
-		logger,
 		description: {
 			id: thingIdFrom(device.instanceId),
 			label: labelFrom(device),
@@ -139,16 +139,12 @@ const makeSwitchFromTradfriPlug = logger => device =>
 	})
 
 export const makeTradfriGateway = ({
-	logger,
 	description,
 	config,
 	things
 }) => {
 
 	logger.info(`initializing IKEA Tradfri gateway #${description.id}`)
-
-	const makeLight = makeLightFromTradfriLightbulb(logger)
-	const makeSwitch = makeSwitchFromTradfriPlug(logger)
 
 	const unsupportedInstanceIds = []
 
@@ -163,11 +159,11 @@ export const makeTradfriGateway = ({
 
 			case AccessoryTypes.lightbulb:
 				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on light #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
-				things.add(makeLight(device))
+				things.add(makeLightFromTradfriLightbulb(device))
 				break
 			case AccessoryTypes.plug:
 				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on switch #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
-				things.add(makeSwitch(device))
+				things.add(makeSwitchFromTradfriPlug(device))
 				break
 
 			default:

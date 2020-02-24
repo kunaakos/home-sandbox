@@ -1,7 +1,8 @@
 import { Server as WebSocketServer } from 'ws'
 
+import { logger } from './logger'
+
 export const initializeWebsocketApi = ({
-	logger,
 	things,
 	subscribeToChanges,
 	unsubscribeFromChanges

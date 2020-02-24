@@ -3,11 +3,12 @@ import { preciseRound } from '../utils'
 import { makeWatchdog } from '../watchdog'
 import { makeThing } from '../thing'
 
+import { logger } from '../../logger'
+
 const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
 export const makeThermostat = ({
-	logger,
 	description,
 	config = {},
 	initialState = {},

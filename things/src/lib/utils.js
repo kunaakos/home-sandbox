@@ -1,3 +1,5 @@
+import { logger } from '../logger'
+
 /**
  * Misc. utility functions.
  */
@@ -68,7 +70,6 @@ export const typecast = (value, toType) => {
 }
 
 export const setterFromEffect = ({
-	logger,
 	thingId,
 	effect,
 	state,

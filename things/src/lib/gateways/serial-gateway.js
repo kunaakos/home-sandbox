@@ -7,12 +7,13 @@ import fs from 'fs'
 import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 
+import { logger } from '../../logger'
+
 import { makeAmbientSensor } from '../things/ambient-sensor'
 
 const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 
 export const makeSerialGateway = ({
-	logger,
 	description,
 	config,
 	things,
@@ -38,7 +39,6 @@ export const makeSerialGateway = ({
 				logger.debug(`serial gateway #${description.id} initializing new sensor #${thingId}`)
 
 				const ambientSensor = makeAmbientSensor({
-					logger,
 					description: {
 						id: thingId,
 						label: `Sensor with ID "${sensorId}" reporting via serial.`,

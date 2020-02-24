@@ -3,10 +3,11 @@ import upperFirst from 'lodash/upperFirst'
 import { makeThing } from '../thing'
 import { makeWatchdog } from '../watchdog'
 
+import { logger } from '../../logger'
+
 const neverPublishChange = () => () => { console.warn('Something is borked, a data sink advertised a state change.') }
 
 export const makeDataSink = ({
-	logger,
 	description,
 	config,
 	effects
@@ -67,7 +68,6 @@ export const makeDataSink = ({
 		)
 
 	return makeThing({
-		logger,
 		type: 'data-sink',
 		description,
 		mutators,

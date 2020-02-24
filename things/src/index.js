@@ -75,25 +75,22 @@ const startApp = async () => {
 	} = makeThingEvents()
 
 	const things = makeThingStore({
-		logger,
 		publishChange
 	})
 
 	handleSubscriptions({
-		logger,
 		subscriptions,
 		things,
 		subscribeToChanges
 	})
 
-	const initializeThingWithDeps = initializeThing({ logger, publishChange })
+	const initializeThingWithDeps = initializeThing({ publishChange })
 	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
 
-	const initializeGatewayWithDeps = initializeGateway({ logger, things, publishChange })
+	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
 	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
 	initializeWebsocketApi({
-		logger,
 		things,
 		subscribeToChanges,
 		unsubscribeFromChanges

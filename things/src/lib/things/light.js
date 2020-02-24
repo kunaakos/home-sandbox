@@ -1,8 +1,9 @@
 import { makeThing } from '../thing'
 import { setterFromEffect } from '../utils'
 
+import { logger } from '../../logger'
+
 export const makeLight = ({
-	logger,
 	description,
 	effects,
 	initialState
@@ -42,7 +43,6 @@ export const makeLight = ({
 				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect({
-					logger,
 					thingId: description.id,
 					effect: effects.changeState,
 					state,
@@ -54,7 +54,6 @@ export const makeLight = ({
 					type: 'number',
 					get: () => state.brightness,
 					set: setterFromEffect({
-						logger,
 						thingId: description.id,
 						effect: effects.changeBrightness,
 						state,
@@ -67,7 +66,6 @@ export const makeLight = ({
 					type: 'string',
 					get: () => state.color,
 					set: setterFromEffect({
-						logger,
 						thingId: description.id,
 						effect: effects.changeColor,
 						state,
@@ -80,7 +78,6 @@ export const makeLight = ({
 					type: 'number',
 					get: () => state.colorTemperature,
 					set: setterFromEffect({
-						logger,
 						thingId: description.id,
 						effect: effects.changeColorTemperature,
 						state,

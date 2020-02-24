@@ -1,7 +1,8 @@
 import { makeThing } from '../thing'
 
+import { logger } from '../../logger'
+
 export const makeAmbientSensor = ({
-	logger,
 	description,
 	initialState
 }) => {

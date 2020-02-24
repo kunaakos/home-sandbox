@@ -3,12 +3,13 @@
  * Things are read and updated via the store, never directly by any other thing or module. 
  */
 
+import { logger } from '../logger'
+
 function ThingStore(functions) {
 	Object.assign(this, functions)
 }
 
 export const makeThingStore = ({
-	logger,
 	publishChange
 }) => {
 

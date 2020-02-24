@@ -1,8 +1,9 @@
 import { makeThing } from '../thing'
 import { setterFromEffect } from '../utils'
 
+import { logger } from '../../logger'
+
 export const makeSwitch = ({
-	logger,
 	description,
 	effects,
 	initialState
@@ -23,7 +24,6 @@ export const makeSwitch = ({
 				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect({
-					logger,
 					thingId: description.id,
 					effect: effects.changeState,
 					state,

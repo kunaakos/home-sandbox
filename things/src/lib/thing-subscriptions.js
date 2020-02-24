@@ -23,11 +23,12 @@
 
 import { delay } from './utils'
 
+import { logger } from '../logger'
+
 const ONE_SECOND = 1000
 const TOTAL_UPDATE_ATTEMPTS = 3
 
 export const handleSubscriptions = ({
-	logger,
 	things,
 	subscriptions,
 	subscribeToChanges
