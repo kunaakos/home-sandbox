@@ -5,8 +5,7 @@ export const makeSwitch = ({
 	logger,
 	description,
 	effects,
-	initialState,
-	publishChange
+	initialState
 }) => {
 
 	logger.debug(`initializing switch #${description.id}`)
@@ -17,10 +16,8 @@ export const makeSwitch = ({
 	}
 
 	return makeThing({
-		logger,
 		type: 'switch',
 		description,
-		publishChange,
 		mutators: {
 			isOn: {
 				type: 'boolean',

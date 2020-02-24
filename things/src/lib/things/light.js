@@ -5,8 +5,7 @@ export const makeLight = ({
 	logger,
 	description,
 	effects,
-	initialState,
-	publishChange
+	initialState
 }) => {
 
 	logger.debug(`initializing light #${description.id}`)
@@ -36,13 +35,11 @@ export const makeLight = ({
 	}
 
 	return makeThing({
-		logger,
 		type: 'light',
 		description,
-		publishChange,
 		mutators: {
 			isOn: {
-				type: 'number',
+				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect({
 					logger,

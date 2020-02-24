@@ -25,7 +25,10 @@ export const makeSerialGateway = ({
 		try {
 			const reading = JSON.parse(data)
 			const { id: sensorId, t: temperature } = reading
-			if (!sensorId || !temperature) { logger.warn(`serial gateway #${description.id} received invalid data`) }
+			if (!sensorId || !temperature) {
+				logger.warn(`serial gateway #${description.id} received invalid data`)
+				return
+			}
 			const thingId = thingIdFrom(sensorId)
 
 			if (things.has(thingId)) {
@@ -51,7 +54,7 @@ export const makeSerialGateway = ({
 			}
 
 		} catch (error) {
-			logger.error(error)
+			logger.error(error, `error processing data received by #${description.id}`)
 		}
 	}
 

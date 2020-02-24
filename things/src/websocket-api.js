@@ -20,7 +20,7 @@ export const initializeWebsocketApi = ({
 			}
 
 		} catch (error) {
-			logger.error(error)
+			logger.error(error, 'error processing message from client')
 		}
 	}
 

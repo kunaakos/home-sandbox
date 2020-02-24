@@ -57,7 +57,7 @@ export const makeDataSink = ({
 						} else {
 							state[key] = newValue
 						}
-						return false
+						return []
 					}
 				}
 

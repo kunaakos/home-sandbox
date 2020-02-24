@@ -75,10 +75,12 @@ const main = async () => {
 	} = makeThingEvents()
 
 	const things = makeThingStore({
+		logger,
 		publishChange
 	})
 
 	handleSubscriptions({
+		logger,
 		subscriptions,
 		things,
 		subscribeToChanges
@@ -98,5 +100,8 @@ const main = async () => {
 	})
 
 }
+process.on('uncaughtException', (error, origin) => {
+	logger.error(error, origin)
+})
 
-main().catch(logger.error)
+main().catch(error => logger.error(error, 'application error'))

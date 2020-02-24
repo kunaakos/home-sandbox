@@ -8,32 +8,57 @@ function ThingStore(functions) {
 }
 
 export const makeThingStore = ({
+	logger,
 	publishChange
 }) => {
 
 	const things = {}
 
 	const has = id => Boolean(things[id])
-	const get = id => things[id].get()
+
+	const get = id => {
+		if (!has(id)) {
+			throw new Error(`cannot get state of inexistent thing #${id}`)
+		} else {
+			const result = things[id].get()
+			if (result instanceof Error) {
+				logger.error(result, `store failed getting state of #${id}`)
+				return null
+			} else {
+				return result
+			}
+		}
+	}
 
 	const getAll = () =>
-		Object.values(things)
-			.map(thing => thing.get())
+		Object.keys(things)
+			.map(id => get(id))
+			.filter(Boolean)
 
 	const add = thing => {
 		const thingId = thing.id
-		things[thingId] = thing
-		publishChange(thingId)()
+		if (typeof thingId !== 'string') {
+			// TODO: validate properly
+			logger.error(new Error(`store cannot add malformed thing #${JSON.stringify(thing)}`))
+		} else {
+			things[thingId] = thing
+			publishChange(thingId)()
+		}
 	}
 
 	const remove = id => { delete things[id] }
 
 	const set = async (id, values) => {
-		if (!has(id)) { return }
-		await things[id].set(values)
+		if (!has(id)) {
+			logger.error(new Error(`cannot update state of inexistent thing #${id}`))
+		} else {
+			const [changedKeys, errors] = await things[id].set(values)
+			changedKeys.length && publishChange(id)(changedKeys)
+			errors.forEach(error => logger.error(error, `failed updating a property of #${id}`))
+		}
 	}
 
-	const typeOf = (id, key) => things[id].typeOf(key) 
+	const typeOf = (id, key) => { return things[id].typeOf(key) } 
 
 	return new ThingStore({
 		has,

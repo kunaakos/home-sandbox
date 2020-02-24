@@ -25,13 +25,9 @@ export const authenticate = async ({
 	gatewayAddressOrHost,
 	securityCode
 }) => {
-	try {
-		const tradfriClient = new TradfriClient(gatewayAddressOrHost)
-		const { identity, psk } = await tradfriClient.authenticate(securityCode)
-		return { tradfriClient, identity, psk }
-	} catch (e) {
-		throw new Error(`Tradfri client authentication error '${e.message}'.`)
-	}
+	const tradfriClient = new TradfriClient(gatewayAddressOrHost)
+	const { identity, psk } = await tradfriClient.authenticate(securityCode)
+	return { tradfriClient, identity, psk }
 }
 
 export const connect = async ({
@@ -40,19 +36,15 @@ export const connect = async ({
 	identity,
 	psk
 }) => {
-	try {
-		const tradfriClient = new TradfriClient(
-			gatewayAddressOrHost,
-			{
-				watchConnection: true,
-				customLogger
-			}
-		)
-		await tradfriClient.connect(identity, psk)
-		return tradfriClient
-	} catch (e) {
-		throw new Error(`Tradfri client connection error '${e.message}'.`)
-	}
+	const tradfriClient = new TradfriClient(
+		gatewayAddressOrHost,
+		{
+			watchConnection: true,
+			customLogger
+		}
+	)
+	await tradfriClient.connect(identity, psk)
+	return tradfriClient
 }
 
 const neverPublishChange = () => () => { console.warn('Something is borked, a tradfri device advertised a state change.') }
@@ -215,7 +207,7 @@ export const makeTradfriGateway = ({
 								addOrReplaceThing(device)
 							}
 						} catch (error) {
-							logger.error(error)
+							logger.error(error, `error updating IKEA Tradfri device ${device.instanceId}`)
 						}
 					})
 					.on('device removed', instanceId => {
@@ -224,17 +216,17 @@ export const makeTradfriGateway = ({
 							things.remove(thingId)
 							unsupportedInstanceIds = unsupportedInstanceIds.filter(unsupportedInstanceId => unsupportedInstanceId !== instanceId)
 						} catch (error) {
-							logger.error(error)
+							logger.error(error, `error removing IKEA Tradfri device ${device.instanceId}`)
 
 						}
 					})
-					.on('error', error => logger.error(error))
+					.on('error', error => logger.error(error, 'caught \'node-tradfri-client\' error'))
 					.observeDevices()
 
 				logger.info(`IKEA Tradfri gateway #${description.id} connected`)
 
 			})
-			.catch(err => logger.error(err))
+			.catch(err => logger.error(err, 'error connecting to IKEA Tradfri gateway'))
 	}
 
 	return {

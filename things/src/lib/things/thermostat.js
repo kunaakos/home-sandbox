@@ -71,10 +71,8 @@ export const makeThermostat = ({
 	setInterval(updateHeatRequest, tickInterval)
 
 	return makeThing({
-		logger,
 		type: 'thermostat',
 		description,
-		publishChange,
 		mutators: {
 			targetTemperature: {
 				type: 'number',
@@ -84,7 +82,7 @@ export const makeThermostat = ({
 					logger.trace(`thermostat #${description.id} target temperature set to '${state.targetTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'targetTemperature']
-						: true
+						: ['targetTemperature']
 				}
 			},
 			currentTemperature: {
@@ -97,7 +95,7 @@ export const makeThermostat = ({
 					logger.trace(`thermostat #${description.id} current temperature set to '${state.currentTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'currentTemperature']
-						: true
+						: ['currentTemperature']
 				}
 			},
 			heatRequest: {

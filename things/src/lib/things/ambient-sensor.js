@@ -3,8 +3,7 @@ import { makeThing } from '../thing'
 export const makeAmbientSensor = ({
 	logger,
 	description,
-	initialState,
-	publishChange
+	initialState
 }) => {
 
 	logger.debug(`initializing ambient sensor #${description.id}`)
@@ -12,10 +11,8 @@ export const makeAmbientSensor = ({
 	let { temperature = 0 } = initialState
 
 	return makeThing({
-		logger,
 		type: 'ambient-sensor',
 		description,
-		publishChange,
 		mutators: {
 			temperature: {
 				type: 'number',
@@ -23,7 +20,7 @@ export const makeAmbientSensor = ({
 				set: async newValue => {
 					temperature = newValue
 					logger.trace(`ambient sensor #${description.id} property 'temperature' updated with value '${temperature}'`)
-					return true
+					return ['temperature']
 				},
 				get: () => temperature
 			}
