@@ -9,7 +9,8 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "npx babel-node -r dotenv/config src/index.js"
+		"dev": "NODE_ENV=development npx babel-node -r dotenv/config src/index.js",
+		"staging": "npx babel-node -r dotenv/config src/index.js | npx pino-sentry --dsn=$SENTRY_DSN"
 	},
 	"dependencies": {
 		"dotenv": "^8.2.0",
@@ -17,14 +18,15 @@
 		"node-fetch": "^2.6.0",
 		"node-tradfri-client": "^2.1.2",
 		"pino": "^5.16.0",
+		"pino-sentry": "^0.2.4",
 		"serialport": "^8.0.7",
 		"ws": "^7.2.1"
 	},
 	"devDependencies": {
-		"chalk": "^3.0.0",
 		"@babel/core": "^7.7.5",
 		"@babel/node": "^7.7.4",
-		"@babel/preset-env": "^7.7.6"
+		"@babel/preset-env": "^7.7.6",
+		"chalk": "^3.0.0"
 	},
 	"optionalDependencies": {
 		"rpi-gpio": "2.1.5"

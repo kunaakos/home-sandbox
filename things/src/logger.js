@@ -60,21 +60,28 @@ const prettifier = () => ({
 	}`
 
 
-const getLoggerOptions = ({ ENV, LOGLEVEL }) => {
+const getLoggerOptions = ({ NODE_ENV, LOG_LEVEL }) => {
 
-	switch (ENV) {
+	switch (NODE_ENV) {
+
 		case 'production':
 			return {
-				level: LOGLEVEL || 'info'
+				level: LOG_LEVEL || 'warn'
+			}
+
+		case 'staging':
+			return {
+				level: LOG_LEVEL || 'warn'
 			}
 
 		default:
 			return {
-				level: LOGLEVEL || 'debug',
+				level: LOG_LEVEL || 'debug',
 				prettyPrint: true,
 				prettifier
 			}
-	}
+
+		}
 
 }
 
