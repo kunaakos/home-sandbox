@@ -3,14 +3,6 @@ import upperFirst from 'lodash/upperFirst'
 
 import { makeDataSink } from '../things/data-sink'
 
-const mockUpdateAioFeed = ({
-	logger,
-	groupKey,
-	feedKey
-}) => async data => {
-	logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`)
-}
-
 const updateAioFeed = ({
 	username,
 	aioKey,
@@ -34,8 +26,6 @@ const updateAioFeed = ({
 
 	if (responseBody.error) {
 		throw new Error(responseBody.error)
-	} else {
-		logger.trace(`adafruit.io feed '${groupKey ? `${groupKey}.` : ''}${feedKey}' updated with data '${data}'`)
 	}
 
 }
@@ -73,7 +63,7 @@ export const makeAioGateway = ({
 					reportInterval
 				},
 				effect: mockMode
-					? mockUpdateAioFeed({ logger, groupKey, feedKey })
+					? data => { logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`) }
 					: updateAioFeed({ username, aioKey, groupKey, feedKey })
 			})
 		)

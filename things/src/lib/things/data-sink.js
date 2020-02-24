@@ -53,7 +53,7 @@ export const makeDataSink = ({
 						if (reportOnUpdate) {
 							watchdog && watchdog.pet()
 							value = newValue
-							updateFeed(value)
+							await updateFeed(value)
 						} else {
 							state[key] = newValue
 						}
