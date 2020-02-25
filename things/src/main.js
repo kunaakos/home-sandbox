@@ -66,7 +66,7 @@ const initializeGateway = deps => gatewayDefinition => {
 
 }
 
-const startApp = async () => {
+const main = async () => {
 
 	const {
 		publishChange,
@@ -105,4 +105,4 @@ const fatalErrorHandler = message => error => {
 
 process.on('uncaughtException', fatalErrorHandler('uncaught exception'))
 process.on('unhandledRejection', fatalErrorHandler('unhandled promise rejection'))
-startApp().catch(fatalErrorHandler('application error'))
+main().catch(fatalErrorHandler('application error'))

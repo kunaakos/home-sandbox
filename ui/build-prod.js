@@ -32,7 +32,7 @@ const serverBundler = new Bundler(
 		minify: false,
 		scopeHoist: false,
 		target: 'node',
-		bundleNodeModules: true,
+		bundleNodeModules: false,
 		logLevel: 1,
 		hmr: false,
 		sourceMaps: true,
