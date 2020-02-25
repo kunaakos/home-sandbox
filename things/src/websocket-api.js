@@ -25,7 +25,7 @@ export const initializeWebsocketApi = ({
 		}
 	}
 
-	const webSocketServer = new WebSocketServer({ port: process.env.WS_API_PORT || 8080 })
+	const webSocketServer = new WebSocketServer({ port: process.env.THINGS_PORT || 8080 })
 
 	webSocketServer.on('connection', (socket) => {
 

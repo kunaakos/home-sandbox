@@ -66,49 +66,49 @@ const Light = ({ thing, setThing }) => {
 			<p>
 				It's {thing.isOn ? 'on ✅. ' : 'off ❌. '}
 				{thing.isOn
-						? <React.Fragment>
-							I can
+					? <React.Fragment>
+						I can
 							&nbsp;<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>&nbsp;
-							for you
+						for you
 							{numberOfControls > 0 ? ' or adjust its ' : null}
-							{showBrightnessSlider && <React.Fragment>
-								brightness
+						{showBrightnessSlider && <React.Fragment>
+							brightness
 								&nbsp;<input
-									type="range"
-									min="1"
-									max="100"
-									defaultValue={thing.brightness}
-									ref={brightnessSliderRef}
-									onChange={e => { setThingDebounced(thing.id, { brightness: parseInt(e.target.value) }) }}
-								/>&nbsp;
+								type="range"
+								min="1"
+								max="100"
+								defaultValue={thing.brightness}
+								ref={brightnessSliderRef}
+								onChange={e => { setThingDebounced(thing.id, { brightness: parseInt(e.target.value) }) }}
+							/>&nbsp;
 							</React.Fragment>}
-							{numberOfControls > 1 ? ' and ' : null}
-							{showColorPicker && <React.Fragment>
-								color
+						{numberOfControls > 1 ? ' and ' : null}
+						{showColorPicker && <React.Fragment>
+							color
 								&nbsp;<input
-									type="color"
-									defaultValue={`#${thing.color}`}
-									ref={colorPickerRef}
-									onChange={e => { setThingDebounced(thing.id, { color: e.target.value.replace(/#/, '') }) }}
-								/>&nbsp;
+								type="color"
+								defaultValue={`#${thing.color}`}
+								ref={colorPickerRef}
+								onChange={e => { setThingDebounced(thing.id, { color: e.target.value.replace(/#/, '') }) }}
+							/>&nbsp;
 							</React.Fragment>}
-							{showTemperatureSlider && <React.Fragment>
-								color temperature
+						{showTemperatureSlider && <React.Fragment>
+							color temperature
 								&nbsp;<input
-									type="range"
-									min={thing.colorTemperatureRange[0]}
-									max={thing.colorTemperatureRange[1]}
-									defaultValue={thing.colorTemperature}
-									ref={temperatureSliderRef}
-									onChange={e => { setThingDebounced(thing.id, { colorTemperature: parseInt(e.target.value) }) }}
-								/>&nbsp;
+								type="range"
+								min={thing.colorTemperatureRange[0]}
+								max={thing.colorTemperatureRange[1]}
+								defaultValue={thing.colorTemperature}
+								ref={temperatureSliderRef}
+								onChange={e => { setThingDebounced(thing.id, { colorTemperature: parseInt(e.target.value) }) }}
+							/>&nbsp;
 							</React.Fragment>}
-							.
+						.
 						</React.Fragment>
-						: <React.Fragment>
-							I can
+					: <React.Fragment>
+						I can
 							&nbsp;<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>&nbsp;
-							for you.
+						for you.
 						</React.Fragment>
 				}
 			</p>
@@ -125,7 +125,7 @@ const Thermostat = ({ thing, setThing }) => {
 		newTargetTemperatureRef.current.value = thing.targetTemperature
 	}, [thing.targetTemperature])
 
-	const validateNewTargetTemperature = ({target: { value: input }}) => {
+	const validateNewTargetTemperature = ({ target: { value: input } }) => {
 		const parsedInput = parseFloat(input)
 		if (!isNaN(parsedInput)) {
 			setNewTargetTemperature(clamp(parsedInput, 0, 30))

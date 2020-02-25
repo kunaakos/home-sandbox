@@ -11,5 +11,5 @@ services:
     devices:
       # figure out hotplugging later, something something dbus
       - "/dev/ttyACM0:/dev/ttyACM0"
-    ports:
-      - "8081:8081"
+    expose:
+      - "80"
