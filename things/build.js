@@ -4,7 +4,7 @@ const Path = require('path')
 const bundler = new Bundler(
 	Path.join(__dirname, './src/main.js'),
 	{
-		outDir: Path.join(__dirname, './build'),
+		outDir: Path.join(__dirname, 'build'),
 		outFile: 'main.js',
 		watch: false,
 		cache: false,
@@ -13,7 +13,6 @@ const bundler = new Bundler(
 		scopeHoist: false,
 		target: 'node',
 		bundleNodeModules: false,
-		logLevel: 1,
 		hmr: false,
 		sourceMaps: true,
 		detailedReport: false,

@@ -41,9 +41,9 @@ const serverBundler = new Bundler(
 	}
 )
 
-const build = async () => {
+const go = async () => {
 	await clientBundler.bundle()
 	await serverBundler.bundle()
 }
 
-build()
+go()

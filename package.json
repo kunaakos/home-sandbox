@@ -7,7 +7,13 @@
 	"private": true,
 	"workspaces": [
 		"things",
-		"client"
+		"ui"
 	],
+	"scripts": {
+		"clean": "echo \"lol\"",
+		"dependencies": "docker-compose -f docker-compose.dependencies.yml up",
+		"dev": "docker-compose -f docker-compose.dev.yml up",
+		"deploy": "balena push home-sandbox"
+	},
 	"dependencies": {}
 }

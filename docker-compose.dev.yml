@@ -1,0 +1,23 @@
+version: '3'
+services:
+  ui:
+    image: node:12.14.1
+    env_file:
+      - ./ui.env
+    volumes:
+      - .:/usr/src/home-sandbox
+    working_dir: /usr/src/home-sandbox/ui
+    command: yarn dev
+    ports:
+      - 1337:1337 # HMR
+      - 80:80
+  things:
+    image: node:12.14.1
+    env_file:
+      - ./things.env
+    volumes:
+      - .:/usr/src/home-sandbox
+    working_dir: /usr/src/home-sandbox/things
+    command: yarn dev
+    expose:
+      - 80
