@@ -4,21 +4,21 @@ services:
     image: balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
     tty: true
     env_file:
-      - ./ui.env
+      - ./ui/.env
     volumes:
       - .:/usr/src/home-sandbox
     working_dir: /usr/src/home-sandbox/ui
-    command: yarn dev
+    command: yarn dev-docker
     ports:
       - 80:80
   things:
     image: balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
     tty: true
     env_file:
-      - ./things.env
+      - ./things/.env
     volumes:
       - .:/usr/src/home-sandbox
     working_dir: /usr/src/home-sandbox/things
-    command: yarn dev
+    command: yarn dev-docker
     expose:
       - 80

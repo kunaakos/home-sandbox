@@ -9,7 +9,8 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "node dev.js",
+		"dev": "node -r dotenv/config dev.js",
+		"dev-docker": "node -r dotenv/config dev.js",
 		"build": "NODE_ENV=production node build.js",
 		"prod": "NODE_ENV=production node build/server/main.js"
 	},
@@ -21,6 +22,7 @@
 		"@babel/core": "^7.7.5",
 		"@babel/preset-env": "^7.7.6",
 		"@babel/preset-react": "^7.7.4",
+		"dotenv": "^8.2.0",
 		"lodash": "^4.17.15",
 		"parcel-bundler": "^1.12.4",
 		"react": "^16.12.0",
