@@ -1,23 +1,20 @@
+FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-build AS build
+
+WORKDIR /usr/src/home-sandbox/things
+COPY package.json .
+RUN yarn install --no-lockfile --non-interactive
+COPY . ./
+RUN yarn build
+
+RUN rm -rf node_modules
+RUN yarn install --no-lockfile --non-interactive --production
+
 FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
 
-RUN install_packages git build-essential python
+WORKDIR /usr/src/home-sandbox/things
+COPY package.json .
+COPY --from=build /usr/src/home-sandbox/things/node_modules /usr/src/home-sandbox/things/node_modules
+COPY --from=build /usr/src/home-sandbox/things/build /usr/src/home-sandbox/things/build
 
-WORKDIR /usr/src
-
-# Copies the package.json first for better cache on later pushes
-COPY package.json package.json
-
-# This install npm dependencies on the balena build server,
-# making sure to clean up the artifacts it creates in order to reduce the image size.
-RUN JOBS=MAX npm install --unsafe-perm && npm cache verify && rm -rf /tmp/*
-
-# This will copy all files in our root to the working  directory in the container
-COPY . ./
-RUN npm run build
-
-# Enable udevd so that plugged dynamic hardware devices show up in our container.
 ENV UDEV=1
-
-# run apps when container starts up on the device
-# ? TODO!
-CMD ["npm", "run", "prod"]
+CMD ["yarn", "prod"]
