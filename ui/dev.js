@@ -7,7 +7,7 @@ const clientBundler = new Bundler(
 	Path.join(__dirname, 'src/client/index.html'),
 	{
 		outDir: Path.join(__dirname, 'build/client'),
-		outFile: 'index.html', 
+		outFile: 'index.html',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache/client'),
@@ -16,10 +16,8 @@ const clientBundler = new Bundler(
 		scopeHoist: false,
 		target: 'browser',
 		bundleNodeModules: true,
-		logLevel: 3,
-		hmr: true,
-		hmrPort: 1337,
-		hmrHostname: '',
+		logLevel: 0,
+		hmr: false,
 		sourceMaps: true,
 		detailedReport: false,
 		autoInstall: false
@@ -30,7 +28,7 @@ const serverBundler = new Bundler(
 	Path.join(__dirname, 'src/server/main.js'),
 	{
 		outDir: Path.join(__dirname, 'build/server'),
-		outFile: 'main.js', 
+		outFile: 'main.js',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache/server'),
@@ -39,8 +37,8 @@ const serverBundler = new Bundler(
 		scopeHoist: false,
 		target: 'node',
 		bundleNodeModules: false,
-		// logLevel: 3,
-		hmr: true,
+		hmr: false,
+		logLevel: 0,
 		sourceMaps: true,
 		detailedReport: false,
 		autoInstall: false
@@ -50,7 +48,7 @@ const serverBundler = new Bundler(
 const go = async () => {
 
 	const processes = {}
-	
+
 	const startProcess = path => {
 		let process = fork(path)
 		console.log(chalk.green.bold(`🥾  Starting node app. ${chalk.gray(`(pid ${process.pid})`)}`))
@@ -74,12 +72,17 @@ const go = async () => {
 		})
 	}
 
+	serverBundler.on('buildStart', () => { console.log(chalk.yellow.bold(`🐌  Started building 'ui' server bundle.`)) })
+	serverBundler.on('buildEnd', () => { console.log(chalk.green.bold(`🎉  Finished building 'ui' server bundle.`)) })
+	clientBundler.on('buildStart', () => { console.log(chalk.yellow.bold(`🐌  Started building 'ui' client bundle.`)) })
+	clientBundler.on('buildEnd', () => { console.log(chalk.green.bold(`🎉  Finished building 'ui' client bundle.`)) })
+
 	serverBundler.on('bundled', async () => {
 		killProcesses()
 		startProcess(Path.join(__dirname, './build/server/main.js'))
 	});
 
-    await clientBundler.bundle()
+	await clientBundler.bundle()
 	await serverBundler.bundle()
 }
 

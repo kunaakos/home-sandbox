@@ -7,7 +7,7 @@ const bundler = new Bundler(
 	Path.join(__dirname, './src/main.js'),
 	{
 		outDir: Path.join(__dirname, 'build'),
-		outFile: 'main.js', 
+		outFile: 'main.js',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache'),
@@ -16,6 +16,8 @@ const bundler = new Bundler(
 		scopeHoist: false,
 		target: 'node',
 		bundleNodeModules: false,
+		hmr: false,
+		logLevel: 0,
 		sourceMaps: true,
 		detailedReport: false,
 		autoInstall: false
@@ -25,7 +27,7 @@ const bundler = new Bundler(
 const go = async () => {
 
 	const processes = {}
-	
+
 	const startProcess = path => {
 		let process = fork(path)
 		console.log(chalk.green.bold(`🥾  Starting node app. ${chalk.gray(`(pid ${process.pid})`)}`))
@@ -49,12 +51,15 @@ const go = async () => {
 		})
 	}
 
+	bundler.on('buildStart', () => { console.log(chalk.yellow.bold(`🐌  Started building 'things' bundle.`)) })
+	bundler.on('buildEnd', () => { console.log(chalk.green.bold(`🎉  Finished building 'things' bundle.`)) })
+
 	bundler.on('bundled', async () => {
 		killProcesses()
 		startProcess(Path.join(__dirname, './build/main.js'))
 	});
 
-    await bundler.bundle()
+	await bundler.bundle()
 }
 
 go()

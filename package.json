@@ -10,10 +10,15 @@
 		"ui"
 	],
 	"scripts": {
-		"clean": "echo \"lol\"",
-		"dependencies": "docker-compose -f docker-compose.dependencies.yml up",
-		"dev": "docker-compose -f docker-compose.dev.yml up",
+		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
+		"docker-dependencies": "docker-compose -f docker-compose.dependencies.yml -p hsb-deps up",
+		"docker-dev": "docker-compose -f docker-compose.dev.yml -p hsb-dev up",
+		"ui": "yarn workspace ui dev",
+		"things": "yarn workspace things dev",
+		"dev": "concurrently -n things,ui -c cyan,magenta --kill-others-on-fail \"yarn things\"  \"yarn ui\"",
 		"deploy": "balena push home-sandbox"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"concurrently": "^5.1.0"
+	}
 }
