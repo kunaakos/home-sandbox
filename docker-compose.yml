@@ -1,11 +1,15 @@
 version: '2'
 services:
   ui:
-    build: ./ui
+    build:
+      context: ./
+      dockerfile: ./hsb-ui.Dockerfile
     ports:
       - "80:80"
   things:
-    build: ./things
+    build:
+      context: ./
+      dockerfile: ./hsb-things.Dockerfile
     # /sys/* is mounted in privileged mode, but only /sys/class/gpio is used, figure out more secure way
     privileged: true
     devices:

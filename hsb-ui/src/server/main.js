@@ -11,8 +11,8 @@ logger = makeLogger({
 	forceLogLevel: process.env.LOG_LEVEL
 })
 
+const main = async () => {
 
-try {
 	const app = express()
 
 	app.use(
@@ -32,7 +32,13 @@ try {
 		logger.info(`App listening on port ${process.env.UI_PORT}.`)
 	})
 
-	
-} catch (error) {
-	logger.error(error, 'ui server error')
 }
+
+const fatalErrorHandler = message => error => {
+	logger.fatal(error, message)
+	process.exit(1)
+}
+
+process.on('uncaughtException', fatalErrorHandler('uncaught exception'))
+process.on('unhandledRejection', fatalErrorHandler('unhandled promise rejection'))
+main().catch(fatalErrorHandler('application error'))
