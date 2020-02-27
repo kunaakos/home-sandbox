@@ -33,10 +33,10 @@ const errorMessageFormatter = () => msg =>
     msg
         .replace(/#(\S*)/g, (_, id) => chalk.bold(id))
 
-const stackTraceFormatter = () => stack => {
+const stackTraceFormatter = ({ formatErrorMessage }) => stack => {
     const [errorMessage, ...stackTraceLines] = stack.split('\n')
     return [
-        `${chalk.gray(errorMessageFormatter(errorMessage))}\n`,
+        `${chalk.gray(formatErrorMessage(errorMessage))}\n`,
         ...stackTraceLines.map(line => `      ${chalk.gray(line.trim())}\n`)
     ].join('')
 }
@@ -62,7 +62,7 @@ const makePrettifier = ({
     }${
     formatLevel(level)
     } ${
-    stack
+    level >= 50
         ? chalk.red(formatErrorMessage(msg))
         : formatMessage(msg)
     }\n${
@@ -77,7 +77,8 @@ export const makeLogger = ({
     serviceName,
     serviceColor,
     environment,
-    forceLogLevel
+    forceLogLevel,
+    displayLogLevel = true
 }) =>
     pino({
         name: serviceName,
@@ -91,10 +92,12 @@ export const makeLogger = ({
                     prettyPrint: true,
                     prettifier: makePrettifier({
                         formatName: nameFormatter({ bgColor: serviceColor }),
-                        formatLevel: levelFormatter(),
+                        formatLevel: displayLogLevel ? levelFormatter() : () => '',
                         formatMessage: messageFormatter(),
                         formatErrorMessage: errorMessageFormatter(),
-                        formatStackTrace: stackTraceFormatter()
+                        formatStackTrace: stackTraceFormatter({
+                            formatErrorMessage: errorMessageFormatter()
+                        })
                     })
                 }
         )
