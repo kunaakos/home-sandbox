@@ -1,5 +1,5 @@
 {
-	"name": "things",
+	"name": "hsb-things",
 	"version": "0.0.0",
 	"description": "home-sandbox service that deals with things and serves a websocket API",
 	"author": "Akos Kun",
@@ -12,16 +12,14 @@
 		"dev": "node -r dotenv/config dev.js",
 		"dev-docker": "node dev.js",
 		"build": "NODE_ENV=production node build.js",
-		"prod": "NODE_ENV=production node build/main.js | npx pino-sentry --dsn=$SENTRY_DSN"
+		"prod": "NODE_ENV=production node build/main.js"
 	},
 	"dependencies": {
-		"chalk": "^3.0.0",
 		"lodash": "^4.17.15",
 		"node-fetch": "^2.6.0",
 		"node-tradfri-client": "^2.1.2",
-		"pino": "^5.16.0",
-		"pino-sentry": "^0.2.4",
 		"serialport": "^8.0.7",
+		"hsb-service-utils": "0.0.0",
 		"ws": "^7.2.1"
 	},
 	"devDependencies": {
