@@ -1,7 +1,16 @@
 const Bundler = require('parcel-bundler')
 const Path = require('path')
 const { fork } = require('child_process')
-const chalk = require('chalk')
+
+const { makeLogger } = require('hsb-service-utils/build/logger')
+
+const logger = makeLogger({
+	serviceName: 'build',
+	serviceColor: 'gray',
+	environment: process.env.ENV,
+	forceLogLevel: 'info',
+	displayLogLevel: false
+})
 
 const bundler = new Bundler(
 	Path.join(__dirname, './src/main.js'),
@@ -30,15 +39,15 @@ const go = async () => {
 
 	const startProcess = path => {
 		let process = fork(path)
-		console.log(chalk.green.bold(`🥾  Starting node app. ${chalk.gray(`(pid ${process.pid})`)}`))
+		logger.info(`🥾  Starting node app #${process.pid}.`)
 		processes[process.pid] = process
 		process.once('close', (code, signal) => {
 			delete processes[process.pid]
 			if (code) {
-				console.log(chalk.red.bold(`🤔  Node app exited with exit code ${code}. ${chalk.gray(`(pid ${process.pid})`)}`))
+				logger.error(`🤔  Node app #${process.pid} exited with exit code '${code}'.`)
 			}
 			if (signal) {
-				console.log(chalk.gray.bold(`💀  Node app terminated by ${signal}. ${chalk.gray(`(pid ${process.pid})`)}`))
+				logger.info(`💀   Node app #${process.pid} terminated by '${signal}'.`)
 			}
 		})
 		return () => process.kill()
@@ -46,13 +55,13 @@ const go = async () => {
 
 	const killProcesses = () => {
 		Object.values(processes).forEach(process => {
-			console.log(chalk.yellow.bold(`🔪  Killing node app. ${chalk.gray(`(pid ${process.pid})`)}`))
+			logger.info(`🔪 Killing node app #${process.pid}.`)
 			process.kill()
 		})
 	}
 
-	bundler.on('buildStart', () => { console.log(chalk.yellow.bold(`🐌  Started building 'things' bundle.`)) })
-	bundler.on('buildEnd', () => { console.log(chalk.green.bold(`🎉  Finished building 'things' bundle.`)) })
+	bundler.on('buildStart', () => { logger.info(`🐌  Started building 'things' bundle.`) })
+	bundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'things' bundle.`) })
 
 	bundler.on('bundled', async () => {
 		killProcesses()
