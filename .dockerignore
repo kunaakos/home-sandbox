@@ -1,0 +1,6 @@
+.git
+**/node_modules
+**/.parcel-cache
+**/build
+**/*.env
+**/.DS_Store

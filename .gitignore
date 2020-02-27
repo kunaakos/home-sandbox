@@ -2,8 +2,6 @@ node_modules
 .parcel-cache
 build
 *.env
-
-notes.txt
 .DS_Store
 
 # TODO: this should be generated during an ARM build, not on a dev machine, not committing
