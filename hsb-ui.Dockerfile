@@ -1,3 +1,5 @@
+# see hsb-things.Dockerfile for comments
+
 FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-build AS build
 
 WORKDIR /usr/src/home-sandbox/
@@ -34,5 +36,4 @@ COPY --from=build /usr/src/home-sandbox/hsb-service-utils/node_modules /usr/src/
 COPY --from=build /usr/src/home-sandbox/hsb-service-utils/build /usr/src/home-sandbox/hsb-service-utils/build
 COPY --from=build /usr/src/home-sandbox/hsb-ui/build /usr/src/home-sandbox/hsb-ui/build
 
-# omit the first two lines, which are yarn logs, and cause pino-sentry to throw an error 
-CMD yarn workspace hsb-ui prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN
+CMD yarn workspace hsb-ui prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="ui-$BALENA_DEVICE_UUID"
