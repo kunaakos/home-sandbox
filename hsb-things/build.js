@@ -6,6 +6,7 @@ const bundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, 'build'),
 		outFile: 'main.js',
+		publicUrl: './',
 		watch: false,
 		cache: false,
 		contentHash: false,
