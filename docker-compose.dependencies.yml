@@ -1,8 +1,0 @@
-version: '3'
-services:
-  install:
-    image: balenalib/raspberrypi4-64-node:12.14.1-bullseye-build
-    volumes:
-      - .:/usr/src/home-sandbox
-    working_dir: /usr/src/home-sandbox/
-    command: yarn install --no-lockfile

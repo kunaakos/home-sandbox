@@ -10,7 +10,6 @@
 	},
 	"scripts": {
 		"dev": "node -r dotenv/config -r source-map-support/register dev.js",
-		"dev-docker": "node dev.js",
 		"build": "NODE_ENV=production node build.js",
 		"prod": "NODE_ENV=production node -r source-map-support/register build/main.js"
 	},
