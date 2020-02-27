@@ -10,9 +10,6 @@
 		"hsb-things",
 		"hsb-ui"
 	],
-	"alias": {
-		"hsb-service-utils": "hsb-service-utils/build"
-	},
 	"scripts": {
 		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
 		"clean-node-modules": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
