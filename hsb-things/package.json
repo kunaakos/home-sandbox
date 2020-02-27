@@ -9,17 +9,18 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "node -r dotenv/config dev.js",
+		"dev": "node -r dotenv/config -r source-map-support/register dev.js",
 		"dev-docker": "node dev.js",
 		"build": "NODE_ENV=production node build.js",
-		"prod": "NODE_ENV=production node build/main.js"
+		"prod": "NODE_ENV=production node -r source-map-support/register build/main.js"
 	},
 	"dependencies": {
+		"hsb-service-utils": "0.0.0",
 		"lodash": "^4.17.15",
 		"node-fetch": "^2.6.0",
 		"node-tradfri-client": "^2.1.2",
 		"serialport": "^8.0.7",
-		"hsb-service-utils": "0.0.0",
+		"source-map-support": "^0.5.16",
 		"ws": "^7.2.1"
 	},
 	"devDependencies": {

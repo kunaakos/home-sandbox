@@ -7,7 +7,7 @@ const { makeLogger } = require('hsb-service-utils/build/logger')
 const logger = makeLogger({
 	serviceName: 'build',
 	serviceColor: 'gray',
-	environment: process.env.ENV,
+	environment: process.env.NODE_ENV,
 	forceLogLevel: 'info',
 	displayLogLevel: false
 })
@@ -17,6 +17,7 @@ const bundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, 'build'),
 		outFile: 'main.js',
+		publicUrl: './',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache'),

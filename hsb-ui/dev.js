@@ -7,7 +7,7 @@ const { makeLogger } = require('hsb-service-utils/build/logger')
 const logger = makeLogger({
 	serviceName: 'build',
 	serviceColor: 'gray',
-	environment: process.env.ENV,
+	environment: process.env.NODE_ENV,
 	forceLogLevel: 'info',
 	displayLogLevel: false
 })
@@ -17,6 +17,7 @@ const clientBundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, 'build/client'),
 		outFile: 'index.html',
+		publicUrl: './',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache/client'),
@@ -38,6 +39,7 @@ const serverBundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, 'build/server'),
 		outFile: 'main.js',
+		publicUrl: './',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache/server'),

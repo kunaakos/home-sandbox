@@ -7,7 +7,7 @@ const { makeLogger } = require('hsb-service-utils/build/logger')
 logger = makeLogger({
 	serviceName: 'ui',
 	serviceColor: 'cyan',
-	environment: process.env.ENV,
+	environment: process.env.NODE_ENV,
 	forceLogLevel: process.env.LOG_LEVEL
 })
 
