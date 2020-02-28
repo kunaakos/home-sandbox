@@ -6,8 +6,17 @@
 	"license": "MIT",
 	"private": true,
 	"workspaces": [
-		"things",
-		"client"
+		"hsb-service-utils",
+		"hsb-things",
+		"hsb-ui"
 	],
-	"dependencies": {}
+	"scripts": {
+		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
+		"clean-node-modules": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
+		"dev": "concurrently -r --kill-others-on-fail \"yarn workspace hsb-things dev\"  \"yarn workspace hsb-ui dev\"",
+		"deploy": "balena push home-sandbox"
+	},
+	"dependencies": {
+		"concurrently": "^5.1.0"
+	}
 }

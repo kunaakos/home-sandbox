@@ -1,0 +1,23 @@
+{
+	"name": "hsb-service-utils",
+	"version": "0.0.0",
+	"description": "home-sandbox utilities shared between services",
+	"author": "Akos Kun",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"node": "12.14.1"
+	},
+	"main": "build/index.js",
+	"scripts": {
+		"dev": "parcel watch src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./",
+		"build": "parcel build src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./"
+	},
+	"dependencies": {
+		"chalk": "^3.0.0",
+		"pino": "^5.16.0"
+	},
+	"devDependencies": {
+		"parcel-bundler": "^1.12.4"
+	}
+}

@@ -12,7 +12,7 @@ import {
 import {
 	ThingsProvider,
 	useThings
-} from './components/use-things'
+} from '../components/use-things'
 
 const UnsupportedThing = ({ thing }) => (
 	<div>

@@ -1,7 +1,8 @@
 node_modules
-notes.txt
+.parcel-cache
+build
+*.env
 .DS_Store
-.env
+
 # TODO: this should be generated during an ARM build, not on a dev machine, not committing
-package-lock.json
 yarn.lock

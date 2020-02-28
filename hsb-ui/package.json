@@ -1,0 +1,32 @@
+{
+	"name": "hsb-ui",
+	"version": "0.0.0",
+	"description": "home-sandbox service serves the user interface",
+	"author": "Akos Kun",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"node": "12.14.1"
+	},
+	"scripts": {
+		"dev": "node -r dotenv/config -r source-map-support/register dev.js",
+		"build": "NODE_ENV=production node build.js",
+		"prod": "NODE_ENV=production node -r source-map-support/register build/server/main.js"
+	},
+	"dependencies": {
+		"express": "^4.17.1",
+		"hsb-service-utils": "0.0.0",
+		"http-proxy-middleware": "^1.0.0",
+		"source-map-support": "^0.5.16"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.7.5",
+		"@babel/preset-env": "^7.7.6",
+		"@babel/preset-react": "^7.7.4",
+		"dotenv": "^8.2.0",
+		"lodash": "^4.17.15",
+		"parcel-bundler": "^1.12.4",
+		"react": "^16.12.0",
+		"react-dom": "^16.12.0"
+	}
+}
