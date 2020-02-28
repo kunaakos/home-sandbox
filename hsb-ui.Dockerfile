@@ -27,7 +27,7 @@ WORKDIR /usr/src/home-sandbox/
 
 RUN yarn global add pino-sentry@0.2.4
 
-COPY ./ /
+COPY ./ .
 
 COPY --from=build /usr/src/home-sandbox/node_modules /usr/src/home-sandbox/node_modules
 COPY --from=build /usr/src/home-sandbox/hsb-service-utils/node_modules /usr/src/home-sandbox/hsb-service-utils/node_modules

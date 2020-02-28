@@ -43,12 +43,12 @@ COPY ./ .
 # NOTE: these aren't generated for all services, because yarn hoists dependencies
 # a missing node_modules directory can cause a build error!
 COPY --from=build /usr/src/home-sandbox/node_modules /usr/src/home-sandbox/node_modules
-COPY --from=build /usr/src/home-sandbox/node_modules /usr/src/home-sandbox/node_modules
 COPY --from=build /usr/src/home-sandbox/hsb-service-utils/node_modules /usr/src/home-sandbox/hsb-service-utils/node_modules
+# COPY --from=build /usr/src/home-sandbox/hsb-things/node_modules /usr/src/home-sandbox/hsb-things/node_modules
 
 # copy bundles (and sourcemaps)
-COPY --from=build /usr/src/home-sandbox/hsb-things/build /usr/src/home-sandbox/hsb-things/build
 COPY --from=build /usr/src/home-sandbox/hsb-service-utils/build /usr/src/home-sandbox/hsb-service-utils/build
+COPY --from=build /usr/src/home-sandbox/hsb-things/build /usr/src/home-sandbox/hsb-things/build
 
 # TODO: https://www.balena.io/docs/reference/base-images/base-images/#working-with-dynamically-plugged-devices
 ENV UDEV=1
