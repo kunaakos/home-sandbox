@@ -1,7 +1,16 @@
+# deps cache and bundles
 node_modules
 .parcel-cache
 build
+
+# keep directories with .gitkeep files in them checked in, but not their contents
+__data/*/*
+!__data/*/.gitkeep
+
+# every service has their own env file
 *.env
+
+# junk
 .DS_Store
 
 # TODO: this should be generated during an ARM build, not on a dev machine, not committing
