@@ -1,10 +1,9 @@
 version: '2'
 services:
-  redis:
-    image: redislabs/redismod
-    command: /usr/local/etc/redis/redis.conf
+  mongo:
+    image: mongo:4.2.3-bionic
+    restart: always
     volumes:
-      - ./__data/redis:/var/lib/redis
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./__data/mongo:/data/db
     ports:
-      - "6379:6379"
+      - "27017:27017"

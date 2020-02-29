@@ -1,33 +1,21 @@
-import Redis from "ioredis"
-import RedisJson from "iorejson"
+
+
+import { MongoClient } from 'mongodb'
 
 import { makeThingDefinitions } from './thing-definitions'
 
 export const initDataModels = async ({
-	appId,
-	port,
-	host
+	dbName,
+	dbPort,
+	dbHost
 }) => {
 
-	const options = {
-		port,
-		host
-	}
-
-	const redis = new Redis(options)
-	redis.on('error', error => console.error(error))
-
-	const redisJson = new RedisJson(options)
-	redisJson.on('error', error => console.error(error))
-
-	const args = {
-		redis,
-		redisJson,
-		appId
-	}
+	const client = new MongoClient(`mongodb://${dbHost}:${dbPort}/${dbName}`, { useNewUrlParser: true })
+	await client.connect()
+	const db = client.db(dbName)
 
 	return {
-		ThingDefinitions: makeThingDefinitions(args),
+		ThingDefinitions: makeThingDefinitions({ db }),
 	}
 
 }

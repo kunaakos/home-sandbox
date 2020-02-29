@@ -1,78 +1,90 @@
-function ThingDefinition(functions) {
+
+const OMIT_ID = { _id: 0 }
+
+function ThingDefinitions(functions) {
 	Object.assign(this, functions)
 }
 
-const THING_DEFINITIONS_ID_SET_KEY = 'thingDefinitions'
-const THING_DEFINITION_KEY_NAMESPACE = 'thingDefinition'
-
-const thingDefinitionKey = id => `${THING_DEFINITION_KEY_NAMESPACE}:${id}`
-
+const THING_DEFINITIONS_COLLECTION_NAME = 'thingDefinitions'
 export const makeThingDefinitions = ({
-	redis,
-	redisJson
+	db
 }) => {
 
-	const has = async id => Boolean(await redis.sismember(THING_DEFINITIONS_ID_SET_KEY, id))
+	const collection = db.collection(THING_DEFINITIONS_COLLECTION_NAME)
 
-	const getAllIds = () => redis.smembers(THING_DEFINITIONS_ID_SET_KEY)
+	const getAll = async () => {
+		try {
+			return collection
+				.find({})
+				.project(OMIT_ID)
+				.toArray()
+		} catch (error) {
+			throw new Error(`could not get thing definitions (${error.message})`)
+		}
+	}
 
-	const getAll = async () => redisJson.mget(...(await getAllIds()).map(thingDefinitionKey), '.')
-
-	const getOne = async id => redisJson.get(thingDefinitionKey(id))
+	const getOne = async id =>
+		collection
+			.findOne(
+				{ id },
+				{
+					projection: OMIT_ID
+				}
+			)
 
 	const add = async thingDefinition => {
-
-		const id = thingDefinition.id
-
-		if (await has(id)) {
-			throw new Error(`cannot add definition with id ${thingDefinition.id}, it's already added`)
+		const {
+			result: {
+				n,
+				ok
+			}
+		} = await collection
+			.insertOne(
+				thingDefinition
+			)
+		if (!ok || n === 0) {
+			throw new Error(`could not add thing definition #${thingDefinition.id}`)
+		} else {
+			return true
 		}
-
-		await redis.sadd(THING_DEFINITIONS_ID_SET_KEY, id)
-		await redisJson.set(thingDefinitionKey(id), '.', thingDefinition)
-
-		return thingDefinition.id
-
 	}
 
 	const update = async (id, newValues) => {
-
-		if (!has(id)) {
-			throw new Error(`cannot update thing definition with id ${id}, was not added`)
+		const {
+			ok,
+			value
+		} = await collection
+			.findOneAndUpdate(
+				{ id },
+				{ $set: newValues },
+				{
+					returnOriginal: false,
+					projection: OMIT_ID
+				}
+			)
+		if (ok && value) {
+			return value
+		} else {
+			throw new Error(`could not add thing definition #${id}`)
 		}
-
-		const currentValues = await getOne(id)
-
-		if (currentValues === null) {
-			throw new Error(`cannot update thing definition with id ${id}, data not found - this is a problem!`)
-		}
-
-		const updatedValues = {
-			...currentValues,
-			...newValues
-		}
-
-		await redisJson.set(thingDefinitionKey(id), '.', updatedValues)
-
-		return updatedValues
-
 	}
 
 	const remove = async id => {
-
-		if (!has(id)) {
-			throw new Error(`cannot remove thing definition with id ${id}, was not added`)
+		const {
+			ok,
+			value
+		} = await collection
+			.findOneAndDelete(
+				{ id }
+			)
+		if (ok && value) {
+			return true
+		} else {
+			throw new Error(`could not remove thing definition #${id}`)
 		}
-
-		await redis.srem(THING_DEFINITIONS_ID_SET_KEY, id)
-		await redisJson.del(thingDefinitionKey(id), '.')
-
-		return true
 	}
 
-	return new ThingDefinition({
-		has,
-		getAllIds,
+	return new ThingDefinitions({
 		getAll,
 		getOne,
 		add,

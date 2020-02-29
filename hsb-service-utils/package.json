@@ -15,8 +15,7 @@
 	},
 	"dependencies": {
 		"chalk": "^3.0.0",
-		"ioredis": "^4.16.0",
-		"iorejson": "^0.1.1",
+		"mongodb": "^3.5.4",
 		"pino": "^5.16.0"
 	},
 	"devDependencies": {
