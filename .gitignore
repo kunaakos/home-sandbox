@@ -10,6 +10,9 @@ __data/*/*
 # every service has their own env file
 *.env
 
+# create and run these during development, instead of running an entire service, don't check them in tho!
+*.sandbox.js
+
 # junk
 .DS_Store
 
