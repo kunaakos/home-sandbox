@@ -1,21 +1,24 @@
-
-
 import { MongoClient } from 'mongodb'
 
-import { makeThingDefinitions } from './thing-definitions'
+import { makeMongoCollection } from './collection'
 
-export const initDataModels = async ({
+export const initMongodb = async ({
 	dbName,
-	dbPort,
-	dbHost
+	dbUrl
 }) => {
 
-	const client = new MongoClient(`mongodb://${dbHost}:${dbPort}/${dbName}`, { useNewUrlParser: true })
-	await client.connect()
-	const db = client.db(dbName)
+	const mongoClient = new MongoClient(`${dbUrl}/${dbName}`, { useNewUrlParser: true })
+	await mongoClient.connect()
+	return mongoClient.db(dbName)
+
+}
+
+export const initDataModels = async ({
+	mongoDatabase
+}) => {
 
 	return {
-		ThingDefinitions: makeThingDefinitions({ db }),
+		ThingDefinitions: makeMongoCollection({ mongoDatabase, collectionName: 'thingDefinitions' }),
 	}
 
 }
