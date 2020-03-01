@@ -11,7 +11,7 @@ import { makeThingStore } from './lib/thing-store'
 import { makeThingEvents } from './lib/thing-events'
 import { handleSubscriptions } from './lib/thing-subscriptions'
 
-import { initializeWebsocketApi } from './websocket-api'
+import { initializeApiServer } from './api-server'
 
 import {
 	subscriptions,
@@ -90,7 +90,7 @@ const main = async () => {
 	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
 	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
-	initializeWebsocketApi({
+	initializeApiServer({
 		things,
 		subscribeToChanges,
 		unsubscribeFromChanges

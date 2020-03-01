@@ -71,7 +71,7 @@ export const ThingsProvider = ({
 	}
 
 	useEffect(() => {
-		const socket = new WebSocket(`ws://${window.location.hostname}/wsapi`)
+		const socket = new WebSocket(`ws://${window.location.hostname}/api/things/state`)
 		socketRef.current = socket
 		socket.onopen = () => {
 			socketRef.current = socket

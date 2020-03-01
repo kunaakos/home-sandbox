@@ -16,11 +16,14 @@ const main = async () => {
 	const app = express()
 
 	app.use(
-		'/wsapi',
-		createProxyMiddleware('/', {
-			target: process.env.THINGS_URL, ws: true,
-			logProvider: () => logger
-		})
+		'/api/things',
+		createProxyMiddleware(
+			{
+				target: process.env.THINGS_URL,
+				ws: true,
+				logProvider: () => logger
+			}
+		)
 	)
 
 	app.use(
