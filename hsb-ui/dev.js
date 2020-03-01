@@ -9,8 +9,9 @@ const logger = makeLogger({
 	serviceColor: 'gray',
 	environment: process.env.NODE_ENV,
 	forceLogLevel: 'info',
-	displayLogLevel: false
 })
+
+const builErrorHandler = error => logger.error(error, 'error 💥')
 
 const clientBundler = new Bundler(
 	Path.join(__dirname, 'src/client/index.html'),
@@ -93,8 +94,8 @@ const go = async () => {
 		startProcess(Path.join(__dirname, './build/server/main.js'))
 	});
 
-	await clientBundler.bundle()
-	await serverBundler.bundle()
+	await clientBundler.bundle().catch(builErrorHandler)
+	await serverBundler.bundle().catch(builErrorHandler)
 }
 
-go()
+go().catch(builErrorHandler)
