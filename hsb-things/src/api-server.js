@@ -1,7 +1,8 @@
 import express from 'express'
 import expressWs from 'express-ws'
 
-import { makeStateWsEndpointMiddleware } from './middlewares/state-ws-endpoint'
+import { getUserDataFromToken } from 'hsb-service-utils/build/middlewares'
+import { makeStateWsEndpoint } from './middlewares/state-ws-endpoint'
 
 export const initializeApiServer = ({
 	things,
@@ -12,14 +13,15 @@ export const initializeApiServer = ({
 	const app = express()
 	expressWs(app)
 
+	app.use(getUserDataFromToken)
+
 	app.ws(
 		'/api/things/state',
-		makeStateWsEndpointMiddleware({
+		makeStateWsEndpoint({
 			things,
 			subscribeToChanges,
 			unsubscribeFromChanges
 		})
-
 	)
 
 	app.listen(process.env.THINGS_PORT)

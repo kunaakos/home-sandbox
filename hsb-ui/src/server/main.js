@@ -17,6 +17,7 @@ logger = makeLogger({
 })
 
 const USER_TOKEN_SECRET = process.env.USER_TOKEN_SECRET
+const USER_TOKEN_COOKIE_NAME = 'hsb_user_token'
 
 const main = async () => {
 
@@ -40,7 +41,7 @@ const main = async () => {
 	passport.use(
 		new JwtStrategy(
 			{
-				jwtFromRequest: req => (req.cookies && req.cookies['hsb_user_token']) || null,
+				jwtFromRequest: req => (req.cookies && req.cookies[USER_TOKEN_COOKIE_NAME]) || null,
 				secretOrKey: USER_TOKEN_SECRET,
 				issuer: 'remelem.online'
 			},
@@ -81,7 +82,7 @@ const main = async () => {
 	const setUserTokenCookie = (req, res) => {
 		res
 			.cookie(
-				'hsb_user_token',
+				USER_TOKEN_COOKIE_NAME,
 				jsonWebToken.sign(
 					{
 						user: req.user
