@@ -27,14 +27,22 @@ export const makeMongoCollection = ({
 
 	}
 
-	const getOne = async id => {
+	const getOne = async idOrQuery => {
 
 		try {
 
-			return collection
-				.findOne(
-					{ _id: id }
-				)
+			if (typeof idOrQuery === 'string') {
+				return collection
+					.findOne(
+						{ _id: idOrQuery }
+					)
+			} else {
+				return collection
+					.findOne(
+						idOrQuery
+					)
+			}
+
 
 		} catch (error) {
 			throw new Error(`could not get item #${id}${error ? `: ${error.message}` : ''}`)

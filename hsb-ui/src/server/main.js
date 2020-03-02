@@ -9,6 +9,13 @@ const jsonWebToken = require('jsonwebtoken')
 
 const { makeLogger } = require('hsb-service-utils/build/logger')
 
+const { initMongodb } = require('hsb-service-utils/build/persistence')
+const { makeMongoCollection } = require('hsb-service-utils/build/object-mappers')
+const {
+	User,
+	Password
+} = require('hsb-service-utils/build/schemas')
+
 logger = makeLogger({
 	serviceName: 'ui',
 	serviceColor: 'cyan',
@@ -60,19 +67,49 @@ const returnFreshUserTokenAndCookie = (req, res) => {
 
 const main = async () => {
 
+	logger.debug('pesistence layer initialization')
+
+	const mongoDatabase = await initMongodb({
+		dbName: 'hsb',
+		dbUrl: 'mongodb://localhost:27017',
+	})
+
+	const Users = makeMongoCollection({
+		mongoDatabase,
+		collectionName: 'users',
+		schema: User
+	})
+
+	const Passwords = makeMongoCollection({
+		mongoDatabase,
+		collectionName: 'passwords',
+		schema: Password
+	})
+
 	logger.debug('configuring authentication stategies')
 
 	passport.use(
 		new BasicStrategy(
-			(username, password, done) => {
+			// TODO: handle rejections...
+			async (username, plaintextPassword, done) => {
+				const password = await Passwords.getOne({ username })
+
+				if (password === null) {
+					done(null, false)
+					return
+				}
+
+				const { _id, hash } = password
+
 				if (
-					username === 'mario' &&
-					password === 'wario'
+					hash === plaintextPassword // 🙈
 				) {
-					done(null, { _id: 'its-a-me' })
+					const user = await Users.getOne(_id)
+					done(null, user || false)
 				} else {
 					done(null, false)
 				}
+
 			}
 		)
 	)
