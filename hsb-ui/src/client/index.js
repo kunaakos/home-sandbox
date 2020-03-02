@@ -36,7 +36,7 @@ const keepTokenUpdated = token => {
 
 		window.setTimeout(
 			() => fetchNewToken().then(keepTokenUpdated),
-			userTokenExpiresInMs - THREE_SECONDS
+			fetchNewTokenInMs
 		)
 
 	} catch (error) {
