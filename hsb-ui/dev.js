@@ -85,13 +85,16 @@ const go = async () => {
 	}
 
 	serverBundler.on('buildStart', () => { logger.info(`🐌  Started building 'ui' server bundle.`) })
-	serverBundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'ui' server bundle.`) })
 	clientBundler.on('buildStart', () => { logger.info(`🐌  Started building 'ui' client bundle.`) })
-	clientBundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'ui' client bundle.`) })
-
+	clientBundler.on('bundled', () => { logger.info(`🎉  Finished building 'ui' client bundle.`) })
 	serverBundler.on('bundled', async () => {
+		logger.info(`🎉  Finished building 'ui' server bundle.`)
 		killProcesses()
-		startProcess(Path.join(__dirname, './build/server/main.js'))
+		try {
+			startProcess(Path.join(__dirname, './build/server/main.js'))
+		} catch (error) {
+			logger.error(error, 'the \'ui\' server bundle won\'t run 🤷‍♂️')
+		}
 	});
 
 	await clientBundler.bundle().catch(builErrorHandler)

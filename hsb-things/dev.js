@@ -64,10 +64,14 @@ const go = async () => {
 
 	bundler.on('buildStart', () => { logger.info(`🐌  Started building 'things' bundle.`) })
 	bundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'things' bundle.`) })
-
 	bundler.on('bundled', async () => {
+		logger.info(`🎉  Finished building 'things' bundle.`)
 		killProcesses()
-		startProcess(Path.join(__dirname, './build/main.js'))
+		try {
+			startProcess(Path.join(__dirname, './build/main.js'))
+		} catch (error) {
+			logger.error(error, 'the \'things\' bundle won\'t run 🤷‍♂️')
+		}
 	});
 
 	await bundler.bundle().catch(builErrorHandler)
