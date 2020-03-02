@@ -15,6 +15,7 @@ const {
 	User,
 	Password
 } = require('hsb-service-utils/build/schemas')
+const bcrypt = require('bcrypt')
 
 logger = makeLogger({
 	serviceName: 'ui',
@@ -67,11 +68,11 @@ const returnFreshUserTokenAndCookie = (req, res) => {
 
 const main = async () => {
 
-	logger.debug('pesistence layer initialization')
+	logger.debug('persistence layer initialization')
 
 	const mongoDatabase = await initMongodb({
-		dbName: 'hsb',
-		dbUrl: 'mongodb://localhost:27017',
+		dbName: process.env.MONGO_DB_NAME,
+		dbUrl: process.env.MONGO_DB_URL
 	})
 
 	const Users = makeMongoCollection({
@@ -90,24 +91,30 @@ const main = async () => {
 
 	passport.use(
 		new BasicStrategy(
-			// TODO: handle rejections...
 			async (username, plaintextPassword, done) => {
-				const password = await Passwords.getOne({ username })
 
-				if (password === null) {
-					done(null, false)
-					return
-				}
+				try {
+					const password = await Passwords.getOne({ username })
 
-				const { _id, hash } = password
+					if (password === null) {
+						return done(null, false)
+					}
 
-				if (
-					hash === plaintextPassword // 🙈
-				) {
-					const user = await Users.getOne(_id)
-					done(null, user || false)
-				} else {
-					done(null, false)
+					if (
+						await bcrypt.compare(plaintextPassword, password.hash)
+					) {
+						const user = await Users.getOne(password._id)
+						if (!user) {
+							return done(null, false)
+						} else {
+							return done(null, user)
+						}
+					} else {
+						return done(null, false)
+					}
+
+				} catch (error) {
+					return done(error)
 				}
 
 			}
