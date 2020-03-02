@@ -6,26 +6,40 @@ export const makeStateWsEndpoint = ({
 	unsubscribeFromChanges
 }) => (ws, req) => {
 
-	logger.trace('opened websocket connection')
+	logger.trace(`opened websocket connection, token valid for another ${req.userTokenExpiresInSeconds} seconds`)
 
 	setTimeout(
 		() => {
-			logger.trace('user token expired, terminating websocket connection')
-			ws.terminate()
+			logger.trace('user token expiring, closing websocket connection')
+			ws.close(1000, 'user token expiring')
 		},
 		req.userTokenExpiresInSeconds * 1000
 	)
 
 	const messageHandler = messageString => {
 
-		logger.trace(`received websocket message`)
-
 		try {
 			const message = JSON.parse(messageString)
+			logger.trace(`received websocket message with command '${message.type}'`)
 
-			if (message.type === 'set-state' && message.payload) {
-				const { id, ...values } = message.payload
-				things.set(id, values)
+			switch (message.type) {
+
+				case 'set-state':
+					const { id, ...values } = message.payload
+					things.set(id, values)
+					return
+
+				case 'get-all':
+					// TODO, FIX: things removed after a client is connected will remain visible for the client until they reconnect
+					ws.send(JSON.stringify({
+						type: 'things-state',
+						payload: things.getAll()
+					}))
+					return
+
+				default:
+					throw new Error('unsupported command')
+
 			}
 
 		} catch (error) {
@@ -33,13 +47,6 @@ export const makeStateWsEndpoint = ({
 		}
 
 	}
-
-	// send a list with all thing states on init, only updates will be sent after this
-	// TODO, FIX: things removed after a client is connected will remain visible for the client until they reconnect
-	ws.send(JSON.stringify({
-		type: 'things-state',
-		payload: things.getAll()
-	}))
 
 	const subscriptionId = subscribeToChanges(({ id }) => {
 		const thingState = things.get(id)
