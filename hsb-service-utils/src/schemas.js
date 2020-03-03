@@ -24,10 +24,13 @@ export const User = Joi.object({
 
 export const Password = Joi.object({
 
-	value: Joi.string()
+	username: Joi.string()
 		.required(),
 
-	updated: Joi.date().timestamp()
+	hash: Joi.string()
+		.required(),
+
+	updatedAt: Joi.date().timestamp()
 		.required()
 
 })

@@ -2,8 +2,10 @@ version: '2'
 services:
   mongo:
     image: mongo:4.2.3-bionic
-    restart: always
+    env_file:
+      - .env
     volumes:
       - ./__data/mongo:/data/db
+      - ./__scripts/mongo/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "27017:27017"

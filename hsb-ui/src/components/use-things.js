@@ -15,14 +15,41 @@ const ThingsContext = createContext({
 
 export const useThings = () => useContext(ThingsContext)
 
+const reconnectingWebSocket = ({
+	url,
+	onmessage,
+	onclose,
+	onopen,
+}) => {
+
+	const initializeSocket = () => {
+		const socket = new WebSocket(url)
+		socket.onopen = () => { onopen && onopen(socket) }
+		socket.onmessage = message => { onmessage && onmessage(message) }
+		socket.onerror  = errorEvent => {
+			onError && onError()
+		}
+		socket.onclose = closeEvent => {
+			if (closeEvent.code === 1000) {
+				initializeSocket()
+			} else {
+				onclose && onclose()
+			}
+		}
+	}
+
+	initializeSocket()
+
+}
+
 export const ThingsProvider = ({
 	children
 }) => {
+
 	const [connected, setConnected] = useState(false)
 	const [things, setThings] = useState({})
 	const thingsRef = useRef(things)
 	thingsRef.current = things
-
 	const socketRef = useRef(null)
 
 	const updateThing = thing => {
@@ -70,22 +97,40 @@ export const ThingsProvider = ({
 		}))
 	}
 
-	useEffect(() => {
-		const socket = new WebSocket(`ws://${window.location.hostname}/wsapi`)
-		socketRef.current = socket
-		socket.onopen = () => {
-			socketRef.current = socket
-			setConnected(true)
-		}
-		socket.onclose = () => {
-			socketRef.current = null
-			setConnected(false)
-			setThings({})
-		}
-		socket.onmessage = wsMessageHandler
+	const requestAllThings = () => {
+		if (!socketRef.current) { return }
+		socketRef.current.send(JSON.stringify({
+			type: 'get-all',
+			payload: null
+		}))
+	}
 
-		// DEBUG
+	useEffect(() => {
+
+		reconnectingWebSocket({
+			url: `ws://${window.location.hostname}/api/things/state`,
+			onopen: socket => {
+				socketRef.current = socket
+				requestAllThings()
+				setConnected(true)
+			},
+			onclose: () => {
+				socketRef.current = null
+				setConnected(false)
+				setThings({})
+			},
+			onError: () => {
+				socketRef.current = null
+				setConnected(false)
+				setThings({})
+			},
+			onmessage: wsMessageHandler
+		})
+
+		// available globally for debugging and features unimplemented in the ui
+		// to be used from the console, and not from any other part of the app
 		window.setThing = setThing
+
 	}, [])
 
 	return (

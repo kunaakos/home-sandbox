@@ -3,7 +3,7 @@
  * Currently supports output pins only, maps configured GPIO pins to switches.
  */
 
-const gpio = process.env.REAL_GPIO
+const gpio = process.env.THINGS__REAL_GPIO
 	? require('rpi-gpio').promise
 	: null
 

@@ -9,8 +9,9 @@ const logger = makeLogger({
 	serviceColor: 'gray',
 	environment: process.env.NODE_ENV,
 	forceLogLevel: 'info',
-	displayLogLevel: false
 })
+
+const builErrorHandler = error => logger.error(error, 'error 💥')
 
 const bundler = new Bundler(
 	Path.join(__dirname, './src/main.js'),
@@ -63,13 +64,17 @@ const go = async () => {
 
 	bundler.on('buildStart', () => { logger.info(`🐌  Started building 'things' bundle.`) })
 	bundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'things' bundle.`) })
-
 	bundler.on('bundled', async () => {
+		logger.info(`🎉  Finished building 'things' bundle.`)
 		killProcesses()
-		startProcess(Path.join(__dirname, './build/main.js'))
+		try {
+			startProcess(Path.join(__dirname, './build/main.js'))
+		} catch (error) {
+			logger.error(error, 'the \'things\' bundle won\'t run 🤷‍♂️')
+		}
 	});
 
-	await bundler.bundle()
+	await bundler.bundle().catch(builErrorHandler)
 }
 
-go()
+go().catch(builErrorHandler)
