@@ -24,6 +24,6 @@ export const initializeApiServer = ({
 		})
 	)
 
-	app.listen(process.env.THINGS_PORT)
+	app.listen(process.env.HSB__THINGS_PORT)
 
 }

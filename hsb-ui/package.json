@@ -9,7 +9,7 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "node -r dotenv/config -r source-map-support/register dev.js",
+		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
 		"build": "NODE_ENV=production node build.js",
 		"prod": "NODE_ENV=production node -r source-map-support/register build/server/main.js"
 	},

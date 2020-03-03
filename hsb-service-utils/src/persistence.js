@@ -2,11 +2,14 @@ import { MongoClient } from 'mongodb'
 
 export const initMongodb = async ({
 	dbName,
-	dbUrl
+	dbHost,
+	dbPort,
+	username,
+	password
 }) => {
 
 	const mongoClient = new MongoClient(
-		`${dbUrl}/${dbName}`,
+		`mongodb://${username}:${password}@${dbHost}:${dbPort}/${dbName}`,
 		{
 			useNewUrlParser: true,
 			useUnifiedTopology: true

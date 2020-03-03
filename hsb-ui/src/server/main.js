@@ -21,10 +21,10 @@ logger = makeLogger({
 	serviceName: 'ui',
 	serviceColor: 'cyan',
 	environment: process.env.NODE_ENV,
-	forceLogLevel: process.env.LOG_LEVEL
+	forceLogLevel: process.env.HSB__LOG_LEVEL
 })
 
-const USER_TOKEN_SECRET = process.env.USER_TOKEN_SECRET
+const USER_TOKEN_SECRET = process.env.UI__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
 const USER_TOKEN_EXPIRY = '1m' // short token life: auth/reauth handling bugs, BRING'EM ON
 const USER_TOKEN_COOKIE_NAME = 'hsb_user_token'
@@ -71,8 +71,11 @@ const main = async () => {
 	logger.debug('persistence layer initialization')
 
 	const mongoDatabase = await initMongodb({
-		dbName: process.env.MONGO_DB_NAME,
-		dbUrl: process.env.MONGO_DB_URL
+		dbHost: process.env.HSB__MONGO_DBHOST,
+		dbPort: process.env.HSB__MONGO_DBPORT,
+		dbName: process.env.HSB__MONGO_DBNAME,
+		username: process.env.HSB__MONGO_USERNAME,
+		password: process.env.HSB__MONGO_PASSWORD
 	})
 
 	const Users = makeMongoCollection({
@@ -156,7 +159,7 @@ const main = async () => {
 
 	const proxyThingsApi = createProxyMiddleware(
 		{
-			target: process.env.THINGS_URL,
+			target: `${process.env.HSB__THINGS_URL}:${process.env.HSB__THINGS_PORT}`,
 			ws: true,
 			logProvider: () => logger
 		}
@@ -202,8 +205,8 @@ const main = async () => {
 		serveSinglePageApp
 	)
 
-	app.listen(process.env.UI_PORT, () => {
-		logger.info(`App listening on port ${process.env.UI_PORT}.`)
+	app.listen(process.env.HSB__UI_PORT, () => {
+		logger.info(`App listening on port ${process.env.HSB__UI_PORT}.`)
 	})
 
 }

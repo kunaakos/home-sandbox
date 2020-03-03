@@ -16,10 +16,10 @@ export const gatewayDefinitions = [
 		type: 'serial-gateway',
 		description: {
 			id: 'nrf24-serial',
-			label: `NRF24 radio gateway attached to ${process.env.SERIAL_DEVICE_PATH}`
+			label: `NRF24 radio gateway attached to ${process.env.THINGS__SERIAL_DEVICE_PATH}`
 		},
 		config: {
-			path: process.env.SERIAL_DEVICE_PATH
+			path: process.env.THINGS__SERIAL_DEVICE_PATH
 		}
 	},
 	{

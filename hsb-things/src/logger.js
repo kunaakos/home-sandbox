@@ -4,5 +4,5 @@ export const logger = makeLogger({
 	serviceName: 'things',
 	serviceColor: 'magenta',
 	environment: process.env.NODE_ENV,
-	forceLogLevel: process.env.LOG_LEVEL
+	forceLogLevel: process.env.HSB__LOG_LEVEL
 })
