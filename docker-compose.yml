@@ -1,11 +1,18 @@
-version: '2'
+version: "2"
+
+volumes:
+  mongo:
+
 services:
   ui:
     build:
       context: ./
       dockerfile: ./hsb-ui.Dockerfile
+    depends_on:
+      - mongo
     ports:
       - "80:80"
+
   things:
     build:
       context: ./
@@ -17,3 +24,12 @@ services:
       - "/dev/ttyACM0:/dev/ttyACM0"
     expose:
       - "80"
+
+  mongo:
+    build:
+      context: ./
+      dockerfile: ./mongo.Dockerfile
+    volumes:
+      - mongo:/data/db
+    expose:
+      - "27017"

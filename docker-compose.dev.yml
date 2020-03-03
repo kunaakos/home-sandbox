@@ -3,7 +3,7 @@ services:
   mongo:
     image: mongo:4.2.3-bionic
     env_file:
-      - global.env
+      - .env
     volumes:
       - ./__data/mongo:/data/db
       - ./__scripts/mongo/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
