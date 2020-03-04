@@ -7,13 +7,21 @@
 	"private": true,
 	"workspaces": [
 		"hsb-service-utils",
+		"hsb-gatekeeper",
 		"hsb-things",
 		"hsb-ui"
 	],
 	"scripts": {
 		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
+		"clean-builds": "find . \\( -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
 		"clean-node-modules": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
-		"dev": "concurrently -r --kill-others-on-fail \"yarn workspace hsb-things dev\"  \"yarn workspace hsb-ui dev\"",
+		"service-utils": "yarn workspace hsb-service-utils dev",
+		"gatekeeper": "yarn workspace hsb-gatekeeper dev",
+		"things": "yarn workspace hsb-things dev",
+		"ui": "yarn workspace hsb-ui dev",
+		"mongo": "docker-compose -f docker-compose.dev.yml up mongo",
+		"dev-nodb": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn gatekeeper\" \"yarn things\"  \"yarn ui\"",
+		"dev": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn gatekeeper\" \"yarn things\"  \"yarn ui\"  \"yarn mongo\"",
 		"deploy": "balena push home-sandbox"
 	},
 	"dependencies": {

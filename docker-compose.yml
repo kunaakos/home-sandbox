@@ -4,14 +4,22 @@ volumes:
   mongo:
 
 services:
-  ui:
+
+  gatekeeper:
     build:
       context: ./
-      dockerfile: ./hsb-ui.Dockerfile
+      dockerfile: ./hsb-gatekeeper.Dockerfile
     depends_on:
       - mongo
     ports:
       - "80:80"
+
+  ui:
+    build:
+      context: ./
+      dockerfile: ./hsb-ui.Dockerfile
+    expose:
+      - "80"
 
   things:
     build:
