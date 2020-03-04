@@ -8,7 +8,9 @@ It's an experiment. If you're planning to use this, don't (at least not yet). If
 
 It's the app gateway that deals with authentication and proxying, and eventually more gateway-y things like ssl termination, rate limiting and such.
 
-It will be split into two separate services in the future, handling memberships and issuing user tokens will be moved to another service.
+It will be split into two separate services in the future, handling memberships and issuing user tokens will be moved to another service. To illustrate:
+
+![yup.](https://i.imgur.com/ZfQSTjz.png)
 
 ### things
 
