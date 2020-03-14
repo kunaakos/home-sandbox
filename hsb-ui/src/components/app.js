@@ -3,9 +3,10 @@ import React from 'react'
 import { ThemeProvider } from 'emotion-theming'
 import { lightTheme } from '../themes/light-theme'
 
-import { useThings } from '../components/use-things'
-import { useUserToken } from '../components/use-user-token'
+import { useThings } from '../hooks/use-things'
+import { useUserToken } from '../hooks/use-user-token'
 
+import { CardContainer } from './ui-kit/cards'
 import { ThingCard } from '../components/thing-cards'
 
 export const App = () => {
@@ -26,7 +27,9 @@ export const App = () => {
 				I am currently {connected ? 'connected' : 'not connected'} {connected ? '😌' : '😞'}.<br />
 				{connected && <React.Fragment>I have a list of things that I can see in your home, let me know if you want me to do anything with them.</React.Fragment>}
 			</p>
-			{visibleThings.map(thing => <ThingCard key={thing.id} thing={thing} setThing={setThing} />)}
+			<CardContainer>
+				{visibleThings.map(thing => <ThingCard key={thing.id} thing={thing} setThing={setThing} />)}
+			</CardContainer>
 		</ThemeProvider>
 	)
 }

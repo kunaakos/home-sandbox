@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { ThingsProvider } from '../components/use-things'
+import { ThingsProvider } from '../hooks/use-things'
 import { App } from '../components/app'
 
 ReactDOM.render(

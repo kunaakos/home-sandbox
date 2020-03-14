@@ -6,6 +6,8 @@ import {
 
 import debounce from 'lodash/debounce'
 
+import { Card } from '../ui-kit/cards'
+
 export const LightCard = ({ thing, setThing }) => {
 
 	const brightnessSliderRef = useRef(null)
@@ -33,7 +35,7 @@ export const LightCard = ({ thing, setThing }) => {
 	const numberOfControls = Number(showBrightnessSlider) + Number(showTemperatureSlider) + Number(showColorPicker)
 
 	return (
-		<div data-id={thing.id}>
+		<Card data-id={thing.id}>
 			<h3>💡 {thing.label}</h3>
 			<p>
 				It's {thing.isOn ? 'on ✅. ' : 'off ❌. '}
@@ -84,6 +86,6 @@ export const LightCard = ({ thing, setThing }) => {
 						</React.Fragment>
 				}
 			</p>
-		</div>
+		</Card>
 	)
 }

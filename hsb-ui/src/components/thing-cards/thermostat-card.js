@@ -8,6 +8,8 @@ import {
 
 import clamp from 'lodash/clamp'
 
+import { Card } from '../ui-kit/cards'
+
 export const ThermostatCard = ({ thing, setThing }) => {
 
 	const [newTargetTemperature, setNewTargetTemperature] = useState(thing.targetTemperature)
@@ -31,7 +33,7 @@ export const ThermostatCard = ({ thing, setThing }) => {
 	}
 
 	return (
-		<div data-id={thing.id}>
+		<Card data-id={thing.id}>
 			<h3>🌡 {thing.label}</h3>
 			<p>
 				It's currently at {thing.currentTemperature} °C and it's set to keep {thing.targetTemperature} °C.
@@ -59,6 +61,6 @@ export const ThermostatCard = ({ thing, setThing }) => {
 					/>&nbsp;°C
 				</span>
 			</p>
-		</div>
+		</Card>
 	)
 }

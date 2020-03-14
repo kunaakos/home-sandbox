@@ -2,7 +2,6 @@ import {
 	useEffect,
 } from 'react'
 
-
 const FIVE_SECONDS = 1000 * 5
 
 const fetchCurrentToken = () => 
