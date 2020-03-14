@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 
 export const Card = styled.div`
+	user-select: none;
 	background: ${({theme}) => theme.colors.bg1};
 	color: ${({theme}) => theme.colors.fg1};
 	padding: 1rem;

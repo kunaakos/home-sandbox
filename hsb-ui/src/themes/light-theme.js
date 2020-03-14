@@ -24,6 +24,22 @@ export const lightTheme = {
 		bg2: '#DADADA',
 		fg2: '#333333'
 
+	},
+
+	fonts: {
+		title: 'sans-serif',
+		text: 'sans-serif',
+		controls: 'sans-serif'
+	},
+
+	fontSizes: {
+		title: '2rem',
+		heading: '1.6rem',
+		paragraph: '1rem'
+	},
+
+	misc: {
+		transitionDuration: '100ms'
 	}
 
 }
