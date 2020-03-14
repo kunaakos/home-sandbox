@@ -1,6 +1,11 @@
 {
+	"plugins": [
+		// https://github.com/emotion-js/emotion/issues/1132
+		"transform-inline-environment-variables"
+    ],
 	"presets": [
-		"@babel/preset-env",
-		"@babel/preset-react"
+		"@babel/preset-react",
+		"@emotion/babel-preset-css-prop",
+		"@babel/preset-env"
 	]
 }
