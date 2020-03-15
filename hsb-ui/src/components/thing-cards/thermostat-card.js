@@ -56,3 +56,4 @@ export const ThermostatCard = ({ thing, setThing }) => {
 			</React.Fragment>}
 		</Card>
 	)
+}
