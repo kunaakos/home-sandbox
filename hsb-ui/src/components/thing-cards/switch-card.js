@@ -1,16 +1,35 @@
 import React from 'react'
 
-import { Card } from '../ui-kit/cards'
+import {
+	Card,
+	TitleBar
+} from '../ui-kit/cards'
 
-export const SwitchCard = ({ thing, setThing }) => (
-	<Card data-id={thing.id}>
-		<h3>🔌 {thing.label}</h3>
-		<p>
-			It's {thing.isOn ? 'on ✅' : 'off ❌'}. I can {
-				thing.isOn
-					? (<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>)
-					: (<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>)
-			} for you.
-		</p>
-	</Card>
-)
+import {
+	Button
+} from '../ui-kit/nubbins'
+
+export const SwitchCard = ({ thing, setThing }) => {
+
+	const toggle = () => { setThing(thing.id, { isOn: !thing.isOn }) }
+
+	return (
+		<Card
+			data-id={thing.id}
+			background={'bg1'}
+			highlight={thing.isOn ? 'accent1' : 'disabled'}
+		>
+			<TitleBar>
+				<Button
+					fullWidth
+					textAlign={'start'}
+					onClick={toggle}
+					background={'bg1'}
+					color={'fg1'}
+				>
+					{thing.label}
+				</Button>
+			</TitleBar>
+		</Card>
+	)
+}

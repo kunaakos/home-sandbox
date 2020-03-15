@@ -34,7 +34,8 @@ export const lightTheme = {
 
 	fontSizes: {
 		title: '2rem',
-		heading: '1.6rem',
+		heading: '1.4rem',
+		subheading: '1.2rem',
 		paragraph: '1rem'
 	},
 
