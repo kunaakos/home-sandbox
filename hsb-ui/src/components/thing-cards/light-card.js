@@ -1,91 +1,66 @@
 import React from 'react'
+
 import {
-	useEffect,
-	useRef
-} from 'react'
+	Card,
+	TitleBar
+} from '../ui-kit/cards'
 
-import debounce from 'lodash/debounce'
-
-import { Card } from '../ui-kit/cards'
+import {
+	Button,
+	HorizontalSlider,
+	HorizontalSliderLabel
+} from '../ui-kit/nubbins'
 
 export const LightCard = ({ thing, setThing }) => {
-
-	const brightnessSliderRef = useRef(null)
-	const temperatureSliderRef = useRef(null)
-	const colorPickerRef = useRef(null)
-
-	useEffect(() => {
-		brightnessSliderRef.current && (brightnessSliderRef.current.value = thing.brightness)
-	}, [thing.brightness])
-
-	useEffect(() => {
-		temperatureSliderRef.current && (temperatureSliderRef.current.value = thing.colorTemperature)
-	}, [thing.colorTemperature])
-
-	useEffect(() => {
-		colorPickerRef.current && (colorPickerRef.current.value = `#${thing.color}`)
-	}, [thing.color])
-
-	const setThingDebounced = debounce(setThing, 300)
 
 	const showBrightnessSlider = thing.isDimmable
 	const showTemperatureSlider = Boolean(thing.colorTemperatureRange)
 	const showColorPicker = thing.isColor
 
-	const numberOfControls = Number(showBrightnessSlider) + Number(showTemperatureSlider) + Number(showColorPicker)
+	const toggle = () => { setThing(thing.id, { isOn: !thing.isOn }) }
 
 	return (
-		<Card data-id={thing.id}>
-			<h3>💡 {thing.label}</h3>
-			<p>
-				It's {thing.isOn ? 'on ✅. ' : 'off ❌. '}
-				{thing.isOn
-					? <React.Fragment>
-						I can
-							&nbsp;<button onClick={() => { setThing(thing.id, { isOn: false }) }}>switch it off</button>&nbsp;
-						for you
-							{numberOfControls > 0 ? ' or adjust its ' : null}
-						{showBrightnessSlider && <React.Fragment>
-							brightness
-								&nbsp;<input
-								type="range"
-								min="1"
-								max="100"
-								defaultValue={thing.brightness}
-								ref={brightnessSliderRef}
-								onChange={e => { setThingDebounced(thing.id, { brightness: parseInt(e.target.value) }) }}
-							/>&nbsp;
-							</React.Fragment>}
-						{numberOfControls > 1 ? ' and ' : null}
-						{showColorPicker && <React.Fragment>
-							color
-								&nbsp;<input
-								type="color"
-								defaultValue={`#${thing.color}`}
-								ref={colorPickerRef}
-								onChange={e => { setThingDebounced(thing.id, { color: e.target.value.replace(/#/, '') }) }}
-							/>&nbsp;
-							</React.Fragment>}
-						{showTemperatureSlider && <React.Fragment>
-							color temperature
-								&nbsp;<input
-								type="range"
-								min={thing.colorTemperatureRange[0]}
-								max={thing.colorTemperatureRange[1]}
-								defaultValue={thing.colorTemperature}
-								ref={temperatureSliderRef}
-								onChange={e => { setThingDebounced(thing.id, { colorTemperature: parseInt(e.target.value) }) }}
-							/>&nbsp;
-							</React.Fragment>}
-						.
-						</React.Fragment>
-					: <React.Fragment>
-						I can
-							&nbsp;<button href="#" onClick={() => { setThing(thing.id, { isOn: true }) }}>turn it on</button>&nbsp;
-						for you.
-						</React.Fragment>
-				}
-			</p>
+		<Card
+			data-id={thing.id}
+			background={'bg1'}
+			highlight={thing.isOn ? 'accent1' : 'disabled'}
+		>
+			<TitleBar>
+				<Button
+					fullWidth
+					textAlign={'start'}
+					onClick={toggle}
+					background={'bg1'}
+					color={'fg1'}
+				>
+					{thing.label}
+				</Button>
+			</TitleBar>
+
+			{thing.isOn && <React.Fragment>
+				{showBrightnessSlider && <React.Fragment>
+					<HorizontalSliderLabel fontSize={'subheading'}>brightness</HorizontalSliderLabel>
+					<HorizontalSlider
+						min={1}
+						max={100}
+						value={thing.brightness}
+						onChangeCommitted={(e, value) => { setThing(thing.id, { brightness: value }) }}
+					/>
+				</React.Fragment>}
+
+				{showColorPicker && <React.Fragment></React.Fragment>}
+
+				{showTemperatureSlider && <React.Fragment>
+					<HorizontalSliderLabel color={'fg1'} fontSize={'subheading'}>color temperature</HorizontalSliderLabel>
+					<HorizontalSlider
+						min={thing.colorTemperatureRange[0]}
+						max={thing.colorTemperatureRange[1]}
+						value={thing.colorTemperature}
+						onChangeCommitted={(e, value) => { setThing(thing.id, { colorTemperature: value }) }}
+					/>
+				</React.Fragment>}
+
+			</React.Fragment>}
 		</Card>
 	)
 }

@@ -1,14 +1,29 @@
 import styled from '@emotion/styled'
 
 export const Card = styled.div`
+	position: relative;
 	user-select: none;
-	background: ${({theme}) => theme.colors.bg1};
-	color: ${({theme}) => theme.colors.fg1};
-	padding: 1rem;
+	background: ${({ background, theme }) => theme.colors[background] || theme.colors.bg1};
+	color: ${({ color, theme }) => theme.colors[color] || theme.colors.fg1};
+	&:before {
+		content: '';
+		display: block;
+		z-index: -1;
+		background: ${({ highlight, theme }) => theme.colors[highlight] || 'none'};
+		position: absolute;
+		top: 0;
+		left: -0.2rem;
+		width: 0.2rem;
+		height: 100%;
+	}
 `
 
 export const CardContainer = styled.div`
 	${Card} + ${Card} {
 		margin-top: 1rem;
 	}
+`
+
+export const TitleBar = styled.div`
+	padding: 0.4rem 0 0.6rem 0.4rem;
 `

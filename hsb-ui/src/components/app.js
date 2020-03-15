@@ -18,7 +18,7 @@ import {
 	Label,
 	HorizontalButtonsContainer,
 	VerticalButtonsContainer
-} from './ui-kit/buttons'
+} from './ui-kit/nubbins'
 
 const globalStyles = css`
 	body, html {
@@ -49,7 +49,10 @@ const DrawerMenuButtonsContainer = styled(VerticalButtonsContainer)`
 `
 
 const ThingCardContainer = styled(CardContainer)`
-	margin: 2rem 1rem;
+	width: calc(100% - 2rem);
+	max-width: 420px;
+	padding: 4rem 0 2rem 0;
+	margin: auto;
 `
 
 export const App = () => {
@@ -78,7 +81,10 @@ export const App = () => {
 
 			<HoverMenu hide={drawerOpen}>
 				<HoverMenuButtonsContainer>
-					<Label>Things</Label>
+					<Label
+						color={'bg1'}
+						background={'disabled'}
+					>Things</Label>
 					<Button onClick={openDrawer}>+</Button>
 				</HoverMenuButtonsContainer>
 			</HoverMenu>
