@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import Slider from '@material-ui/core/Slider'
+import { NavLink } from 'react-router-dom'
 
 export const Button = styled.button`
 	width: ${({ fullWidth }) => fullWidth ? '100%' : 'fit-content'};
@@ -18,6 +19,26 @@ export const Button = styled.button`
 	}
 `
 
+export const NavButton = styled(NavLink)`
+	box-sizing: border-box;
+	text-decoration: none;
+	width: ${({ fullWidth }) => fullWidth ? '100%' : 'fit-content'};
+	text-align: ${({ textAlign = 'center' }) => textAlign};
+	user-select: none;
+	&:not(.active) {
+		background: ${({ background, theme }) => theme.colors[background] || theme.colors.brand};
+		color: ${({ color, theme }) => theme.colors[color] || theme.colors.bg1};
+	}
+	&.active {
+		background: ${({ activeBackground, theme }) => theme.colors[activeBackground] || theme.colors.accent2};
+		color: ${({ activeColor, theme }) => theme.colors[activeColor] || theme.colors.bg1};
+	}
+	font-family: ${({ theme }) => theme.fonts.controls};
+	font-size: ${({ fontSize = 'heading', theme }) => theme.fontSizes[fontSize]};
+	text-transform: ${({ textTransform = 'none' }) => textTransform};
+	padding: 0.2rem 0.6rem;
+`
+
 export const Label = styled.div`
 	box-sizing: border-box;
 	width: ${({ fullWidth }) => fullWidth ? '100%' : 'fit-content'};
@@ -28,12 +49,12 @@ export const Label = styled.div`
 	font-family: ${({ theme }) => theme.fonts.controls};
 	font-size: ${({ fontSize = 'heading', theme }) => theme.fontSizes[fontSize]};
 	text-transform: ${({ textTransform = 'none' }) => textTransform};
-
 	padding: 0.2rem 0.6rem;
 `
 
 export const VerticalButtonsContainer = styled.div`
 	& > ${Button},
+	& > ${NavButton},
 	& > ${Label} {
 		display: block;
 	}
@@ -44,6 +65,7 @@ export const VerticalButtonsContainer = styled.div`
 
 export const HorizontalButtonsContainer = styled.div`
 	& > ${Button},
+	& > ${NavButton},
 	& > ${Label} {
 		display: inline-block;
 	}
