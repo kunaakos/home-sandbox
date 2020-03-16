@@ -1,21 +1,25 @@
 import { Global, css } from '@emotion/core'
 import styled from '@emotion/styled'
+import { ThemeProvider } from 'emotion-theming'
 import React from 'react'
 import { useState } from 'react'
+import {
+	BrowserRouter as Router,
+	Switch,
+	Route,
+	Redirect
+} from 'react-router-dom'
 
-import { ThemeProvider } from 'emotion-theming'
+import { ThingsView } from './views/things-view'
+import { UsersView } from './views/users-view'
+import { GatewaysView } from './views/gateways-view'
+
 import { lightTheme } from '../themes/light-theme'
-
-import { useThings } from '../hooks/use-things'
 import { useUserToken } from '../hooks/use-user-token'
-
-import { ThingCard } from '../components/thing-cards'
-
-import { CardContainer } from './ui-kit/cards'
 import { DrawerMenu } from './ui-kit/menus'
 import {
 	Button,
-	Label,
+	NavButton,
 	HorizontalButtonsContainer,
 	VerticalButtonsContainer
 } from './ui-kit/nubbins'
@@ -48,55 +52,69 @@ const DrawerMenuButtonsContainer = styled(VerticalButtonsContainer)`
 	margin: 1rem;
 `
 
-const ThingCardContainer = styled(CardContainer)`
-	width: calc(100% - 2rem);
-	max-width: 420px;
-	padding: 4rem 0 2rem 0;
-	margin: auto;
-`
-
 export const App = () => {
 
 	useUserToken()
-	const { connected, things, setThing } = useThings()
 
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const openDrawer = () => setDrawerOpen(true)
 	const closeDrawer = () => setDrawerOpen(false)
-
-	const visibleThings = connected && things
-		? Object
-			.values(things)
-			.filter(thing => !thing.hidden)
-		: []
 
 	return (
 		<ThemeProvider theme={lightTheme}>
 
 			<Global styles={globalStyles} />
 
-			<ThingCardContainer>
-				{visibleThings.map(thing => <ThingCard key={thing.id} thing={thing} setThing={setThing} />)}
-			</ThingCardContainer>
+			<Router>
 
-			<HoverMenu hide={drawerOpen}>
-				<HoverMenuButtonsContainer>
-					<Label
-						color={'bg1'}
-						background={'disabled'}
-					>Things</Label>
-					<Button onClick={openDrawer}>+</Button>
-				</HoverMenuButtonsContainer>
-			</HoverMenu>
+				<Switch>
+					<Route exact path="/">
+						<Redirect to="/things" />
+					</Route>
+					<Route path="/things">
+						<ThingsView />
+					</Route>
+					<Route path="/gateways">
+						<GatewaysView />
+					</Route>
+					<Route path="/users">
+						<UsersView />
+					</Route>
+				</Switch>
 
-			<DrawerMenu
-				isOpen={drawerOpen}
-				close={closeDrawer}
-			>
-				<DrawerMenuButtonsContainer>
-					<Button onClick={closeDrawer}>Things</Button>
-				</DrawerMenuButtonsContainer>
-			</DrawerMenu>
+				<HoverMenu hide={drawerOpen}>
+					<HoverMenuButtonsContainer>
+						<Button onClick={openDrawer}>+</Button>
+					</HoverMenuButtonsContainer>
+				</HoverMenu>
+
+				<DrawerMenu
+					isOpen={drawerOpen}
+					close={closeDrawer}
+				>
+					<DrawerMenuButtonsContainer>
+						<NavButton
+							to="/things"
+							onClick={closeDrawer}
+						>
+							Things
+						</NavButton>
+						<NavButton
+							to="/gateways"
+							onClick={closeDrawer}
+						>
+							Gateways
+						</NavButton>
+						<NavButton
+							to="/users"
+							onClick={closeDrawer}
+						>
+							Users
+						</NavButton>
+					</DrawerMenuButtonsContainer>
+				</DrawerMenu>
+
+			</Router>
 
 		</ThemeProvider>
 	)

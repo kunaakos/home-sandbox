@@ -24,6 +24,13 @@ export const CardContainer = styled.div`
 	}
 `
 
+export const CenteredCardContainer = styled(CardContainer)`
+	width: calc(100% - 2rem);
+	max-width: 420px;
+	padding: 4rem 0 2rem 0;
+	margin: auto;
+`
+
 export const TitleBar = styled.div`
 	padding: 0.4rem 0 0.6rem 0.4rem;
 `

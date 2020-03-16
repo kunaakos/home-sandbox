@@ -21,6 +21,13 @@ const main = async () => {
 		serveSinglePageApp
 	)
 
+	app.get(
+		'*',
+		(req, res) => {
+			res.sendFile(path.join(__dirname, '../../build/client/index.html'))
+		}
+	)
+
 	app.listen(process.env.HSB__UI_PORT, () => {
 		logger.info(`App listening on port ${process.env.HSB__UI_PORT}.`)
 	})
