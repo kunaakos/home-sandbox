@@ -1,6 +1,8 @@
 {
 	"plugins": [
 		// https://github.com/emotion-js/emotion/issues/1132
+		// TODO: this plugin inlines env variables, which is a duct-tape fix for emotion
+		// but also breaks the server app (because env vars are inlined during build where they're not available)
 		"transform-inline-environment-variables"
     ],
 	"presets": [
