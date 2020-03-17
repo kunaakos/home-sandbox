@@ -29,14 +29,18 @@ const globalStyles = css`
 		margin: 0;
 	}
 	#root {
-		width: 100vw;
-		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
 		overflow-y: scroll;
+		overflow-x: hidden;
 	}
 `
 
 const HoverMenu = styled.div`
-	position: absolute;
+	position: fixed;
 	top: 0;
 	right: 0;
 	transform: translateX(${({ hide }) => hide ? 'calc(100% + 1rem)' : '0'});
