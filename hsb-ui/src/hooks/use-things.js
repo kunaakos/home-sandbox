@@ -108,7 +108,7 @@ export const ThingsProvider = ({
 	useEffect(() => {
 
 		reconnectingWebSocket({
-			url: `ws://${window.location.hostname}/api/things/state`,
+			url: `ws://${window.location.host}/api/things/state`,
 			onopen: socket => {
 				socketRef.current = socket
 				requestAllThings()
