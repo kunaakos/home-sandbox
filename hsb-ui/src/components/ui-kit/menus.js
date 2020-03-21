@@ -11,7 +11,7 @@ const DrawerContainer = styled.div`
 
 const Drawer = styled.div`
 	position: absolute;
-	width: 90%;
+	width: 80%;
 	max-width: 480px;
 	height: 100%;
 	top: 0;
