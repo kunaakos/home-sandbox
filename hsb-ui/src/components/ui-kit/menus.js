@@ -1,16 +1,17 @@
 import styled from '@emotion/styled'
 
 const DrawerContainer = styled.div`
-	position: absolute;
+	position: fixed;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
-	top: 0;
-	left: -100%;
+	transform: translateX(-100%);
 `
 
 const Drawer = styled.div`
 	position: absolute;
-	width: 90%;
+	width: 80%;
 	max-width: 480px;
 	height: 100%;
 	top: 0;
