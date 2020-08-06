@@ -30,36 +30,28 @@ class HsbRemoteGraphQLDataSource extends RemoteGraphQLDataSource {
 
 const main = async () => {
 
-	logger.debug('initializing http app')
+	logger.debug('initializing express app')
 
-	const httpApp = express()
+	const app = express()
 
-	httpApp.use(
-		'/',
-		createProxyMiddleware(
-			{
-				target: `${process.env.HSB__UI_URL}:${process.env.HSB__UI_PORT}`,
-				logProvider: () => logger
-			}
-		)
-	)
-
-	httpApp.listen(process.env.HSB__GATEKEEPER_PORT, () => {
-		logger.info(`App listening on port ${process.env.HSB__GATEKEEPER_PORT}.`)
-	})
-
-	logger.debug('initializing graphql app')
-
-	const port = 4000
-	const gqlApp = express()
-
-	gqlApp.use(expressJwt({
+	// grab the JWT from the Authorization header if present, and make it available on the request context
+	app.use('/gql', expressJwt({
 		secret: USER_TOKEN_SECRET,
 		algorithms: ['HS256'],
 		credentialsRequired: false,
 		requestProperty: 'auth'
 	}))
 
+	// handle express-jwt errors
+	app.use('/gql', (err, req, res, next) => {
+		if (err.name === 'UnauthorizedError') {
+			logger.trace('Invalid or expired token used with request.')
+			next()
+		} else {
+			logger.error(err)
+			res.status(500).send('Internal error.')
+		}
+	})
 
 	const apolloGateway = new ApolloGateway({
 		serviceList: [
@@ -72,6 +64,7 @@ const main = async () => {
 				url: 'http://localhost:4001'
 			}
 		],
+		logger,
 		buildService({ name, url }) {
 			return new HsbRemoteGraphQLDataSource({
 				url
@@ -82,6 +75,7 @@ const main = async () => {
 	const apolloServer = new ApolloServer({
 		gateway: apolloGateway,
 		subscriptions: false,
+		logger,
 		context: ({ req }) => {
 			return {
 				auth: req.auth || null
@@ -89,11 +83,26 @@ const main = async () => {
 		}
 	})
 
-	apolloServer.applyMiddleware({ app: gqlApp })
+	// mount the GraphQL server
+	apolloServer.applyMiddleware({
+		app: app,
+		path: '/gql'
+	})
 
-	gqlApp.listen({ port }, () =>
-		logger.trace(`Server ready at http://localhost:${port}${apolloServer.graphqlPath}`)
+	// proxy everything else to UI
+	app.use(
+		'/',
+		createProxyMiddleware(
+			{
+				target: `${process.env.HSB__UI_URL}:${process.env.HSB__UI_PORT}`,
+				logProvider: () => logger
+			}
+		)
 	)
+
+	app.listen(process.env.HSB__GATEKEEPER_PORT, () => {
+		logger.info(`App listening on port ${process.env.HSB__GATEKEEPER_PORT}.`)
+	})
 
 }
 

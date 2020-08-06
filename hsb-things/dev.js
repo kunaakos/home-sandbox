@@ -41,7 +41,7 @@ const go = async () => {
 
 	const startProcess = path => {
 		let process = fork(path)
-		logger.info(`🥾  Starting node app #${process.pid}.`)
+		logger.info(`🥾  Starting node app 'things', process id is #${process.pid}.`)
 		processes[process.pid] = process
 		process.once('close', (code, signal) => {
 			delete processes[process.pid]

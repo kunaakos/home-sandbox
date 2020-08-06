@@ -96,6 +96,7 @@ export const initializeGqlServer = ({
 			}]),
 			permissions
 		),
+		logger,
 		context: ({ req }) => {
 			const user = req.headers['hsb-user-json'] ? JSON.parse(req.headers['hsb-user-json']) : null
 			return { user }

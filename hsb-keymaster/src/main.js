@@ -63,8 +63,7 @@ const typeDefs = gql`
 const permissions = shield({
 	Query: {
 		user: isAuthenticated,
-		users: isAuthenticated,
-		currentUser: isAuthenticated
+		users: isAuthenticated
 	}
 })
 
@@ -167,6 +166,7 @@ const main = async () => {
 			}]),
 			permissions
 		),
+		logger,
 		context: ({ req }) => {
 			const user = req.headers['hsb-user-json'] ? JSON.parse(req.headers['hsb-user-json']) : null;
 			return { user }
