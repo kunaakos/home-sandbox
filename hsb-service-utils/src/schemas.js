@@ -10,15 +10,9 @@ export const User = Joi.object({
 	displayName: Joi.string()
 		.required(),
 
-	permissions: Joi.object({
-
-		addUsers: Joi.boolean()
-			.required(),
-
-		modifySettings: Joi.boolean()
-			.required(),
-
-	}).required()
+	permissions: Joi.array()
+		.items(Joi.string())
+		.required()
 
 })
 

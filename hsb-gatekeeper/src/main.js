@@ -1,22 +1,13 @@
 const express = require('express')
+const expressJwt = require('express-jwt')
+
+const { ApolloServer } = require('apollo-server-express')
+const { ApolloGateway, RemoteGraphQLDataSource } = require('@apollo/gateway')
 const { createProxyMiddleware } = require('http-proxy-middleware')
-const cookieParser = require('cookie-parser')
-const passport = require('passport')
-const { BasicStrategy } = require('passport-http')
-const { Strategy: JwtStrategy } = require('passport-jwt')
-const jsonWebToken = require('jsonwebtoken')
 
 const { makeLogger } = require('hsb-service-utils/build/logger')
 
-const { initMongodb } = require('hsb-service-utils/build/persistence')
-const { makeMongoCollection } = require('hsb-service-utils/build/object-mappers')
-const {
-	User,
-	Password
-} = require('hsb-service-utils/build/schemas')
-const bcrypt = require('bcrypt')
-
-logger = makeLogger({
+const logger = makeLogger({
 	serviceName: 'gtkpr',
 	serviceColor: 'blue',
 	environment: process.env.NODE_ENV,
@@ -24,195 +15,85 @@ logger = makeLogger({
 })
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
-const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
-const USER_TOKEN_EXPIRY = '1m' // short token life: auth/reauth handling bugs, BRING'EM ON
-const USER_TOKEN_COOKIE_NAME = 'hsb_user_token'
 
-const userTokenFromRequestCookie = req => (req.cookies && req.cookies[USER_TOKEN_COOKIE_NAME]) || null
+class HsbRemoteGraphQLDataSource extends RemoteGraphQLDataSource {
 
-const freshUserTokenFromUserObject = user => jsonWebToken.sign(
-	{
-		user
-	},
-	USER_TOKEN_SECRET,
-	{
-		issuer: USER_TOKEN_ISSUER,
-		expiresIn: USER_TOKEN_EXPIRY
+	// pass the user object from the token (parsed by express-jwt) to services behind the gateway
+	willSendRequest({ request, context }) {
+		request.http.headers.set(
+			'hsb-user-json',
+			context.auth && context.auth.user ? JSON.stringify(context.auth.user) : null
+		)
 	}
-)
 
-const returnCurrentUserToken = (req, res) => {
-	const userToken = userTokenFromRequestCookie(req)
-	res.json(jsonWebToken.decode(userToken))
-}
-
-const setFreshUserTokenCookieAndRedirect = (req, res) => {
-	res
-		.cookie(
-			USER_TOKEN_COOKIE_NAME,
-			freshUserTokenFromUserObject(req.user)
-		)
-		.redirect('/')
-}
-
-const returnFreshUserTokenAndCookie = (req, res) => {
-	const freshUserToken = freshUserTokenFromUserObject(req.user)
-	res
-		.cookie(
-			USER_TOKEN_COOKIE_NAME,
-			freshUserToken
-		)
-		.json(jsonWebToken.decode(freshUserToken))
 }
 
 const main = async () => {
 
-	logger.debug('persistence layer initialization')
+	logger.debug('initializing http app')
 
-	const mongoDatabase = await initMongodb({
-		dbHost: process.env.HSB__MONGO_DBHOST,
-		dbPort: process.env.HSB__MONGO_DBPORT,
-		dbName: process.env.HSB__MONGO_DBNAME,
-		username: process.env.HSB__MONGO_USERNAME,
-		password: process.env.HSB__MONGO_PASSWORD
-	})
+	const httpApp = express()
 
-	const Users = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'users',
-		schema: User
-	})
-
-	const Passwords = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'passwords',
-		schema: Password
-	})
-
-	logger.debug('configuring authentication stategies')
-
-	passport.use(
-		new BasicStrategy(
-			async (username, plaintextPassword, done) => {
-
-				try {
-					const password = await Passwords.getOne({ username })
-
-					if (password === null) {
-						return done(null, false)
-					}
-
-					if (
-						await bcrypt.compare(plaintextPassword, password.hash)
-					) {
-						const user = await Users.getOne(password._id)
-						if (!user) {
-							return done(null, false)
-						} else {
-							return done(null, user)
-						}
-					} else {
-						return done(null, false)
-					}
-
-				} catch (error) {
-					return done(error)
-				}
-
-			}
-		)
-	)
-
-	passport.use(
-		new JwtStrategy(
-			{
-				jwtFromRequest: userTokenFromRequestCookie,
-				secretOrKey: USER_TOKEN_SECRET,
-				issuer: USER_TOKEN_ISSUER
-			},
-			(userTokenPayload, done) => {
-				const { user } = userTokenPayload
-				done(null, user)
-			}
-		)
-	)
-
-	logger.debug('initializing middleware')
-
-	const parseCookies = cookieParser()
-
-	const authenticateWithUserTokenCookie = passport.authenticate(
-		'jwt',
-		{
-			session: false,
-			failureRedirect: '/login'
-		}
-	)
-	const authenticateWithPassword = passport.authenticate(
-		'basic',
-		{
-			session: false
-		}
-	)
-
-	const proxyThings = createProxyMiddleware(
-		{
-			target: `${process.env.HSB__THINGS_URL}:${process.env.HSB__THINGS_PORT}`,
-			ws: true,
-			logProvider: () => logger
-		}
-	)
-
-	const proxyUi = createProxyMiddleware(
-		{
-			target: `${process.env.HSB__UI_URL}:${process.env.HSB__UI_PORT}`,
-			logProvider: () => logger
-		}
-	)
-
-	logger.debug('initializing app and registering routes')
-
-	const app = express()
-
-	app.use(
-		'/login',
-		authenticateWithPassword,
-		setFreshUserTokenCookieAndRedirect
-	)
-
-	// NOTE the token is decoded twice during this request(once by passport and again here), because
-	// I didn't see passport making them available on the req object 🤔
-	app.use(
-		'/api/auth/current-token',
-		parseCookies,
-		authenticateWithUserTokenCookie,
-		returnCurrentUserToken
-	)
-
-	app.use(
-		'/api/auth/renew-token',
-		parseCookies,
-		authenticateWithUserTokenCookie,
-		returnFreshUserTokenAndCookie
-	)
-
-	app.use(
-		'/api/things',
-		parseCookies,
-		authenticateWithUserTokenCookie,
-		proxyThings
-	)
-
-	app.use(
+	httpApp.use(
 		'/',
-		parseCookies,
-		authenticateWithUserTokenCookie,
-		proxyUi
+		createProxyMiddleware(
+			{
+				target: `${process.env.HSB__UI_URL}:${process.env.HSB__UI_PORT}`,
+				logProvider: () => logger
+			}
+		)
 	)
 
-	app.listen(process.env.HSB__GATEKEEPER_PORT, () => {
+	httpApp.listen(process.env.HSB__GATEKEEPER_PORT, () => {
 		logger.info(`App listening on port ${process.env.HSB__GATEKEEPER_PORT}.`)
 	})
+
+	logger.debug('initializing graphql app')
+
+	const port = 4000
+	const gqlApp = express()
+
+	gqlApp.use(expressJwt({
+		secret: USER_TOKEN_SECRET,
+		algorithms: ['HS256'],
+		credentialsRequired: false,
+		requestProperty: 'auth'
+	}))
+
+
+	const apolloGateway = new ApolloGateway({
+		serviceList: [
+			{
+				name: 'keymaster',
+				url: 'http://localhost:4005/'
+			},
+			{
+				name: 'things',
+				url: 'http://localhost:4001'
+			}
+		],
+		buildService({ name, url }) {
+			return new HsbRemoteGraphQLDataSource({
+				url
+			})
+		}
+	})
+
+	const apolloServer = new ApolloServer({
+		gateway: apolloGateway,
+		subscriptions: false,
+		context: ({ req }) => {
+			return {
+				auth: req.auth || null
+			}
+		}
+	})
+
+	apolloServer.applyMiddleware({ app: gqlApp })
+
+	gqlApp.listen({ port }, () =>
+		logger.trace(`Server ready at http://localhost:${port}${apolloServer.graphqlPath}`)
+	)
 
 }
 
