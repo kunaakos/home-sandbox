@@ -29,10 +29,7 @@ db.users.insertOne({
 	"_id" : "default-user",
     "username" : "$HSB__DEFAULTUSER_USERNAME",
     "displayName" : "Default User",
-    "permissions" : {
-        "addUsers" : true,
-        "modifySettings" : true
-    }
+    "permissions" : ["addusers", "modifysettings"]
 })
 
 EOF

@@ -1,6 +1,7 @@
 import { Global, css } from '@emotion/core'
 import styled from '@emotion/styled'
 import { ThemeProvider } from 'emotion-theming'
+
 import React from 'react'
 import { useState } from 'react'
 import {
@@ -10,13 +11,17 @@ import {
 	Redirect
 } from 'react-router-dom'
 
-import { ThingsView } from './views/things-view'
+import { useAuth } from '../hooks/use-auth'
+
+import { LoginView } from './views/login-view'
 import { UsersView } from './views/users-view'
+import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
 
 import { lightTheme } from '../themes/light-theme'
-import { useUserToken } from '../hooks/use-user-token'
 import { DrawerMenu } from './ui-kit/menus'
+import { Label } from './ui-kit/nubbins'
+
 import {
 	Button,
 	NavButton,
@@ -56,9 +61,31 @@ const DrawerMenuButtonsContainer = styled(VerticalButtonsContainer)`
 	margin: 1rem;
 `
 
+const ProtectedRoute = ({ children, allowIf, redirectTo, ...rest }) => {
+	return (
+		<Route
+			{...rest}
+			render={({ location }) =>
+				allowIf
+					? (children)
+					: (
+						<Redirect
+							to={{
+								pathname: redirectTo,
+								state: { from: location }
+							}}
+						/>
+					)
+			}
+		/>
+	)
+}
+
+
 export const App = () => {
 
-	useUserToken()
+	const auth = useAuth()
+	const isAuthenticated = auth.status === 'authenticated'
 
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const openDrawer = () => setDrawerOpen(true)
@@ -66,25 +93,54 @@ export const App = () => {
 
 	return (
 		<ThemeProvider theme={lightTheme}>
-
 			<Global styles={globalStyles} />
 
 			<Router>
 
-				<Switch>
-					<Route exact path="/">
-						<Redirect to="/things" />
-					</Route>
-					<Route path="/things">
-						<ThingsView />
-					</Route>
-					<Route path="/gateways">
-						<GatewaysView />
-					</Route>
-					<Route path="/users">
-						<UsersView />
-					</Route>
-				</Switch>
+				{auth.status === 'loading'
+					? <Label></Label>
+					: <Switch>
+
+						<ProtectedRoute
+							path="/login"
+							allowIf={!isAuthenticated}
+							redirectTo={"/"}
+						>
+							<LoginView
+								auth={auth}
+							/>
+						</ProtectedRoute>
+
+						<ProtectedRoute
+							exact path="/"
+							allowIf={isAuthenticated}
+							redirectTo={"/login"}
+						>
+							<ThingsView />
+						</ProtectedRoute>
+
+						<ProtectedRoute
+							path="/gateways"
+							allowIf={isAuthenticated}
+							redirectTo={"/login"}
+						>
+							<GatewaysView />
+						</ProtectedRoute>
+
+						<ProtectedRoute
+							path="/users"
+							allowIf={isAuthenticated}
+							redirectTo={"/login"}
+						>
+							<UsersView />
+						</ProtectedRoute>
+
+						<Route path="*">
+							<Redirect to="/" />
+						</Route>
+
+					</Switch>
+				}
 
 				<HoverMenu hide={drawerOpen}>
 					<HoverMenuButtonsContainer>
@@ -98,7 +154,7 @@ export const App = () => {
 				>
 					<DrawerMenuButtonsContainer>
 						<NavButton
-							to="/things"
+							to="/"
 							onClick={closeDrawer}
 						>
 							Things
