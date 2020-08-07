@@ -20,7 +20,8 @@
 		"hsb-service-utils": "0.0.0",
 		"http-proxy-middleware": "^1.0.0",
 		"jsonwebtoken": "^8.5.1",
-		"source-map-support": "^0.5.16"
+		"source-map-support": "^0.5.16",
+		"wait-on": "^5.1.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.7.5",

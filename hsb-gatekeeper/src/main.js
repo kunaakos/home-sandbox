@@ -1,3 +1,4 @@
+import waitOn from 'wait-on'
 const express = require('express')
 const expressJwt = require('express-jwt')
 
@@ -28,9 +29,32 @@ class HsbRemoteGraphQLDataSource extends RemoteGraphQLDataSource {
 
 }
 
+const FEDERATED_SERVICE_LIST = [
+	{
+		name: 'keymaster',
+		url: 'http://localhost:4005/'
+	},
+	{
+		name: 'things',
+		url: 'http://localhost:4001'
+	}
+]
+
 const main = async () => {
 
-	logger.debug('initializing express app')
+	logger.debug('waiting for federated services to become available...')
+
+	await waitOn({
+		resources: FEDERATED_SERVICE_LIST.map(service => service.url),
+		interval: 300, // poll interval in ms, default 250ms
+		simultaneous: 1, // limit to 1 connection per resource at a time
+		timeout: 60000, // timeout in ms, default Infinity
+		tcpTimeout: 1000, // tcp timeout in ms, default 300ms
+		window: 1000, // stabilization time in ms, default 750ms
+		validateStatus: status => status === 405 // ...is ok because these are not valid requests
+	})
+
+	logger.debug('federated services are up, initializing')
 
 	const app = express()
 
@@ -54,16 +78,7 @@ const main = async () => {
 	})
 
 	const apolloGateway = new ApolloGateway({
-		serviceList: [
-			{
-				name: 'keymaster',
-				url: 'http://localhost:4005/'
-			},
-			{
-				name: 'things',
-				url: 'http://localhost:4001'
-			}
-		],
+		serviceList: FEDERATED_SERVICE_LIST,
 		logger,
 		buildService({ name, url }) {
 			return new HsbRemoteGraphQLDataSource({
@@ -101,7 +116,7 @@ const main = async () => {
 	)
 
 	app.listen(process.env.HSB__GATEKEEPER_PORT, () => {
-		logger.info(`App listening on port ${process.env.HSB__GATEKEEPER_PORT}.`)
+		logger.info(`listening on port ${process.env.HSB__GATEKEEPER_PORT}`)
 	})
 
 }
