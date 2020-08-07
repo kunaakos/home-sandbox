@@ -11,7 +11,6 @@ const LoginCard = ({ onSubmit }) => {
 
 	const submitHandler = e => {
 		e.preventDefault()
-		console.log('logging in')
 		onSubmit && onSubmit({
 			username: usernameRef.current.value,
 			password: passwordRef.current.value
@@ -40,8 +39,6 @@ const LoginCard = ({ onSubmit }) => {
 export const LoginView = ({
 	auth
 }) => {
-
-	console.log('rendering login view')
 
 	return (
 		<CenteredCardContainer>

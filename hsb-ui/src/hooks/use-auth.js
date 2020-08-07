@@ -32,7 +32,6 @@ export const CurrentUserToken = {
 		const tokenExpiresAt = parseInt(tokenExpiresAtFromStorage)
 
 		if (isNaN(tokenExpiresAt) || isPast(tokenExpiresAt)) {
-			console.log('clearing invalid or expired token')
 			clearStoredToken()
 			return {}
 		}
@@ -147,7 +146,6 @@ export const useAuth = () => {
 
 	return {
 		login: credentials => {
-			console.log(credentials)
 			loginMutation({ variables: credentials }).then(({ data }) => {
 				if (data && data.login && data.login.token && data.login.tokenExpiresAt) {
 					CurrentUserToken.set(data.login)
