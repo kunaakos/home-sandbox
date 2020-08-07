@@ -13,17 +13,17 @@ import {
 
 export const LightCard = ({ thing, setThing }) => {
 
-	const showBrightnessSlider = thing.isDimmable
-	const showTemperatureSlider = Boolean(thing.colorTemperatureRange)
-	const showColorPicker = thing.isColor
+	const showBrightnessSlider = thing.state.isDimmable
+	const showTemperatureSlider = Boolean(thing.state.colorTemperatureRange)
+	const showColorPicker = thing.state.isColor
 
-	const toggle = () => { setThing(thing.id, { isOn: !thing.isOn }) }
+	const toggle = () => { setThing(thing.id, { isOn: !thing.state.isOn }) }
 
 	return (
 		<Card
 			data-id={thing.id}
 			background={'bg1'}
-			highlight={thing.isOn ? 'accent1' : 'disabled'}
+			highlight={thing.state.isOn ? 'accent1' : 'disabled'}
 		>
 			<TitleBar>
 				<Button
@@ -37,13 +37,13 @@ export const LightCard = ({ thing, setThing }) => {
 				</Button>
 			</TitleBar>
 
-			{thing.isOn && <React.Fragment>
+			{thing.state.isOn && <React.Fragment>
 				{showBrightnessSlider && <React.Fragment>
 					<HorizontalSliderLabel fontSize={'subheading'}>brightness</HorizontalSliderLabel>
 					<HorizontalSlider
 						min={1}
 						max={100}
-						value={thing.brightness}
+						value={thing.state.brightness}
 						onChangeCommitted={(e, value) => { setThing(thing.id, { brightness: value }) }}
 					/>
 				</React.Fragment>}
@@ -53,9 +53,9 @@ export const LightCard = ({ thing, setThing }) => {
 				{showTemperatureSlider && <React.Fragment>
 					<HorizontalSliderLabel color={'fg1'} fontSize={'subheading'}>color temperature</HorizontalSliderLabel>
 					<HorizontalSlider
-						min={thing.colorTemperatureRange[0]}
-						max={thing.colorTemperatureRange[1]}
-						value={thing.colorTemperature}
+						min={thing.state.colorTemperatureRange[0]}
+						max={thing.state.colorTemperatureRange[1]}
+						value={thing.state.colorTemperature}
 						onChangeCommitted={(e, value) => { setThing(thing.id, { colorTemperature: value }) }}
 					/>
 				</React.Fragment>}

@@ -14,14 +14,14 @@ const logger = makeLogger({
 const builErrorHandler = error => logger.error(error, 'error 💥')
 
 const bundler = new Bundler(
-	Path.join(__dirname, './src/main.js'),
+	Path.join(__dirname, 'src/main.js'),
 	{
-		outDir: Path.join(__dirname, 'build'),
+		outDir: Path.join(__dirname, 'build/'),
 		outFile: 'main.js',
 		publicUrl: './',
 		watch: true,
 		cache: true,
-		cacheDir: Path.join(__dirname, '.parcel-cache'),
+		cacheDir: Path.join(__dirname, '.parcel-cache/'),
 		contentHash: false,
 		minify: false,
 		scopeHoist: false,
@@ -41,7 +41,7 @@ const go = async () => {
 
 	const startProcess = path => {
 		let process = fork(path)
-		logger.info(`🥾  Starting node app 'things', process id is #${process.pid}.`)
+		logger.info(`🥾  Starting node app 'keymaster', process id is #${process.pid}.`)
 		processes[process.pid] = process
 		process.once('close', (code, signal) => {
 			delete processes[process.pid]
@@ -49,7 +49,7 @@ const go = async () => {
 				logger.error(`🤔  Node app #${process.pid} exited with exit code '${code}'.`)
 			}
 			if (signal) {
-				logger.info(`💀   Node app #${process.pid} terminated by '${signal}'.`)
+				logger.info(`💀  Node app #${process.pid} terminated by '${signal}'.`)
 			}
 		})
 		return () => process.kill()
@@ -62,15 +62,14 @@ const go = async () => {
 		})
 	}
 
-	bundler.on('buildStart', () => { logger.info(`🐌  Started building 'things' bundle.`) })
-	bundler.on('buildEnd', () => { logger.info(`🎉  Finished building 'things' bundle.`) })
+	bundler.on('buildStart', () => { logger.info(`🐌  Started building 'keymaster' server bundle.`) })
 	bundler.on('bundled', async () => {
-		logger.info(`🎉  Finished building 'things' bundle.`)
+		logger.info(`🎉  Finished building 'keymaster' server bundle.`)
 		killProcesses()
 		try {
 			startProcess(Path.join(__dirname, './build/main.js'))
 		} catch (error) {
-			logger.error(error, 'the \'things\' bundle won\'t run 🤷‍♂️')
+			logger.error(error, 'the \'keymaster\' server bundle won\'t run 🤷‍♂️')
 		}
 	});
 

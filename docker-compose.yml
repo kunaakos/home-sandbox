@@ -13,6 +13,15 @@ services:
       - mongo
     ports:
       - "80:80"
+  
+  keymaster:
+    build:
+      context: ./
+      dockerfile: ./hsb-keymaster.Dockerfile
+    depends_on:
+      - mongo
+    ports:
+      - "80"
 
   ui:
     build:

@@ -11,7 +11,7 @@ import { makeThingStore } from './lib/thing-store'
 import { makeThingEvents } from './lib/thing-events'
 import { handleSubscriptions } from './lib/thing-subscriptions'
 
-import { initializeApiServer } from './api-server'
+import { initializeGqlServer } from './graphql-server'
 
 import {
 	subscriptions,
@@ -90,10 +90,8 @@ const main = async () => {
 	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
 	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
 
-	initializeApiServer({
-		things,
-		subscribeToChanges,
-		unsubscribeFromChanges
+	initializeGqlServer({
+		things
 	})
 
 }
