@@ -19,7 +19,6 @@
 		"express-jwt": "^6.0.0",
 		"hsb-service-utils": "0.0.0",
 		"http-proxy-middleware": "^1.0.0",
-		"jsonwebtoken": "^8.5.1",
 		"source-map-support": "^0.5.16",
 		"wait-on": "^5.1.0"
 	},
