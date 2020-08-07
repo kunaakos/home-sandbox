@@ -11,13 +11,13 @@ import {
 
 export const SwitchCard = ({ thing, setThing }) => {
 
-	const toggle = () => { setThing(thing.id, { isOn: !thing.isOn }) }
+	const toggle = () => { setThing(thing.id, { isOn: !thing.state.isOn }) }
 
 	return (
 		<Card
 			data-id={thing.id}
 			background={'bg1'}
-			highlight={thing.isOn ? 'accent1' : 'disabled'}
+			highlight={thing.state.isOn ? 'accent1' : 'disabled'}
 		>
 			<TitleBar>
 				<Button

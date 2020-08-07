@@ -12,19 +12,19 @@ const typeDefs = gql`
 
   type Thing @key(fields: "id") {
     type: String!
-	id: ID!
+	id: String!
 	label: String!
 	hidden: Boolean! 
     state: String! # stringified JSON object
   }
 
   extend type Query {
-	thing(id: ID!): Thing
-    things: [Thing]
+	thing(id: String!): Thing
+    things(visibleOnly: Boolean): [Thing]
   }
 
   extend type Mutation {
-    setThing(id: ID!, newValues: String!): Boolean
+    setThing(id: String!, newValues: String!): Boolean
   }
 
 `
@@ -68,7 +68,13 @@ const makeResolvers = ({ things }) => ({
 		}
 	},
 	Query: {
-		things: () => things.getAll().map(mapThingState)
+		things: (parent, args) => {
+			const allThings = things.getAll().map(mapThingState)
+
+			return args.visibleOnly
+				? allThings.filter(thing => !thing.hidden)
+				: allThings
+		}
 	},
 	Mutation: {
 		setThing: async (parent, { id, newValues }) => {

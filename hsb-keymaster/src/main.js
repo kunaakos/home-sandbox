@@ -15,7 +15,7 @@ import bcrypt from 'bcrypt'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
-const USER_TOKEN_EXPIRY = '1h' // TODO
+const USER_TOKEN_LIFETIME_IN_SECONDS = 60 * 5
 
 import { makeLogger } from 'hsb-service-utils/build/logger'
 
@@ -25,6 +25,30 @@ const logger = makeLogger({
 	environment: process.env.NODE_ENV,
 	forceLogLevel: process.env.HSB__LOG_LEVEL
 })
+
+const currenUnixTimeInSeconds = () => Math.floor(Date.now() / 1000)
+
+const issueUserToken = user => {
+
+	const tokenExpiresAt = currenUnixTimeInSeconds() + USER_TOKEN_LIFETIME_IN_SECONDS
+	const token = jwt.sign(
+		{
+			user,
+			exp: tokenExpiresAt
+		},
+		USER_TOKEN_SECRET,
+		{
+			algorithm: "HS256",
+			issuer: USER_TOKEN_ISSUER,
+			subject: `${user.id}`
+		}
+	)
+
+	return {
+		token,
+		tokenExpiresAt
+	}
+}
 
 // todo: env var
 const port = 4005
@@ -44,8 +68,9 @@ const typeDefs = gql`
   }
 
   type LoginResponse {
-	  user: User,
-	  token: String
+	  user: User, # user object
+	  token: String, # JWT
+	  tokenExpiresAt: Int # unix time in seconds
   }
 
   extend type Query {
@@ -56,6 +81,7 @@ const typeDefs = gql`
 
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
+	refreshUserToken: LoginResponse
   }
 
 `;
@@ -63,7 +89,10 @@ const typeDefs = gql`
 const permissions = shield({
 	Query: {
 		user: isAuthenticated,
-		users: isAuthenticated
+		users: isAuthenticated,
+	},
+	Mutation: {
+		refreshUserToken: isAuthenticated
 	}
 })
 
@@ -94,38 +123,24 @@ const makeResolvers = ({ Users, Passwords }) => ({
 					const user = await Users.getOne(password._id)
 
 					if (!user) {
-						throw new Error('no matchy')
+						throw new Error('User record missing.')
 					} else {
-
-						const token = jwt.sign(
-							{
-								user
-							},
-							USER_TOKEN_SECRET,
-							{
-								algorithm: "HS256",
-								issuer: USER_TOKEN_ISSUER,
-								subject: `${user.id}`,
-								expiresIn: USER_TOKEN_EXPIRY
-							}
-						)
-
 						return {
 							user,
-							token
+							...issueUserToken(user)
 						}
-
 					}
 
 				} else {
-					throw new Error('no matchy')
+					throw new Error('Incorrect user/password combination.')
 				}
 
 			} catch (error) {
 				logger.error(error)
-				throw new Error('wut')
+				throw new Error('Server error.')
 			}
-		}
+		},
+		refreshUserToken: (parent, args, context) => issueUserToken(context.user)
 	}
 })
 

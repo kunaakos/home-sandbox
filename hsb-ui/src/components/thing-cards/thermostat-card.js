@@ -38,19 +38,19 @@ export const ThermostatCard = ({ thing, setThing }) => {
 					color={'fg1'}
 				>
 					{thing.label}
-					<span css={theme => ({ color: theme.colors.disabled })}> &nbsp;{thing.currentTemperature} °C</span>
+					<span css={theme => ({ color: theme.colors.disabled })}> &nbsp;{thing.state.currentTemperature} °C</span>
 				</Button>
 			</TitleBar>
 
 			{!collapsed && <React.Fragment>
 				<HorizontalSliderLabel fontSize={'subheading'}>
-					target temperature {thing.targetTemperature} °C
+					target temperature {thing.state.targetTemperature} °C
 				</HorizontalSliderLabel>
 				<HorizontalSlider
 					min={0}
 					max={30}
 					step={0.1}
-					value={thing.targetTemperature}
+					value={thing.state.targetTemperature}
 					onChangeCommitted={(e, value) => { setThing(thing.id, { targetTemperature: value }) }}
 				/>
 			</React.Fragment>}
