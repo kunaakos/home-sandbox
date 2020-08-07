@@ -55,7 +55,7 @@ export const LightCard = ({ thing, setThing }) => {
 					<HorizontalSlider
 						min={thing.state.colorTemperatureRange[0]}
 						max={thing.state.colorTemperatureRange[1]}
-						value={thing.colorTemperature}
+						value={thing.state.colorTemperature}
 						onChangeCommitted={(e, value) => { setThing(thing.id, { colorTemperature: value }) }}
 					/>
 				</React.Fragment>}
