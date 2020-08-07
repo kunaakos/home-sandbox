@@ -32,11 +32,11 @@ class HsbRemoteGraphQLDataSource extends RemoteGraphQLDataSource {
 const FEDERATED_SERVICE_LIST = [
 	{
 		name: 'keymaster',
-		url: 'http://localhost:4005/'
+		url: `${process.env.HSB__KEYMASTER_URL}:${process.env.HSB__KEYMASTER_PORT}`
 	},
 	{
 		name: 'things',
-		url: 'http://localhost:4001'
+		url: `${process.env.HSB__THINGS_URL}:${process.env.HSB__THINGS_PORT}`
 	}
 ]
 

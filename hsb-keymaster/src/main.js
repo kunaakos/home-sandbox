@@ -50,9 +50,6 @@ const issueUserToken = user => {
 	}
 }
 
-// todo: env var
-const port = 4005
-
 const isAuthenticated = rule()((parent, args, { user }) => {
 	return user !== null;
 });
@@ -188,7 +185,7 @@ const main = async () => {
 		}
 	})
 
-	apolloServer.listen({ port }).then(({ url }) => {
+	apolloServer.listen({ port: process.env.HSB__KEYMASTER_PORT }).then(({ url }) => {
 		logger.trace(`keymaster service gql api ready at ${url}`)
 	})
 

@@ -5,9 +5,6 @@ import { buildFederatedSchema } from '@apollo/federation'
 import { applyMiddleware } from 'graphql-middleware'
 import { rule, shield } from 'graphql-shield'
 
-// todo: env var
-const port = 4001
-
 const typeDefs = gql`
 
   type Thing @key(fields: "id") {
@@ -109,7 +106,7 @@ export const initializeGqlServer = ({
 		}
 	})
 
-	apolloServer.listen({ port }).then(({ url }) => {
+	apolloServer.listen({ port: process.env.HSB__THINGS_PORT }).then(({ url }) => {
 		logger.trace(`thing service gql api ready at ${url}`)
 	})
 
