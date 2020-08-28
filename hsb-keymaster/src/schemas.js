@@ -28,13 +28,3 @@ export const Password = Joi.object({
 		.required()
 
 })
-
-export const Token = Joi.object({
-
-	value: Joi.string()
-		.required(),
-
-	expires: Joi.date().timestamp()
-		.required()
-
-})

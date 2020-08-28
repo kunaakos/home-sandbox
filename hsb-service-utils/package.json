@@ -14,7 +14,6 @@
 		"build": "parcel build src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./"
 	},
 	"dependencies": {
-		"@hapi/joi": "^17.1.0",
 		"chalk": "^3.0.0",
 		"compose-middleware": "^5.0.1",
 		"cookie-parser": "^1.4.4",

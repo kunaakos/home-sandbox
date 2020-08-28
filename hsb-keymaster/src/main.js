@@ -10,7 +10,7 @@ import { makeMongoCollection } from 'hsb-service-utils/build/object-mappers'
 import {
 	User,
 	Password
-} from 'hsb-service-utils/build/schemas'
+} from './schemas'
 import bcrypt from 'bcrypt'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
