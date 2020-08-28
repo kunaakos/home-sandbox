@@ -4,14 +4,12 @@ import { applyMiddleware } from 'graphql-middleware'
 import { rule, shield } from 'graphql-shield'
 
 import jwt from 'jsonwebtoken'
-
-import { initMongodb } from 'hsb-service-utils/build/persistence'
-import { makeMongoCollection } from 'hsb-service-utils/build/object-mappers'
-import {
-	User,
-	Password
-} from './schemas'
 import bcrypt from 'bcrypt'
+
+import {
+	getUserCredentials,
+	getUser
+} from './queries'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
@@ -93,7 +91,7 @@ const permissions = shield({
 	}
 })
 
-const makeResolvers = ({ Users, Passwords }) => ({
+const resolvers = {
 	User: {
 		_resolveReference(object) {
 			// TODO
@@ -112,26 +110,17 @@ const makeResolvers = ({ Users, Passwords }) => ({
 	Mutation: {
 		login: async (parent, { username, password: plaintextPassword }) => {
 			try {
-				const password = await Passwords.getOne({ username })
-
+				const { idUser, passwordHash } = await getUserCredentials(username)
 				if (
-					await bcrypt.compare(plaintextPassword, password.hash)
+					await bcrypt.compare(plaintextPassword, passwordHash)
 				) {
-					const user = await Users.getOne(password._id)
-
-					if (!user) {
-						throw new Error('User record missing.')
-					} else {
-						return {
-							user,
-							...issueUserToken(user)
-						}
+					return {
+						user: await getUser(idUser),
+						...issueUserToken(user)
 					}
-
 				} else {
-					throw new Error('Incorrect user/password combination.')
+					return null
 				}
-
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Server error.')
@@ -139,31 +128,9 @@ const makeResolvers = ({ Users, Passwords }) => ({
 		},
 		refreshUserToken: (parent, args, context) => issueUserToken(context.user)
 	}
-})
+}
 
 const main = async () => {
-
-	logger.debug('persistence layer initialization')
-
-	const mongoDatabase = await initMongodb({
-		dbHost: process.env.HSB__MONGO_DBHOST,
-		dbPort: process.env.HSB__MONGO_DBPORT,
-		dbName: process.env.HSB__MONGO_DBNAME,
-		username: process.env.HSB__MONGO_USERNAME,
-		password: process.env.HSB__MONGO_PASSWORD
-	})
-
-	const Users = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'users',
-		schema: User
-	})
-
-	const Passwords = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'passwords',
-		schema: Password
-	})
 
 	logger.debug('graphql app initialization')
 
@@ -171,10 +138,7 @@ const main = async () => {
 		schema: applyMiddleware(
 			buildFederatedSchema([{
 				typeDefs,
-				resolvers: makeResolvers({
-					Users,
-					Passwords
-				})
+				resolvers
 			}]),
 			permissions
 		),

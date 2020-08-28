@@ -22,9 +22,7 @@
 		"keymaster": "yarn workspace hsb-keymaster dev",
 		"things": "yarn workspace hsb-things dev",
 		"ui": "yarn workspace hsb-ui dev",
-		"mongo": "docker-compose -f docker-compose.dev.yml up mongo",
-		"dev-nodb": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn keymaster\" \"yarn gatekeeper\" \"yarn things\"  \"yarn ui\"",
-		"dev": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn keymaster\" \"yarn gatekeeper\" \"yarn things\"  \"yarn ui\"  \"yarn mongo\"",
+		"dev": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn keymaster\" \"yarn gatekeeper\" \"yarn things\"  \"yarn ui\"",
 		"deploy": "balena push home-sandbox"
 	},
 	"dependencies": {

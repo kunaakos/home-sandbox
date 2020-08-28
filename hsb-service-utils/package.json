@@ -15,7 +15,6 @@
 	},
 	"dependencies": {
 		"chalk": "^3.0.0",
-		"mongodb": "^3.5.4",
 		"pino": "^5.16.0"
 	},
 	"devDependencies": {

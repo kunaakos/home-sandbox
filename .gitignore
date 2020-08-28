@@ -4,8 +4,8 @@ node_modules
 build
 
 # keep directories with .gitkeep files in them checked in, but not their contents
-__data/*/*
-!__data/*/.gitkeep
+data/*/*
+!data/*/.gitkeep
 
 # every service has their own env file
 *.env
