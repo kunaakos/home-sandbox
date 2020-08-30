@@ -16,7 +16,7 @@ services:
     build:
       context: ./
       dockerfile: ./hsb-keymaster.Dockerfile
-    ports:
+    expose:
       - "80"
     volumes:
       - keymaster:/data
