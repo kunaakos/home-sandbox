@@ -4,27 +4,19 @@ import { applyMiddleware } from 'graphql-middleware'
 import { rule, shield } from 'graphql-shield'
 
 import jwt from 'jsonwebtoken'
-
-import { initMongodb } from 'hsb-service-utils/build/persistence'
-import { makeMongoCollection } from 'hsb-service-utils/build/object-mappers'
-import {
-	User,
-	Password
-} from 'hsb-service-utils/build/schemas'
 import bcrypt from 'bcrypt'
+
+import {
+	getUserCredentials,
+	getUser,
+	addUser
+} from './queries'
+
+import { logger } from './logger'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
 const USER_TOKEN_LIFETIME_IN_SECONDS = 60 * 5
-
-import { makeLogger } from 'hsb-service-utils/build/logger'
-
-const logger = makeLogger({
-	serviceName: 'kymstr',
-	serviceColor: 'yellow',
-	environment: process.env.NODE_ENV,
-	forceLogLevel: process.env.HSB__LOG_LEVEL
-})
 
 const currenUnixTimeInSeconds = () => Math.floor(Date.now() / 1000)
 
@@ -56,8 +48,8 @@ const isAuthenticated = rule()((parent, args, { user }) => {
 
 const typeDefs = gql`
 
-  type User @key(fields: "_id") {
-	_id: ID!,
+  type User @key(fields: "id") {
+	id: ID!,
 	username: String!,
 	displayName: String!,
 	# replace with an array
@@ -79,6 +71,7 @@ const typeDefs = gql`
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
 	refreshUserToken: LoginResponse
+	addUser(username: String!, password: String!, displayName: String!, permissions: [String]!): Int
   }
 
 `;
@@ -93,7 +86,7 @@ const permissions = shield({
 	}
 })
 
-const makeResolvers = ({ Users, Passwords }) => ({
+const resolvers = {
 	User: {
 		_resolveReference(object) {
 			// TODO
@@ -112,58 +105,29 @@ const makeResolvers = ({ Users, Passwords }) => ({
 	Mutation: {
 		login: async (parent, { username, password: plaintextPassword }) => {
 			try {
-				const password = await Passwords.getOne({ username })
-
+				const { passwordHash } = await getUserCredentials(username)
 				if (
-					await bcrypt.compare(plaintextPassword, password.hash)
+					await bcrypt.compare(plaintextPassword, passwordHash)
 				) {
-					const user = await Users.getOne(password._id)
-
-					if (!user) {
-						throw new Error('User record missing.')
-					} else {
-						return {
-							user,
-							...issueUserToken(user)
-						}
+					const user = await getUser(username)
+					return {
+						user,
+						...issueUserToken(user)
 					}
-
 				} else {
-					throw new Error('Incorrect user/password combination.')
+					return null
 				}
-
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Server error.')
 			}
 		},
-		refreshUserToken: (parent, args, context) => issueUserToken(context.user)
+		refreshUserToken: (parent, args, context) => issueUserToken(context.user),
+		addUser: (parent, args, context) => addUser(args)
 	}
-})
+}
 
 const main = async () => {
-
-	logger.debug('persistence layer initialization')
-
-	const mongoDatabase = await initMongodb({
-		dbHost: process.env.HSB__MONGO_DBHOST,
-		dbPort: process.env.HSB__MONGO_DBPORT,
-		dbName: process.env.HSB__MONGO_DBNAME,
-		username: process.env.HSB__MONGO_USERNAME,
-		password: process.env.HSB__MONGO_PASSWORD
-	})
-
-	const Users = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'users',
-		schema: User
-	})
-
-	const Passwords = makeMongoCollection({
-		mongoDatabase,
-		collectionName: 'passwords',
-		schema: Password
-	})
 
 	logger.debug('graphql app initialization')
 
@@ -171,10 +135,7 @@ const main = async () => {
 		schema: applyMiddleware(
 			buildFederatedSchema([{
 				typeDefs,
-				resolvers: makeResolvers({
-					Users,
-					Passwords
-				})
+				resolvers
 			}]),
 			permissions
 		),
