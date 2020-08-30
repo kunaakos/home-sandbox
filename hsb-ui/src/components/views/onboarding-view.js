@@ -30,7 +30,7 @@ const AddUserCard = ({ onSubmit }) => {
 			username: usernameRef.current.value,
 			displayName: displayNameRef.current.value,
 			password: passwordRef.current.value,
-			permissions: [] // STUB
+			permissions: ['admin'] // STUB
 		})
 	}
 
