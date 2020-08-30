@@ -8,21 +8,15 @@ import bcrypt from 'bcrypt'
 
 import {
 	getUserCredentials,
-	getUser
+	getUser,
+	addUser
 } from './queries'
+
+import { logger } from './logger'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
 const USER_TOKEN_LIFETIME_IN_SECONDS = 60 * 5
-
-import { makeLogger } from 'hsb-service-utils/build/logger'
-
-const logger = makeLogger({
-	serviceName: 'kymstr',
-	serviceColor: 'yellow',
-	environment: process.env.NODE_ENV,
-	forceLogLevel: process.env.HSB__LOG_LEVEL
-})
 
 const currenUnixTimeInSeconds = () => Math.floor(Date.now() / 1000)
 
@@ -54,8 +48,8 @@ const isAuthenticated = rule()((parent, args, { user }) => {
 
 const typeDefs = gql`
 
-  type User @key(fields: "_id") {
-	_id: ID!,
+  type User @key(fields: "id") {
+	id: ID!,
 	username: String!,
 	displayName: String!,
 	# replace with an array
@@ -77,6 +71,7 @@ const typeDefs = gql`
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
 	refreshUserToken: LoginResponse
+	addUser(username: String!, password: String!, displayName: String!, permissions: [String]!): Int
   }
 
 `;
@@ -110,12 +105,13 @@ const resolvers = {
 	Mutation: {
 		login: async (parent, { username, password: plaintextPassword }) => {
 			try {
-				const { idUser, passwordHash } = await getUserCredentials(username)
+				const { passwordHash } = await getUserCredentials(username)
 				if (
 					await bcrypt.compare(plaintextPassword, passwordHash)
 				) {
+					const user = await getUser(username)
 					return {
-						user: await getUser(idUser),
+						user,
 						...issueUserToken(user)
 					}
 				} else {
@@ -126,7 +122,8 @@ const resolvers = {
 				throw new Error('Server error.')
 			}
 		},
-		refreshUserToken: (parent, args, context) => issueUserToken(context.user)
+		refreshUserToken: (parent, args, context) => issueUserToken(context.user),
+		addUser: (parent, args, context) => addUser(args)
 	}
 }
 

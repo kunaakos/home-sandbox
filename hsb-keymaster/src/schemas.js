@@ -7,24 +7,23 @@ export const User = Joi.object({
 		.max(16)
 		.required(),
 
-	displayName: Joi.string()
+	display_name: Joi.string()
 		.required(),
 
-	permissions: Joi.array()
-		.items(Joi.string())
+	permissions: Joi.string()
 		.required()
 
 })
 
-export const Password = Joi.object({
+export const Credential = Joi.object({
 
 	username: Joi.string()
 		.required(),
 
-	hash: Joi.string()
+	password_hash: Joi.string()
 		.required(),
 
-	updatedAt: Joi.date().timestamp()
+	password_hash_updated_at: Joi.date().timestamp()
 		.required()
 
 })
