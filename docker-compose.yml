@@ -1,7 +1,7 @@
 version: "2"
 
 volumes:
-  mongo:
+  keymaster:
 
 services:
 
@@ -9,8 +9,6 @@ services:
     build:
       context: ./
       dockerfile: ./hsb-gatekeeper.Dockerfile
-    depends_on:
-      - mongo
     ports:
       - "80:80"
   
@@ -18,10 +16,10 @@ services:
     build:
       context: ./
       dockerfile: ./hsb-keymaster.Dockerfile
-    depends_on:
-      - mongo
     ports:
       - "80"
+    volumes:
+      - keymaster:/data
 
   ui:
     build:
@@ -41,12 +39,3 @@ services:
       - "/dev/ttyACM0:/dev/ttyACM0"
     expose:
       - "80"
-
-  mongo:
-    build:
-      context: ./
-      dockerfile: ./mongo.Dockerfile
-    volumes:
-      - mongo:/data/db
-    expose:
-      - "27017"

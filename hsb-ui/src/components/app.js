@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../hooks/use-auth'
 
 import { LoginView } from './views/login-view'
+import { OnboardingView } from './views/onboarding-view'
 import { UsersView } from './views/users-view'
 import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
@@ -110,6 +111,13 @@ export const App = () => {
 								auth={auth}
 							/>
 						</ProtectedRoute>
+
+						{/* TODO: this should only render when the app is in onboarding mode, outside the router */}
+						<Route
+							path="/onboarding"
+						>
+							<OnboardingView />
+						</Route>
 
 						<ProtectedRoute
 							exact path="/"

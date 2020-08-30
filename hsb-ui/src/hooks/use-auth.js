@@ -54,9 +54,10 @@ const isClose = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() <= TEN_SECO
 const CURRENT_USER_QUERY = gql`
 	query GetCurrentUser {
 		currentUser {
-			_id,
+			id,
 			displayName,
-			username
+			username,
+			permissions
 		}
 	}
 `

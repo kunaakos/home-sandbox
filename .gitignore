@@ -3,9 +3,8 @@ node_modules
 .parcel-cache
 build
 
-# keep directories with .gitkeep files in them checked in, but not their contents
-__data/*/*
-!__data/*/.gitkeep
+# don't commit databases
+*.sqlite
 
 # every service has their own env file
 *.env
