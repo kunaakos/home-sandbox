@@ -14,14 +14,20 @@ import {
 	CardLabel
 } from '../ui-kit/nubbins'
 
+const UNITS = {
+	battery: '%',
+	temperature: '°C',
+	humidity: '%',
+	illuminance: 'Lux',
+	moisture: '',
+	fertility: ''
+}
 
 export const AmbientSensorCard = ({ thing, setThing }) => {
 
 	const [collapsed, setCollapsed] = useState(true)
 
-	const highlightColor = thing.timedOut
-		? 'error'
-		: thing.heatRequest ? 'accent3' : 'disabled'
+	const highlightColor = 'disabled'
 
 	return (
 		<Card
@@ -42,11 +48,9 @@ export const AmbientSensorCard = ({ thing, setThing }) => {
 			</TitleBar>
 
 			{!collapsed && <React.Fragment>
-				<CardLabel fontSize={'subheading'}>temperature: {thing.state.temperature} °C</CardLabel>
-				<CardLabel fontSize={'subheading'}>humidity: {thing.state.humidity} %</CardLabel>
-				<CardLabel fontSize={'subheading'}>illuminance: {thing.state.illuminance} Lux</CardLabel>
-				<CardLabel fontSize={'subheading'}>moisture: {thing.state.moisture} ?</CardLabel>
-				<CardLabel fontSize={'subheading'}>fertility: {thing.state.fertility} ?</CardLabel>
+				{Object.entries(thing.state).map(
+					([property, value]) => <CardLabel key={property} fontSize={'subheading'}>{property}: {value} {UNITS[property] || ''}</CardLabel>
+				)}
 			</React.Fragment>}
 		</Card>
 	)

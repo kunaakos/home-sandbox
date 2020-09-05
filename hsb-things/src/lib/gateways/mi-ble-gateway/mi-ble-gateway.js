@@ -4,44 +4,46 @@
  */
 
 import { logger } from '../../../logger'
-
 import { makeAmbientSensor } from '../../things/ambient-sensor'
-
 import { makeMiBleScanner } from './mi-ble-scanner'
 
-const MI_BLE_SENSOR_PROPERTIES = [
-	{
+import pick from 'lodash/pick'
+import difference from 'lodash/difference'
+
+const MI_BLE_SENSOR_PROPERTIES = {
+	temperature: {
 		propertyName: 'temperature',
 		type: 'number',
 		skipEqualityCheck: true,
 	},
-	{
+	humidity: {
 		propertyName: 'humidity',
 		type: 'number',
 		skipEqualityCheck: true,
 	},
-	{
+	moisture: {
 		propertyName: 'moisture',
 		type: 'number',
 		skipEqualityCheck: false,
 	},
-	{
+	illuminance: {
 		propertyName: 'illuminance',
 		type: 'number',
 		skipEqualityCheck: false,
 	},
-	{
+	battery: {
 		propertyName: 'battery',
 		type: 'number',
 		skipEqualityCheck: false,
 	},
-	{
+	fertility: {
 		propertyName: 'fertility',
 		type: 'number',
 		skipEqualityCheck: false,
-	},
-	
-]
+	}
+}
+
+const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPERTIES, properties))
 
 const thingIdFrom = address => `MI_BLE__${address.toUpperCase()}`
 
@@ -53,36 +55,66 @@ export const makeMiBleGateway = ({
 
 	logger.info(`initializing MI BLE gateway #${description.id}`)
 
-	config.devices.forEach(device => {
-
-		logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${thingIdFrom(device.address)}`)
-
-		const ambientSensor = makeAmbientSensor({
-			description: {
-				id: thingIdFrom(device.address),
-				label: device.label,
-				hidden: false,
-			},
-			properties: MI_BLE_SENSOR_PROPERTIES,
-			initialState: {
-				temperature: 0,
-				humidity: 0,
-				moisture: 0,
-				illuminance: 0,
-				battery: 0,
-				fertility: 0
-			}
-		})
-		things.add(ambientSensor)
-	})
-
-	const onSensorStateChange = ({
+	const onSensorReport = ({
 		name,
 		address,
-		values
+		values: newValues = {}
 	}) => {
 		try {
-			things.set(thingIdFrom(address), values)
+			if (!address || !name) {
+				logger.warn('MI BLE gateway received incomplete report.')
+				return
+			}
+
+			const thingId = thingIdFrom(address)
+			const device = config.devices.find(device => device.address === address)
+
+			if (!device) { return }
+
+			const newProperties = Object.keys(newValues)
+
+			// add sensor as thing if first seen and configured
+			if (!things.has(thingId)) {
+				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${thingId}`)
+				things.add(makeAmbientSensor({
+					description: {
+						id: thingId,
+						label: device.label,
+						hidden: false,
+					},
+					properties: getMiBleProperties(newProperties),
+					initialState: newValues
+				}))
+				return
+			}
+
+			const currentValues  = things.get(thingId)
+			const currentProperties  = Object.keys(currentValues)
+			const firstReportedProperties = difference(newProperties, currentProperties)
+
+			// re-add sensor as thing if new properties were reported
+			if (firstReportedProperties.length) {
+				logger.debug(`MI BLE gateway #${description.id} re-initializing sensor #${thingId}`)
+				const allValues = {
+					...currentValues,
+					...newValues
+				}
+				const allProperties = Object.keys(allValues)
+
+				things.add(makeAmbientSensor({
+					description: {
+						id: thingId,
+						label: device.label,
+						hidden: false,
+					},
+					properties: getMiBleProperties(allProperties),
+					initialState: allValues
+				}))
+				return
+			}
+
+			// update existing properties of sensor thing
+			things.set(thingIdFrom(address), newValues)
 		} catch (error) {
 			logger.error(error, `error updating things with values received by #${description.id} from sensor '${name}'`)
 		}
@@ -90,7 +122,7 @@ export const makeMiBleGateway = ({
 
 	const scanner = makeMiBleScanner({
 		devices: config.devices,
-		onSensorStateChange,
+		onSensorReport,
 		logger
 	})
 

@@ -14,7 +14,7 @@ export const makeMiBleScanner = ({
 		restartScanningIfStopped = true,
 		restartDelay = 2500
 	} = {},
-	onSensorStateChange,
+	onSensorReport: onSensorReport,
 	logger = console
 }) => {
 
@@ -80,7 +80,7 @@ export const makeMiBleScanner = ({
 		try {
 			const result = miBleParser(miServiceData.data, device && device.key)
 			if (!result || !result.event) { return }
-			onSensorStateChange({
+			onSensorReport({
 				name: localName,
 				address,
 				values: result.event

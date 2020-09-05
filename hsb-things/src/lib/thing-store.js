@@ -17,6 +17,13 @@ export const makeThingStore = ({
 
 	const has = id => Boolean(things[id])
 
+	const hasProperty = (id, property) => {
+		const thing = things[id]
+		if (!Boolean(thing)) { return false }
+		const thingProperties = Object.keys(thing.get())
+		return thingProperties.some(thingProperty => thingProperty === property)
+	}
+
 	const get = id => {
 		if (!has(id)) {
 			throw new Error(`cannot get state of inexistent thing #${id}`)
@@ -63,6 +70,7 @@ export const makeThingStore = ({
 
 	return new ThingStore({
 		has,
+		hasProperty,
 		get,
 		getAll,
 		add,
