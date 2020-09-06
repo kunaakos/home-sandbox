@@ -6,6 +6,7 @@ import { makeSerialGateway } from './lib/gateways/serial-gateway'
 import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 import { makeRpiGpioGateway } from './lib/gateways/rpi-gpio-gateway'
 import { makeAioGateway } from './lib/gateways/aio-gateway'
+import { makeMiBleGateway } from './lib/gateways/mi-ble-gateway'
 
 import { makeThingStore } from './lib/thing-store'
 import { makeThingEvents } from './lib/thing-events'
@@ -58,6 +59,9 @@ const initializeGateway = deps => gatewayDefinition => {
 
 		case 'aio-gateway':
 			return makeAioGateway(args)
+		
+		case 'mi-ble-gateway':
+			return makeMiBleGateway(args)
 
 		default:
 			throw new Error(`Unsupported gateway config type '${type}'.`)

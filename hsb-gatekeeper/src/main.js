@@ -48,7 +48,7 @@ const main = async () => {
 		resources: FEDERATED_SERVICE_LIST.map(service => service.url),
 		interval: 300, // poll interval in ms, default 250ms
 		simultaneous: 1, // limit to 1 connection per resource at a time
-		timeout: 60000, // timeout in ms, default Infinity
+		// timeout: 60000, // timeout in ms, default Infinity
 		tcpTimeout: 1000, // tcp timeout in ms, default 300ms
 		window: 1000, // stabilization time in ms, default 750ms
 		validateStatus: status => status === 405 // ...is ok because these are not valid requests

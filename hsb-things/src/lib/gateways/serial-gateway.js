@@ -16,8 +16,7 @@ const thingIdFrom = sensorId => `SERIAL__${sensorId}`
 export const makeSerialGateway = ({
 	description,
 	config,
-	things,
-	publishChange
+	things
 }) => {
 
 	logger.info(`initializing serial gateway #${description.id}`)
@@ -42,13 +41,11 @@ export const makeSerialGateway = ({
 					description: {
 						id: thingId,
 						label: `Sensor with ID "${sensorId}" reporting via serial.`,
-						hidden: true,
-						publishChange,
+						hidden: true
 					},
 					initialState: {
 						temperature
-					},
-					publishChange
+					}
 				})
 				things.add(ambientSensor)
 			}
