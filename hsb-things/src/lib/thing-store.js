@@ -43,14 +43,14 @@ export const makeThingStore = ({
 			.map(id => get(id))
 			.filter(Boolean)
 
-	const add = thing => {
+	const add = (thing, changedKeys) => {
 		const thingId = thing.id
 		if (typeof thingId !== 'string') {
 			// TODO: validate properly
 			logger.error(new Error(`store cannot add malformed thing #${JSON.stringify(thing)}`))
 		} else {
 			things[thingId] = thing
-			publishChange(thingId)()
+			publishChange(thingId)(changedKeys)
 		}
 	}
 
