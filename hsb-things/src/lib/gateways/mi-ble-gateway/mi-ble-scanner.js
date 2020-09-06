@@ -4,6 +4,8 @@ import { miBleParser } from './mi-ble-parser'
 
 const SERVICE_DATA_UUID = 'fe95'
 
+const normalizeAddress = address => address.replace(/[-]/gi,':').toUpperCase()
+
 const getMiServiceData = serviceData => 
 	serviceData
 		.find(serviceDatum => serviceDatum.uuid.toLowerCase() === SERVICE_DATA_UUID)
@@ -21,7 +23,7 @@ export const makeMiBleScanner = ({
 	let isNobleScanning = false
 
 	const start = () => {
-		logger.info('Start scanning.')
+		logger.info('MI BLE start scanning')
 		try {
 			noble.startScanning([], true)
 			isNobleScanning = true
@@ -40,20 +42,20 @@ export const makeMiBleScanner = ({
 		if (state === 'poweredOn') {
 			start()
 		} else {
-			logger.info(`Stop scanning. (${state})`)
+			logger.info(`MI BLE stop scanning (${state})`)
 			stop()
 		}
 	}
 
 	const onWarning = message => { logger.info(message) }
 
-	const onScanStart = () => { logger.debug('Started scanning.') }
+	const onScanStart = () => { logger.debug('MI BLE started scanning') }
 
 	const onScanStop = () => {
-		logger.info('Stopped scanning.')
+		logger.info('MI BLE stopped scanning')
 		if (isNobleScanning && restartScanningIfStopped) {
 			setTimeout(() => {
-				logger.debug('Restarting scan.')
+				logger.debug('MI BLE restarting scan')
 				start()
 			}, restartDelay)
 		}
@@ -64,8 +66,10 @@ export const makeMiBleScanner = ({
 			serviceData,
 			localName
 		} = {},
-		address
+		address: receivedAddress
 	} = {}) => {
+
+		const address = normalizeAddress(receivedAddress)
 
 		const device = devices.find(device => device.address === address)
 		if (!device) { return }

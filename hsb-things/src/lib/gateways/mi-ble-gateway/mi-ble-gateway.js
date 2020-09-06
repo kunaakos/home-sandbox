@@ -45,7 +45,7 @@ const MI_BLE_SENSOR_PROPERTIES = {
 
 const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPERTIES, properties))
 
-const thingIdFrom = address => `MI_BLE__${address.toUpperCase()}`
+const thingIdFrom = address => `MI_BLE__${address.replace(/[:]/gi,'')}`
 
 export const makeMiBleGateway = ({
 	description,

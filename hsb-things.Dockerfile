@@ -1,6 +1,14 @@
 # stage 1 uses a thicc image that has everything that node-gyp needs
 FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-build AS build
 
+RUN install_packages \
+	gcc-9-base \
+	libgcc-9-dev \
+	libc6-dev \
+	libudev-dev
+#   alsa-utils \
+#   bluealsa \
+#   bluez \
 WORKDIR /usr/src/home-sandbox/
 
 # copy only the package.json files that are needed, other services changing shouldn't affect this layer
@@ -30,6 +38,12 @@ RUN yarn workspace hsb-things install --no-lockfile --non-interactive --producti
 # so we're reusing node_modules from the previous stage
 FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
 
+RUN install_packages \
+	bluetooth \
+	bluez \
+	libbluetooth-dev \
+	libudev-dev
+
 WORKDIR /usr/src/home-sandbox/
 
 # pino transport is installed here, so it's not a dependency in any of the projects,
@@ -53,5 +67,6 @@ COPY --from=build /usr/src/home-sandbox/hsb-things/build /usr/src/home-sandbox/h
 # TODO: https://www.balena.io/docs/reference/base-images/base-images/#working-with-dynamically-plugged-devices
 ENV UDEV=1
 
+# `hciconfig hci0 reset` might not be needed, was used during debugging
 # omit the first two lines, which are yarn logs, and cause pino-sentry to throw an error 
-CMD yarn workspace hsb-things prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="things-$BALENA_DEVICE_UUID"
+CMD hciconfig hci0 reset && yarn workspace hsb-things prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="things-$BALENA_DEVICE_UUID"
