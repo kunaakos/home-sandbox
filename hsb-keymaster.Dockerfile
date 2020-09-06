@@ -25,7 +25,7 @@ FROM balenalib/raspberrypi4-64-node:12.14.1-bullseye-run
 
 WORKDIR /usr/src/home-sandbox/
 
-RUN yarn global add pino-sentry@0.2.4
+# RUN yarn global add pino-sentry@0.2.4
 
 COPY ./ .
 
@@ -36,4 +36,5 @@ COPY --from=build /usr/src/home-sandbox/hsb-service-utils/node_modules /usr/src/
 COPY --from=build /usr/src/home-sandbox/hsb-service-utils/build /usr/src/home-sandbox/hsb-service-utils/build
 COPY --from=build /usr/src/home-sandbox/hsb-keymaster/build /usr/src/home-sandbox/hsb-keymaster/build
 
-CMD yarn workspace hsb-keymaster knex migrate:latest && yarn workspace hsb-keymaster prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="keymaster-$BALENA_DEVICE_UUID"
+# CMD yarn workspace hsb-keymaster knex migrate:latest && yarn workspace hsb-keymaster prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="keymaster-$BALENA_DEVICE_UUID"
+CMD yarn workspace hsb-keymaster knex migrate:latest && yarn workspace hsb-keymaster prod -s

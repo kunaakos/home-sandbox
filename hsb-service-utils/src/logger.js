@@ -2,7 +2,7 @@ import pino from 'pino'
 import chalk from 'chalk'
 import upperFirst from 'lodash/upperFirst'
 
-const nameFormatter = ({ bgColor }) => name => 
+const nameFormatter = ({ bgColor }) => name =>
     chalk[`bg${upperFirst(bgColor)}`].black(name.padEnd(7).padStart(8))
 
 const levelFormatter = () => level => {
@@ -76,29 +76,23 @@ const makePrettifier = ({
 export const makeLogger = ({
     serviceName,
     serviceColor,
-    environment,
-    forceLogLevel,
-    displayLogLevel = true
+    logLevel = 'warn',
+    displayLogLevel = true,
+    prettyPrint = false,
 }) =>
     pino({
         name: serviceName,
-        ...(
-            environment === 'production'
-                ? {
-                    level: forceLogLevel || 'warn'
-                }
-                : {
-                    level: forceLogLevel || 'debug',
-                    prettyPrint: true,
-                    prettifier: makePrettifier({
-                        formatName: nameFormatter({ bgColor: serviceColor }),
-                        formatLevel: displayLogLevel ? levelFormatter() : () => '',
-                        formatMessage: messageFormatter(),
-                        formatErrorMessage: errorMessageFormatter(),
-                        formatStackTrace: stackTraceFormatter({
-                            formatErrorMessage: errorMessageFormatter()
-                        })
-                    })
-                }
-        )
+        level: logLevel,
+        prettyPrint,
+        prettifier: prettyPrint
+            ? makePrettifier({
+                formatName: nameFormatter({ bgColor: serviceColor }),
+                formatLevel: displayLogLevel ? levelFormatter() : () => '',
+                formatMessage: messageFormatter(),
+                formatErrorMessage: errorMessageFormatter(),
+                formatStackTrace: stackTraceFormatter({
+                    formatErrorMessage: errorMessageFormatter()
+                })
+            })
+            : undefined
     })

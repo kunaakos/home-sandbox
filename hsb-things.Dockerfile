@@ -46,7 +46,7 @@ WORKDIR /usr/src/home-sandbox/
 
 # pino transport is installed here, so it's not a dependency in any of the projects,
 # nor is it needed when developing locally 
-RUN yarn global add pino-sentry@0.2.4
+# RUN yarn global add pino-sentry@0.2.4
 
 # copy all sources so they're available to sentry
 COPY ./ .
@@ -67,4 +67,5 @@ ENV UDEV=1
 
 # `hciconfig hci0 reset` might not be needed, was used during debugging
 # omit the first two lines, which are yarn logs, and cause pino-sentry to throw an error 
-CMD hciconfig hci0 reset && yarn workspace hsb-things prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="things-$BALENA_DEVICE_UUID"
+# CMD hciconfig hci0 reset && yarn workspace hsb-things prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="things-$BALENA_DEVICE_UUID"
+CMD yarn workspace hsb-things prod -s
