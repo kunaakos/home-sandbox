@@ -1,3 +1,5 @@
+// this code was ported from https://github.com/hannseman/homebridge-mi-hygrothermograph
+
 import crypto from 'crypto'
 
 const FRAME_CONTROL_FLAGS = {

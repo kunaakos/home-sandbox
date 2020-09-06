@@ -1,3 +1,5 @@
+// this code was ported from https://github.com/hannseman/homebridge-mi-hygrothermograph
+
 import noble from '@abandonware/noble'
 
 import { miBleParser } from './mi-ble-parser'
