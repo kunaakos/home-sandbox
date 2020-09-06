@@ -45,7 +45,7 @@ const MI_BLE_SENSOR_PROPERTIES = {
 
 const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPERTIES, properties))
 
-const thingIdFrom = address => `MI_BLE__${address.replace(/[:]/gi,'')}`
+const thingIdFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
 export const makeMiBleGateway = ({
 	description,
@@ -76,20 +76,23 @@ export const makeMiBleGateway = ({
 			// add sensor as thing if first seen and configured
 			if (!things.has(thingId)) {
 				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${thingId}`)
-				things.add(makeAmbientSensor({
-					description: {
-						id: thingId,
-						label: device.label,
-						hidden: false,
-					},
-					properties: getMiBleProperties(newProperties),
-					initialState: newValues
-				}))
+				things.add(
+					makeAmbientSensor({
+						description: {
+							id: thingId,
+							label: device.label,
+							hidden: false,
+						},
+						properties: getMiBleProperties(newProperties),
+						initialState: newValues
+					}),
+					newProperties
+				)
 				return
 			}
 
-			const currentValues  = things.get(thingId)
-			const currentProperties  = Object.keys(currentValues)
+			const currentValues = things.get(thingId)
+			const currentProperties = Object.keys(currentValues)
 			const firstReportedProperties = difference(newProperties, currentProperties)
 
 			// re-add sensor as thing if new properties were reported
@@ -101,15 +104,18 @@ export const makeMiBleGateway = ({
 				}
 				const allProperties = Object.keys(allValues)
 
-				things.add(makeAmbientSensor({
-					description: {
-						id: thingId,
-						label: device.label,
-						hidden: false,
-					},
-					properties: getMiBleProperties(allProperties),
-					initialState: allValues
-				}))
+				things.add(
+					makeAmbientSensor({
+						description: {
+							id: thingId,
+							label: device.label,
+							hidden: false,
+						},
+						properties: getMiBleProperties(allProperties),
+						initialState: allValues
+					}),
+					newProperties
+				)
 				return
 			}
 

@@ -47,7 +47,7 @@ export const handleSubscriptions = ({
 		thingSubscriptions.forEach(
 			([subscriberId, keyMaps]) => {
 
-				// this recursive function will attempt an updating a subscriber three times with a one second delay between retries
+				// this recursive function will attempt updating a subscriber three times with a one second delay between retries
 				// it's needed during bootstrapping, when things are being added in no particular order
 				// TODO: make this configurable if needed (most things are permanently connected at the time of writing this)
 				const attemptSubscriberUpdate = async attemptNr => {
@@ -76,10 +76,11 @@ export const handleSubscriptions = ({
 						)
 						.reduce(
 							(acc, [publisherKey, subscriberKey]) => {
-								if (!Reflect.has(publisherState, publisherKey)) {
-									throw new Error(`property '${publisherKey}' does not exist on #${publisherId}`)
+								if (Reflect.has(publisherState, publisherKey)) {
+									acc[subscriberKey] = publisherState[publisherKey]
+								} else {
+									logger.info(`property '${publisherKey}' does not exist on #${publisherId}`)
 								}
-								acc[subscriberKey] = publisherState[publisherKey]
 								return acc
 							},
 							{}

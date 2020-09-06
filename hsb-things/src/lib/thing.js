@@ -139,7 +139,7 @@ export const makeThing = ({
 					if (error !== null) {
 						acc.errors.push(error)
 					} else if (changedKeys !== null) {
-						acc.changedKeys = [acc.changedKeys, ...changedKeys]
+						acc.changedKeys = [...acc.changedKeys, ...changedKeys]
 					}
 					return acc
 				},

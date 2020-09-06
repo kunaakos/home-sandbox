@@ -31,7 +31,7 @@ export const makeDataSink = ({
 				}) => {
 
 				let value
-				const updateFeed = effects[`report${upperFirst(key)}`]
+				const updateFeed = v => (value !== undefined) && effects[`report${upperFirst(key)}`](v)
 
 				// if reportInterval is set, create a watchdog that will trigger a report after
 				// the set time interval if no new value was received
@@ -45,6 +45,8 @@ export const makeDataSink = ({
 						}
 					})
 					: null
+				
+				watchdog && watchdog.pet()
 
 				acc[key] = {
 					type,
@@ -56,7 +58,7 @@ export const makeDataSink = ({
 							value = newValue
 							await updateFeed(value)
 						} else {
-							state[key] = newValue
+							value = newValue
 						}
 						return []
 					}
