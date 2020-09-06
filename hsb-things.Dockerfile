@@ -6,9 +6,7 @@ RUN install_packages \
 	libgcc-9-dev \
 	libc6-dev \
 	libudev-dev
-#   alsa-utils \
-#   bluealsa \
-#   bluez \
+
 WORKDIR /usr/src/home-sandbox/
 
 # copy only the package.json files that are needed, other services changing shouldn't affect this layer
