@@ -62,7 +62,7 @@ export const makeMiBleGateway = ({
 	}) => {
 		try {
 			if (!address || !name) {
-				logger.warn('MI BLE gateway received incomplete report.')
+				logger.trace('MI BLE gateway received incomplete report.')
 				return
 			}
 

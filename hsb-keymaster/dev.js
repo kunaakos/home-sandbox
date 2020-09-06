@@ -7,8 +7,8 @@ const { makeLogger } = require('hsb-service-utils/build/logger')
 const logger = makeLogger({
 	serviceName: 'build',
 	serviceColor: 'gray',
-	environment: process.env.NODE_ENV,
-	forceLogLevel: 'info',
+	prettyPrint: process.env.HSB__PRETTY_PRINT_LOGS,
+	logLevel: 'info'
 })
 
 const builErrorHandler = error => logger.error(error, 'error 💥')

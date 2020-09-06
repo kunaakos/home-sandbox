@@ -10,8 +10,8 @@
 	},
 	"scripts": {
 		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
-		"TODO": "see .babelrc for the issue that requires the env var in the following line to be hardcoded",
-		"build": "NODE_ENV=production HSB__UI_PORT=8001 node build.js",
+		"TODO": "!!! see .babelrc for the issue that requires the env vars in the following line to be hardcoded !!!",
+		"build": "HSB__PRETTY_PRINT_LOGS=true NODE_ENV=production HSB__UI_PORT=8001 node build.js",
 		"prod": "NODE_ENV=production node -r source-map-support/register build/server/main.js"
 	},
 	"dependencies": {
