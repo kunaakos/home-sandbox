@@ -51,6 +51,9 @@ export const Label = styled.div`
 	text-transform: ${({ textTransform = 'none' }) => textTransform};
 	padding: 0.2rem 0.6rem;
 `
+export const CardLabel = styled(Label)`
+	margin-left: 1rem;
+`
 
 export const VerticalButtonsContainer = styled.div`
 	& > ${Button},

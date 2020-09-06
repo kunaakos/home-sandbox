@@ -3,21 +3,27 @@ version: "2"
 volumes:
   keymaster:
 
+# NOTE: services are in host networking mode, because this
+# is the only way I could get bluetooth working for the 
+# things service.
+# THIS IS TEMPORARY AND DANGEROUS, because all services are exposed.
 services:
 
   gatekeeper:
     build:
       context: ./
       dockerfile: ./hsb-gatekeeper.Dockerfile
-    ports:
-      - "80:80"
+    network_mode: "host" 
+    # ports:
+    #   - "80:80"
   
   keymaster:
     build:
       context: ./
       dockerfile: ./hsb-keymaster.Dockerfile
-    expose:
-      - "80"
+    network_mode: "host" 
+    # expose:
+    #   - "80"
     volumes:
       - keymaster:/data
 
@@ -25,8 +31,9 @@ services:
     build:
       context: ./
       dockerfile: ./hsb-ui.Dockerfile
-    expose:
-      - "80"
+    network_mode: "host" 
+    # expose:
+    #   - "80"
 
   things:
     build:
@@ -34,8 +41,13 @@ services:
       dockerfile: ./hsb-things.Dockerfile
     # /sys/* is mounted in privileged mode, but only /sys/class/gpio is used, figure out more secure way
     privileged: true
+    network_mode: "host" 
+    environment:
+      - "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket"
+    labels:
+      io.balena.features.dbus: 1
     devices:
-      # figure out hotplugging later, something something dbus
+      # figure out hotplugging later, I think udev is needed
       - "/dev/ttyACM0:/dev/ttyACM0"
-    expose:
-      - "80"
+    # expose:
+    #   - "80"
