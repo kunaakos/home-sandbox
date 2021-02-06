@@ -9,6 +9,7 @@ import bcrypt from 'bcrypt'
 import {
 	getUserCredentials,
 	getUser,
+	getUsers,
 	addUser
 } from './queries'
 
@@ -94,9 +95,8 @@ const resolvers = {
 		}
 	},
 	Query: {
-		users: () => {
-			// TODO
-			return null
+		users: async () => {
+			return await getUsers()
 		},
 		currentUser: (parent, args, context) => {
 			return context.user

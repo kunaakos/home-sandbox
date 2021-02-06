@@ -30,6 +30,16 @@ export const getUser = async requestedUsername => {
 	}
 }
 
+export const getUsers = async () => {
+	const data = await knex('users')
+	return data.map(user => ({
+		id: user.id,
+		username: user.username,
+		displayName: user.display_name,
+		permissions: JSON.parse(user.permissions)
+	}))
+}
+
 export const addUser = async userData => {
 
 	const trx = await knex.transaction()

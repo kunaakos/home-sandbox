@@ -162,6 +162,7 @@ export const App = () => {
 				>
 					<DrawerMenuButtonsContainer>
 						<NavButton
+							exact
 							to="/"
 							onClick={closeDrawer}
 						>
