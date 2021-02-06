@@ -45,11 +45,12 @@ export const CurrentUserToken = {
 
 }
 
-const TEN_SECONDS = 10000
+// token is valid for two days, but should be refreshed more often
+const EIGHT_HOURS = 8 * 60 * 60 * 1000
 
-const untilItsAlmost = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() - TEN_SECONDS
+const untilItsAlmost = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() - EIGHT_HOURS
 const isPast = tokenExpiresAt => tokenExpiresAt * 1000 <= Date.now()
-const isClose = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() <= TEN_SECONDS
+const isClose = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() <= EIGHT_HOURS
 
 const CURRENT_USER_QUERY = gql`
 	query GetCurrentUser {

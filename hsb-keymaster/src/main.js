@@ -16,7 +16,7 @@ import { logger } from './logger'
 
 const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
-const USER_TOKEN_LIFETIME_IN_SECONDS = 60 * 5
+const USER_TOKEN_LIFETIME_IN_SECONDS = 2 * 24 * 60 * 60 // two days
 
 const currenUnixTimeInSeconds = () => Math.floor(Date.now() / 1000)
 
