@@ -17,3 +17,6 @@ build
 
 # TODO: this should be generated during an ARM build, not on a dev machine, not committing
 yarn.lock
+
+# TODO: things config file was a temporary solution
+hsb-things/src/config.js
