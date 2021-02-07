@@ -11,7 +11,9 @@ import {
 	Label
 } from '../ui-kit/nubbins'
 
-export const UserCard = ({ user }) => {
+const isAdmin = () => true
+
+export const UserCard = ({ user, currentUser, removeUser }) => {
 
 	return (
 		<Card
@@ -28,8 +30,12 @@ export const UserCard = ({ user }) => {
 					{user.displayName}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph'>username: {user.username}</CardLabel>
-			<CardLabel fontSize='paragraph'>permissions: {user.permissions.map(permission => <span>{permission}</span>)}</CardLabel>
+			<CardLabel fontSize='paragraph'>permissions: {user.permissions.map(permission => <span key={permission}>{permission}</span>)}</CardLabel>
+			{isAdmin(currentUser) && currentUser.id !== user.id &&
+				<>
+					<Button background={'error'} onClick={removeUser}>Remove</Button>
+				</>
+			}
 		</Card>
 	)
 }

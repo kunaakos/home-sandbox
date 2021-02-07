@@ -8,6 +8,10 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"browserslist": [
+		"> 0.2%",
+		"not dead"
+	],
 	"scripts": {
 		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
 		"TODO": "!!! see .babelrc for the issue that requires the env vars in the following line to be hardcoded !!!",
@@ -22,8 +26,10 @@
 	"devDependencies": {
 		"@apollo/client": "^3.1.2",
 		"@babel/core": "^7.8.7",
+		"@babel/plugin-transform-runtime": "^7.12.15",
 		"@babel/preset-env": "^7.7.6",
 		"@babel/preset-react": "^7.7.4",
+		"@babel/runtime": "^7.12.13",
 		"@emotion/babel-preset-css-prop": "^10.0.27",
 		"@emotion/core": "^10.0.28",
 		"@emotion/styled": "^10.0.27",

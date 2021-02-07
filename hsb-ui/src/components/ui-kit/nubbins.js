@@ -3,6 +3,7 @@ import Slider from '@material-ui/core/Slider'
 import { NavLink } from 'react-router-dom'
 
 export const Button = styled.button`
+	cursor: pointer;
 	width: ${({ fullWidth }) => fullWidth ? '100%' : 'fit-content'};
 	text-align: ${({ textAlign = 'center' }) => textAlign};
 	user-select: none;

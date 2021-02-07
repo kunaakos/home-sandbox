@@ -2,6 +2,7 @@ import React from 'react'
 
 import {
 	useQuery,
+	useMutation,
 	gql
 } from '@apollo/client'
 
@@ -11,12 +12,21 @@ import { Label } from '../ui-kit/nubbins'
 
 const USERS_QUERY = gql`
 	query Users {
+		currentUser {
+			id
+			permissions
+		}
 		users {
 			id
-			username
 			displayName
 			permissions
 		}
+	}
+`
+
+const REMOVE_USER_MUTATION = gql`
+	mutation RemoveUser($id: ID!) {
+		removeUser(id: $id)
 	}
 `
 
@@ -37,15 +47,24 @@ export const UsersView = () => {
 		}
 	)
 
-	const users = !loading && !error
-		? data.users
-		: []
+	const [removeUserMutation] = useMutation(REMOVE_USER_MUTATION)
+	const removeUser = id => async () => {
+		try {
+			await removeUserMutation({ variables: { id }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const users = data && data.users
+	const currentUser = data && data.currentUser
 
 	return (
 		<CenteredCardContainer>
 			{loading && <Label>Loading...</Label>}
 			{error && <Label>Something went wrong :(</Label>}
-			{!loading && !error && users.map(user => <UserCard key={user.id} user={user} />)}
+			{!loading && !error && users.map(user => <UserCard key={user.id} user={user} currentUser={currentUser} removeUser={removeUser(user.id)}/>)}
 		</CenteredCardContainer>
 	)
 

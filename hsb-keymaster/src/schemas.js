@@ -1,10 +1,8 @@
 import Joi from '@hapi/joi'
 
 export const User = Joi.object({
-
-	username: Joi.string()
-		.alphanum()
-		.max(16)
+	
+	id: Joi.string().guid({ version: ['uuidv4'] })
 		.required(),
 
 	display_name: Joi.string()
@@ -12,18 +10,22 @@ export const User = Joi.object({
 
 	permissions: Joi.string()
 		.required()
-
 })
 
-export const Credential = Joi.object({
+export const Credentials = Joi.object({
+
+	id_user: Joi.string().guid({ version: ['uuidv4'] })
+		.required(),
 
 	username: Joi.string()
+		.alphanum()
+		.max(16)
 		.required(),
 
 	password_hash: Joi.string()
 		.required(),
 
-	password_hash_updated_at: Joi.date().timestamp()
+	password_updated_at: Joi.date().timestamp()
 		.required()
 
 })

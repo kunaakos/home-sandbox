@@ -1,16 +1,17 @@
 import { ApolloServer, gql } from 'apollo-server'
 import { buildFederatedSchema } from '@apollo/federation'
 import { applyMiddleware } from 'graphql-middleware'
-import { rule, shield } from 'graphql-shield'
+import { rule, shield, and } from 'graphql-shield'
 
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 import {
-	getUserCredentials,
+	getCredentials,
 	getUser,
 	getUsers,
-	addUser
+	addUser,
+	removeUser
 } from './queries'
 
 import { logger } from './logger'
@@ -43,15 +44,16 @@ const issueUserToken = user => {
 	}
 }
 
-const isAuthenticated = rule()((parent, args, { user }) => {
-	return user !== null;
-});
+const isAuthenticated = rule()((parent, args, { user }) => user !== null)
+const isAdmin = rule()((parent, args, { user }) => user.permissions.includes('admin'))
+const isNotTargetingThemselves = rule()((parent, args, { user }) => {
+	return user.id !== args.id
+})
 
 const typeDefs = gql`
 
   type User @key(fields: "id") {
 	id: ID!,
-	username: String!,
 	displayName: String!,
 	# replace with an array
 	permissions: [String]!
@@ -64,7 +66,7 @@ const typeDefs = gql`
   }
 
   extend type Query {
-	user(id: ID!): User
+	# user(id: ID!): User
     users: [User]
 	currentUser: User
   }
@@ -72,28 +74,31 @@ const typeDefs = gql`
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
 	refreshUserToken: LoginResponse
-	addUser(username: String!, password: String!, displayName: String!, permissions: [String]!): Int
+	addUser(username: String!, password: String!, displayName: String!, permissions: [String]!): ID!
+	removeUser(id: ID!): ID!
   }
 
 `;
 
 const permissions = shield({
 	Query: {
-		user: isAuthenticated,
-		users: isAuthenticated,
+		// user: isAuthenticated,
+		users: and(isAuthenticated, isAdmin),
 	},
 	Mutation: {
-		refreshUserToken: isAuthenticated
+		refreshUserToken: isAuthenticated,
+		// addUser: and(isAuthenticated, isAdmin),
+		removeUser: and(isAuthenticated, isAdmin, isNotTargetingThemselves)
 	}
 })
 
 const resolvers = {
-	User: {
-		_resolveReference(object) {
-			// TODO
-			return null
-		}
-	},
+	// User: {
+	// 	_resolveReference(object) {
+	// 		// TODO
+	// 		return null
+	// 	}
+	// },
 	Query: {
 		users: async () => {
 			return await getUsers()
@@ -105,11 +110,12 @@ const resolvers = {
 	Mutation: {
 		login: async (parent, { username, password: plaintextPassword }) => {
 			try {
-				const { passwordHash } = await getUserCredentials(username)
+				
+				const credentials = await getCredentials(username)
 				if (
-					await bcrypt.compare(plaintextPassword, passwordHash)
+					credentials && await bcrypt.compare(plaintextPassword, credentials.passwordHash)
 				) {
-					const user = await getUser(username)
+					const user = await getUser(credentials.idUser)
 					return {
 						user,
 						...issueUserToken(user)
@@ -123,7 +129,14 @@ const resolvers = {
 			}
 		},
 		refreshUserToken: (parent, args, context) => issueUserToken(context.user),
-		addUser: (parent, args, context) => addUser(args)
+		addUser: async (parent, args, context) => {
+			try {
+				await addUser(args)
+			} catch (error) {
+				logger.error(error)
+			}
+		},
+		removeUser: (parent, args, context) => removeUser(args)
 	}
 }
 
