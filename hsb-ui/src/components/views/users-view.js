@@ -19,6 +19,7 @@ const USERS_QUERY = gql`
 		users {
 			id
 			displayName
+			status
 			privileges
 		}
 	}

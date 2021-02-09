@@ -30,6 +30,7 @@ export const getUser = async idUser => {
 	return {
 		id: user.id,
 		displayName: user.display_name,
+		status: user.status,
 		privileges: JSON.parse(user.privileges)
 	}
 }
@@ -38,8 +39,8 @@ export const getUsers = async () => {
 	const data = await knex('user')
 	return data.map(user => ({
 		id: user.id,
-		username: user.username,
 		displayName: user.display_name,
+		status: user.status,
 		privileges: JSON.parse(user.privileges)
 	}))
 }
@@ -60,6 +61,7 @@ export const addUser = async ({
 		const user = await User.validateAsync({
 			id: idUser,
 			display_name: displayName,
+			status: 'active',
 			privileges: JSON.stringify(privileges) // TODO: validate privileges
 		})
 		await trx('user').insert(user)

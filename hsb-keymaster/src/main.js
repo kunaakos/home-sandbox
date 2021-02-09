@@ -55,6 +55,7 @@ const typeDefs = gql`
   type User @key(fields: "id") {
 	id: ID!,
 	displayName: String!,
+	status: String!,
 	# replace with an array
 	privileges: [String]!
   }
@@ -79,6 +80,7 @@ const typeDefs = gql`
   }
 
 `;
+
 
 const privileges = shield({
 	Query: {

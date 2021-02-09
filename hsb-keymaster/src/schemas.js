@@ -8,8 +8,12 @@ export const User = Joi.object({
 	display_name: Joi.string()
 		.required(),
 
+	status: Joi.string()
+		.required(),
+
 	privileges: Joi.string()
 		.required()
+
 })
 
 export const Credentials = Joi.object({
