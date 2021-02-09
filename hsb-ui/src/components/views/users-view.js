@@ -6,7 +6,7 @@ import {
 	gql
 } from '@apollo/client'
 
-import { UserCard } from '../user-card'
+import { UserCard } from '../user-cards'
 import { CenteredCardContainer } from '../ui-kit/cards'
 import { Label } from '../ui-kit/nubbins'
 

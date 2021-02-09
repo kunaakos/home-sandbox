@@ -3,7 +3,7 @@ import {
 	useState,
 	useRef
 } from 'react'
-import { useParams } from "react-router-dom"
+import { useParams } from 'react-router-dom'
 
 import {
 	useQuery,
@@ -13,6 +13,8 @@ import {
 
 import { CenteredCardContainer } from '../ui-kit/cards'
 import { Label, NavButton } from '../ui-kit/nubbins'
+
+import { OnboardingCard } from '../user-cards'
 
 const ONBOARDING_VIEW_QUERY = gql`
 	query OnboardingViewQuery($idUser: ID!) {
@@ -28,43 +30,6 @@ const ONBOARD_USER_MUTATION = gql`
 		onboardUser(idUser: $idUser, username: $username, password: $password)
 	}
 `
-
-const OnboardUserCard = ({ displayName, onboardUser }) => {
-
-	const usernameRef = useRef(null)
-	const passwordRef = useRef(null)
-
-	const submitHandler = e => {
-		e.preventDefault()
-		onboardUser && onboardUser({
-			username: usernameRef.current.value,
-			password: passwordRef.current.value
-		})
-	}
-
-	return (<div>
-
-		<Label>Hi there, {displayName}!</Label>
-		<Label fontSize='paragraph' textAlign='left'>To activate your account, please provide the credentials that you'll be using to log in.</Label>
-
-		<form onSubmit={submitHandler}>
-
-			<label>username</label>
-			<br />
-			<input name="username" ref={usernameRef} />
-			<br />
-
-			<label>password</label>
-			<br />
-			<input name="password" ref={passwordRef} />
-			<br />
-
-			<input type="submit" />
-
-		</form>
-
-	</div>)
-}
 
 export const OnboardingView = () => {
 
@@ -103,7 +68,7 @@ export const OnboardingView = () => {
 				<Label>You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
 				<NavButton to='/login'>Go to login</NavButton>
 			</>}
-			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardUserCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
+			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardingCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
 		</CenteredCardContainer>
 	)
 
