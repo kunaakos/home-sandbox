@@ -1,50 +1,57 @@
 import React from 'react'
-
 import {
+	useState,
 	useRef
 } from 'react'
+import { useParams } from "react-router-dom"
 
 import {
+	useQuery,
 	useMutation,
 	gql
 } from '@apollo/client'
 
 import { CenteredCardContainer } from '../ui-kit/cards'
-import { Label } from '../ui-kit/nubbins'
+import { Label, NavButton } from '../ui-kit/nubbins'
 
-const ADD_USER_MUTATION = gql`
-	mutation AddUser($username: String!, $password: String!, $displayName: String!, $privileges: [String]!) {
-		addUser(username: $username, password: $password, displayName: $displayName, privileges: $privileges )
+const ONBOARDING_VIEW_QUERY = gql`
+	query OnboardingViewQuery($idUser: ID!) {
+		onboardingDetails(idUser: $idUser) {
+			displayName,
+			isOnboarded
+		}
 	}
 `
 
-const AddUserCard = ({ onSubmit }) => {
+const ONBOARD_USER_MUTATION = gql`
+	mutation OnboardUser($idUser: ID!, $username: String!, $password: String!) {
+		onboardUser(idUser: $idUser, username: $username, password: $password)
+	}
+`
+
+const OnboardUserCard = ({ displayName, onboardUser }) => {
 
 	const usernameRef = useRef(null)
-	const displayNameRef = useRef(null)
 	const passwordRef = useRef(null)
 
 	const submitHandler = e => {
 		e.preventDefault()
-		onSubmit && onSubmit({
+		onboardUser && onboardUser({
 			username: usernameRef.current.value,
-			displayName: displayNameRef.current.value,
-			password: passwordRef.current.value,
-			privileges: ['admin'] // STUB
+			password: passwordRef.current.value
 		})
 	}
 
 	return (<div>
+
+		<Label>Hi there, {displayName}!</Label>
+		<Label fontSize='paragraph' textAlign='left'>To activate your account, please provide the credentials that you'll be using to log in.</Label>
+
 		<form onSubmit={submitHandler}>
 
 			<label>username</label>
 			<br />
 			<input name="username" ref={usernameRef} />
-			<br />
-
-			<label>display name</label>
-			<br />
-			<input name="displayname" ref={displayNameRef} />
 			<br />
 
 			<label>password</label>
@@ -55,19 +62,48 @@ const AddUserCard = ({ onSubmit }) => {
 			<input type="submit" />
 
 		</form>
+
 	</div>)
 }
 
 export const OnboardingView = () => {
 
-	const [createUserMutation] = useMutation(ADD_USER_MUTATION)
-	const onSubmit = userData => { createUserMutation({ variables: userData }).catch(console.error) }
+	const { idUser } = useParams()
+	const [ onboardUserMutation ] = useMutation(ONBOARD_USER_MUTATION)
+	const {
+		loading,
+		error,
+		data,
+		refetch
+	} = useQuery(ONBOARDING_VIEW_QUERY, { variables: { idUser } })
+
+	const [isInvalidLink, setIsInvalidLink] = useState(false)
+
+	const onboardUser = async ({username, password}) => { 
+		try {
+			await onboardUserMutation({ variables: { idUser, username, password } })
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	if (!loading && !error && !data.onboardingDetails) {
+		setIsInvalidLink(true)
+	}
+
+	const isOnboarded = !loading && !error && data.onboardingDetails.isOnboarded === true
 
 	return (
 		<CenteredCardContainer>
-			<CenteredCardContainer>
-				<AddUserCard onSubmit={onSubmit} />
-			</CenteredCardContainer>
+			{loading && <Label>Loading...</Label>}
+			{isInvalidLink && <Label>The onboarding link seems malformed or expired :(</Label>}
+			{error && <Label>Something went wrong :(</Label>}
+			{isOnboarded && <>
+				<Label>You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
+				<NavButton to='/login'>Go to login</NavButton>
+			</>}
+			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardUserCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
 		</CenteredCardContainer>
 	)
 

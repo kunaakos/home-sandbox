@@ -1,6 +1,5 @@
 import Knex from 'knex'
 import knexConfig from '../knexfile'
-import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -46,49 +45,93 @@ export const getUsers = async () => {
 }
 
 export const addUser = async ({
-	username,
-	password,
 	displayName,
 	privileges,
+}) => {
+
+	try {
+
+		const user = await User.validateAsync({
+			id: uuid(),
+			display_name: displayName,
+			status: 'onboarding',
+			privileges: JSON.stringify(privileges) // TODO: validate privileges
+		})
+		await knex('user').insert(user)
+
+		return user.id
+
+	} catch (error) {
+		throw new Error(`Could not add user: ${error.message}`)
+	}
+
+}
+
+export const removeUser = async idUser => {
+	try {
+		await knex('user').where({ id: idUser }).del()
+		return idUser
+	} catch (error) {
+		throw new Error(`Could not remove user: ${error.message}`)
+	}
+}
+
+export const activateUser = async idUser => {
+	try {
+		await knex('user')
+			.where({ id: idUser })
+			.update({ status: 'active' })
+	} catch (error) {
+		throw new Error(`Could not activate user: ${error.message}`)
+	}
+}
+
+export const deactivateUser = async idUser => {
+	try {
+		await knex('user')
+			.where({ id: idUser })
+			.update({ status: 'inactive' })
+	} catch (error) {
+		throw new Error(`Could not deactivate user: ${error.message}`)
+	}
+}
+
+export const onboardUser = async ({
+	idUser,
+	username,
+	passwordHash,
 }) => {
 
 	const trx = await knex.transaction()
 
 	try {
 
-		const idUser = uuid()
-
-		const user = await User.validateAsync({
-			id: idUser,
-			display_name: displayName,
-			status: 'active',
-			privileges: JSON.stringify(privileges) // TODO: validate privileges
-		})
-		await trx('user').insert(user)
-
 		const credentials = await Credentials.validateAsync({
 			id_user: idUser,
 			username: username,
-			password_hash: await bcrypt.hash(password, 10),
+			password_hash: passwordHash,
 			password_updated_at: Date.now()
 		})
+
+		const [user] = await trx('user')
+			.where({ id: idUser })
+
+		if (!user || user.status !=='onboarding') {
+			throw new Error('user not found or has already finished the onboarding process')
+		}
+
+		await trx('user')
+			.where({ id: idUser })
+			.update({ status: 'inactive' })
+
 		await trx('credentials').insert(credentials)
 
-		await trx.commit()
+		await trx.commit()	
 		return idUser
 
 	} catch (error) {
 		trx.rollback()
-		throw new Error(`Could not add user: ${error.message}`)
+		throw new Error(`Could not onboard user: ${error.message}`)
 	}
 
-}
-
-export const removeUser = async userData => {
-	try {
-		await knex('user').where({ id: userData.id }).del()
-		return userData.id
-	} catch (error) {
-		throw new Error(`Could not remove user: ${error.message}`)
-	}
 }

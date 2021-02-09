@@ -11,7 +11,10 @@ import {
 	getUser,
 	getUsers,
 	addUser,
-	removeUser
+	removeUser,
+	activateUser,
+	deactivateUser,
+	onboardUser
 } from './queries'
 
 import { logger } from './logger'
@@ -45,10 +48,9 @@ const issueUserToken = user => {
 }
 
 const isAuthenticated = rule()((parent, args, { user }) => user !== null)
+const isActive = rule()((parent, args, { user }) => user && user.status === 'active')
 const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('admin'))
-const isNotTargetingThemselves = rule()((parent, args, { user }) => {
-	return user.id !== args.id
-})
+const isNotTargetingThemselves = rule()((parent, { idUser }, { user }) => idUser !== user.id)
 
 const typeDefs = gql`
 
@@ -66,53 +68,82 @@ const typeDefs = gql`
 	  tokenExpiresAt: Int # unix time in seconds
   }
 
+  type OnboardingDetailsResponse {
+	displayName: String!,
+	isOnboarded: Boolean!
+  }
+
   extend type Query {
 	# user(id: ID!): User
-    users: [User]
-	currentUser: User
+    users: [User]!
+	currentUser: User,
+	onboardingDetails(idUser: ID!): OnboardingDetailsResponse!
   }
 
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
 	refreshUserToken: LoginResponse
-	addUser(username: String!, password: String!, displayName: String!, privileges: [String]!): ID!
-	removeUser(id: ID!): ID!
+	addUser(displayName: String!, privileges: [String]!): ID!
+	removeUser(idUser: ID!): ID!
+	activateUser(idUser: ID!): ID!
+	deactivateUser(idUser: ID!): ID!
+	onboardUser(idUser:ID!, username: String!, password: String!): ID!
   }
 
 `;
 
-
-const privileges = shield({
+const permissions = shield({
 	Query: {
-		// user: isAuthenticated,
-		users: and(isAuthenticated, isAdmin),
+		// user: and(isAuthenticated, isActive, isAdmin),
+		users: and(isAuthenticated, isActive, isAdmin),
 	},
 	Mutation: {
 		refreshUserToken: isAuthenticated,
-		// addUser: and(isAuthenticated, isAdmin),
-		removeUser: and(isAuthenticated, isAdmin, isNotTargetingThemselves)
+		addUser: and(isAuthenticated, isActive, isAdmin),
+		removeUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves),
+		activateUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves),
+		deactivateUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves)
 	}
 })
 
 const resolvers = {
+
 	// User: {
 	// 	_resolveReference(object) {
 	// 		// TODO
 	// 		return null
 	// 	}
 	// },
+
 	Query: {
+
 		users: async () => {
 			return await getUsers()
 		},
+
+		onboardingDetails: async (parent, { idUser }) => {
+			try {
+				const user = await getUser(idUser)
+				return {
+					displayName: user.displayName,
+					isOnboarded: user.state !== 'onboarding'
+				}
+			} catch(error) {
+				logger.error(error)
+				throw new Error('Error.')
+			}	
+		},
+
 		currentUser: (parent, args, context) => {
 			return context.user
 		}
+
 	},
+
 	Mutation: {
+
 		login: async (parent, { username, password: plaintextPassword }) => {
 			try {
-				
 				const credentials = await getCredentials(username)
 				if (
 					credentials && await bcrypt.compare(plaintextPassword, credentials.passwordHash)
@@ -127,18 +158,62 @@ const resolvers = {
 				}
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Server error.')
+				throw new Error('Error.')
 			}
 		},
+
 		refreshUserToken: (parent, args, context) => issueUserToken(context.user),
-		addUser: async (parent, args, context) => {
+
+		addUser: async (parent, args) => {
 			try {
 				await addUser(args)
 			} catch (error) {
 				logger.error(error)
+				throw new Error('Error.')
 			}
 		},
-		removeUser: (parent, args, context) => removeUser(args)
+
+		removeUser: async (parent, { idUser }) => {
+			try {
+				await removeUser(idUser)
+			} catch (error) {
+				logger.error(error)
+				throw new Error('Error.')
+			}
+		},
+
+		activateUser: async (parent, { idUser }) => {
+			try {
+				await activateUser(idUser)
+			} catch (error) {
+				logger.error(error)
+				throw new Error('Error.')
+			}
+		},
+
+		deactivateUser: async (parent, { idUser }) => {
+			try {
+				await deactivateUser(idUser)
+			} catch (error) {
+				logger.error(error)
+				throw new Error('Error.')
+			}
+		},
+
+		onboardUser: async (parent, { idUser, username, password: plaintextPassword }) => {
+			try {
+				await onboardUser({
+					idUser,
+					username,
+					passwordHash: await bcrypt.hash(plaintextPassword, 10)
+				})
+				return idUser
+			} catch (error) {
+				logger.error(error)
+				throw new Error('Error.')
+			}
+		}
+
 	}
 }
 
@@ -152,7 +227,7 @@ const main = async () => {
 				typeDefs,
 				resolvers
 			}]),
-			privileges
+			permissions
 		),
 		logger,
 		context: ({ req }) => {

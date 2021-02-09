@@ -82,7 +82,6 @@ const ProtectedRoute = ({ children, allowIf, redirectTo, ...rest }) => {
 	)
 }
 
-
 export const App = () => {
 
 	const auth = useAuth()
@@ -103,7 +102,7 @@ export const App = () => {
 					: <Switch>
 
 						<ProtectedRoute
-							path="/login"
+							exact path="/login"
 							allowIf={!isAuthenticated}
 							redirectTo={"/"}
 						>
@@ -112,12 +111,13 @@ export const App = () => {
 							/>
 						</ProtectedRoute>
 
-						{/* TODO: this should only render when the app is in onboarding mode, outside the router */}
-						<Route
-							path="/onboarding"
+						<ProtectedRoute
+							exact path="/onboarding/:idUser"
+							allowIf={!isAuthenticated}
+							redirectTo={"/"}
 						>
 							<OnboardingView />
-						</Route>
+						</ProtectedRoute>
 
 						<ProtectedRoute
 							exact path="/"
@@ -128,7 +128,7 @@ export const App = () => {
 						</ProtectedRoute>
 
 						<ProtectedRoute
-							path="/gateways"
+							exact path="/gateways"
 							allowIf={isAuthenticated}
 							redirectTo={"/login"}
 						>
@@ -136,7 +136,7 @@ export const App = () => {
 						</ProtectedRoute>
 
 						<ProtectedRoute
-							path="/users"
+							exact path="/users"
 							allowIf={isAuthenticated}
 							redirectTo={"/login"}
 						>

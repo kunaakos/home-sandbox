@@ -26,8 +26,20 @@ const USERS_QUERY = gql`
 `
 
 const REMOVE_USER_MUTATION = gql`
-	mutation RemoveUser($id: ID!) {
-		removeUser(id: $id)
+	mutation RemoveUser($idUser: ID!) {
+		removeUser(idUser: $idUser)
+	}
+`
+
+const ACTIVATE_USER_MUTATION = gql`
+	mutation ActivateUser($idUser: ID!) {
+		activateUser(idUser: $idUser)
+	}
+`
+
+const DEACTIVATE_USER_MUTATION = gql`
+	mutation DeactivateUser($idUser: ID!) {
+		deactivateUser(idUser: $idUser)
 	}
 `
 
@@ -49,9 +61,29 @@ export const UsersView = () => {
 	)
 
 	const [removeUserMutation] = useMutation(REMOVE_USER_MUTATION)
-	const removeUser = id => async () => {
+	const removeUser = idUser => async () => {
 		try {
-			await removeUserMutation({ variables: { id }})
+			await removeUserMutation({ variables: { idUser }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const [activateUserMutation] = useMutation(ACTIVATE_USER_MUTATION)
+	const activateUser = idUser => async () => {
+		try {
+			await activateUserMutation({ variables: { idUser }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const [deactivateUserMutation] = useMutation(DEACTIVATE_USER_MUTATION)
+	const deactivateUser = idUser => async () => {
+		try {
+			await deactivateUserMutation({ variables: { idUser }})
 			refetch()
 		} catch (error) {
 			console.error(error)
@@ -65,7 +97,15 @@ export const UsersView = () => {
 		<CenteredCardContainer>
 			{loading && <Label>Loading...</Label>}
 			{error && <Label>Something went wrong :(</Label>}
-			{!loading && !error && users.map(user => <UserCard key={user.id} user={user} currentUser={currentUser} removeUser={removeUser(user.id)}/>)}
+			{!loading && !error && users.map(user =>
+				<UserCard
+					key={user.id}
+					user={user}
+					currentUser={currentUser}
+					removeUser={removeUser(user.id)}
+					activateUser={activateUser(user.id)}
+					deactivateUser={deactivateUser(user.id)}
+				/>)}
 		</CenteredCardContainer>
 	)
 
