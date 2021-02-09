@@ -8,7 +8,7 @@ export const User = Joi.object({
 	display_name: Joi.string()
 		.required(),
 
-	permissions: Joi.string()
+	privileges: Joi.string()
 		.required()
 })
 

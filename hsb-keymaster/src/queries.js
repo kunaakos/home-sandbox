@@ -30,7 +30,7 @@ export const getUser = async idUser => {
 	return {
 		id: user.id,
 		displayName: user.display_name,
-		permissions: JSON.parse(user.permissions)
+		privileges: JSON.parse(user.privileges)
 	}
 }
 
@@ -40,7 +40,7 @@ export const getUsers = async () => {
 		id: user.id,
 		username: user.username,
 		displayName: user.display_name,
-		permissions: JSON.parse(user.permissions)
+		privileges: JSON.parse(user.privileges)
 	}))
 }
 
@@ -48,7 +48,7 @@ export const addUser = async ({
 	username,
 	password,
 	displayName,
-	permissions,
+	privileges,
 }) => {
 
 	const trx = await knex.transaction()
@@ -60,7 +60,7 @@ export const addUser = async ({
 		const user = await User.validateAsync({
 			id: idUser,
 			display_name: displayName,
-			permissions: JSON.stringify(permissions) // TODO: validate permissions
+			privileges: JSON.stringify(privileges) // TODO: validate privileges
 		})
 		await trx('user').insert(user)
 

@@ -45,7 +45,7 @@ const issueUserToken = user => {
 }
 
 const isAuthenticated = rule()((parent, args, { user }) => user !== null)
-const isAdmin = rule()((parent, args, { user }) => user.permissions.includes('admin'))
+const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('admin'))
 const isNotTargetingThemselves = rule()((parent, args, { user }) => {
 	return user.id !== args.id
 })
@@ -56,7 +56,7 @@ const typeDefs = gql`
 	id: ID!,
 	displayName: String!,
 	# replace with an array
-	permissions: [String]!
+	privileges: [String]!
   }
 
   type LoginResponse {
@@ -74,13 +74,13 @@ const typeDefs = gql`
   extend type Mutation {
     login(username: String!, password: String!): LoginResponse
 	refreshUserToken: LoginResponse
-	addUser(username: String!, password: String!, displayName: String!, permissions: [String]!): ID!
+	addUser(username: String!, password: String!, displayName: String!, privileges: [String]!): ID!
 	removeUser(id: ID!): ID!
   }
 
 `;
 
-const permissions = shield({
+const privileges = shield({
 	Query: {
 		// user: isAuthenticated,
 		users: and(isAuthenticated, isAdmin),
@@ -150,7 +150,7 @@ const main = async () => {
 				typeDefs,
 				resolvers
 			}]),
-			permissions
+			privileges
 		),
 		logger,
 		context: ({ req }) => {

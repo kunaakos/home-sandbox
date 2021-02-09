@@ -14,12 +14,12 @@ const USERS_QUERY = gql`
 	query Users {
 		currentUser {
 			id
-			permissions
+			privileges
 		}
 		users {
 			id
 			displayName
-			permissions
+			privileges
 		}
 	}
 `

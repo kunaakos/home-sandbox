@@ -30,7 +30,7 @@ export const UserCard = ({ user, currentUser, removeUser }) => {
 					{user.displayName}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph'>permissions: {user.permissions.map(permission => <span key={permission}>{permission}</span>)}</CardLabel>
+			<CardLabel fontSize='paragraph'>privileges: {user.privileges.map(privilege => <span key={privilege}>{privilege}</span>)}</CardLabel>
 			{isAdmin(currentUser) && currentUser.id !== user.id &&
 				<>
 					<Button background={'error'} onClick={removeUser}>Remove</Button>

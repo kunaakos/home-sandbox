@@ -13,8 +13,8 @@ import { CenteredCardContainer } from '../ui-kit/cards'
 import { Label } from '../ui-kit/nubbins'
 
 const ADD_USER_MUTATION = gql`
-	mutation AddUser($username: String!, $password: String!, $displayName: String!, $permissions: [String]!) {
-		addUser(username: $username, password: $password, displayName: $displayName, permissions: $permissions )
+	mutation AddUser($username: String!, $password: String!, $displayName: String!, $privileges: [String]!) {
+		addUser(username: $username, password: $password, displayName: $displayName, privileges: $privileges )
 	}
 `
 
@@ -30,7 +30,7 @@ const AddUserCard = ({ onSubmit }) => {
 			username: usernameRef.current.value,
 			displayName: displayNameRef.current.value,
 			password: passwordRef.current.value,
-			permissions: ['admin'] // STUB
+			privileges: ['admin'] // STUB
 		})
 	}
 

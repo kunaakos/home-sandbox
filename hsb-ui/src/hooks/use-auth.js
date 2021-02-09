@@ -57,7 +57,7 @@ const CURRENT_USER_QUERY = gql`
 		currentUser {
 			id,
 			displayName,
-			permissions
+			privileges
 		}
 	}
 `
