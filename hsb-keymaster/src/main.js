@@ -126,7 +126,7 @@ const resolvers = {
 				const user = await getUser(idUser)
 				return {
 					displayName: user.displayName,
-					isOnboarded: user.state !== 'onboarding'
+					isOnboarded: user.status !== 'onboarding'
 				}
 			} catch(error) {
 				logger.error(error)
@@ -164,9 +164,9 @@ const resolvers = {
 
 		refreshUserToken: (parent, args, context) => issueUserToken(context.user),
 
-		addUser: async (parent, args) => {
+		addUser: async (parent, { displayName, privileges }) => {
 			try {
-				await addUser(args)
+				return await addUser({ displayName, privileges })
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Error.')
