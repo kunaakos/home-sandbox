@@ -176,6 +176,7 @@ const resolvers = {
 		removeUser: async (parent, { idUser }) => {
 			try {
 				await removeUser(idUser)
+				return idUser
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Error.')
@@ -185,6 +186,7 @@ const resolvers = {
 		activateUser: async (parent, { idUser }) => {
 			try {
 				await activateUser(idUser)
+				return idUser
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Error.')
@@ -194,6 +196,7 @@ const resolvers = {
 		deactivateUser: async (parent, { idUser }) => {
 			try {
 				await deactivateUser(idUser)
+				return idUser
 			} catch (error) {
 				logger.error(error)
 				throw new Error('Error.')
