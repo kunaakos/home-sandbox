@@ -3,7 +3,16 @@ import {
 	useRef
 } from 'react'
 
-import { Label } from '../ui-kit/nubbins'
+import { 
+	Card,
+	TitleBar
+} from '../ui-kit/cards'
+import {
+	Label,
+	CardLabel,
+	Button,
+	CardButtons
+} from '../ui-kit/nubbins'
 
 export const OnboardingCard = ({ displayName, onboardUser }) => {
 
@@ -18,26 +27,26 @@ export const OnboardingCard = ({ displayName, onboardUser }) => {
 		})
 	}
 
-	return (<div>
-
-		<Label>Hi there, {displayName}!</Label>
-		<Label fontSize='paragraph' textAlign='left'>To activate your account, please provide the credentials that you'll be using to log in.</Label>
-
-		<form onSubmit={submitHandler}>
-
-			<label>username</label>
-			<br />
-			<input name="username" ref={usernameRef} />
-			<br />
-
-			<label>password</label>
-			<br />
-			<input name="password" ref={passwordRef} />
-			<br />
-
-			<input type="submit" />
-
-		</form>
-
-	</div>)
+	return (
+		<Card
+			background={'bg1'}
+		>
+			<TitleBar>
+				<Label
+					fullWidth
+					textAlign={'start'}
+					background={'bg1'}
+					color={'fg1'}
+				>
+					Hi there, {displayName}!
+				</Label>
+			</TitleBar>
+			<CardLabel fontSize='paragraph' textAlign='left'>To activate your account, please provide the credentials you'll be using to log in.</CardLabel>
+			<CardLabel fontSize='paragraph'>username <input name="username" ref={usernameRef} /></CardLabel>
+			<CardLabel fontSize='paragraph'>password <input type="password" name="password" ref={passwordRef} /></CardLabel>
+			<CardButtons>
+				<Button fontSize="subheading" onClick={submitHandler}>Submit</Button>
+			</CardButtons>
+		</Card>
+	)
 }

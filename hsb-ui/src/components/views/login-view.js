@@ -27,7 +27,7 @@ const LoginCard = ({ onSubmit }) => {
 
 			<label>password</label>
 			<br />
-			<input name="password" ref={passwordRef} />
+			<input type="password" name="password" ref={passwordRef} />
 			<br />
 
 			<input type="submit" />

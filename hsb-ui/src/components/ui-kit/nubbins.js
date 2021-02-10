@@ -56,6 +56,11 @@ export const CardLabel = styled(Label)`
 	margin-left: 1rem;
 `
 
+export const CardButtons = styled.div`
+	display: flex;
+	justify-content: flex-end;
+`
+
 export const VerticalButtonsContainer = styled.div`
 	& > ${Button},
 	& > ${NavButton},

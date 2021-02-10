@@ -8,6 +8,7 @@ import {
 import {
 	Button,
 	CardLabel,
+	CardButtons,
 	Label
 } from '../ui-kit/nubbins'
 
@@ -33,20 +34,20 @@ export const UserCard = ({ user, currentUser, removeUser, deactivateUser, activa
 				>
 					{
 						currentUser.id === user.id
-							? 'Me!'
+							? 'It\'s me!'
 							: user.displayName
 					}
 				</Label>
 			</TitleBar>
 			<CardLabel fontSize='paragraph'>privileges: {user.privileges.map(privilege => <span key={privilege}>{privilege}</span>)}</CardLabel>
 			<CardLabel fontSize='paragraph'>status: {user.status}</CardLabel>
-			{user.status === 'onboarding' && <CardLabel fontSize='paragraph'><textarea defaultValue={getOnboardingLink(user.id)}/> </CardLabel>}
+			{user.status === 'onboarding' && <CardLabel fullWidth fontSize='paragraph'><textarea style={{width: "calc(100% - 2rem)"}}defaultValue={getOnboardingLink(user.id)}/> </CardLabel>}
 			{isAdmin(currentUser) && currentUser.id !== user.id &&
-				<>
-					<Button background={'error'} onClick={removeUser}>Remove</Button>
-					{user.status === 'inactive' && <Button background={'ok'} onClick={activateUser}>Activate</Button>}
-					{user.status === 'active' && <Button background={'warn'} onClick={deactivateUser}>Deactivate</Button>}
-				</>
+				<CardButtons>
+					<Button background={'error'} fontSize="subheading" onClick={removeUser}>Remove</Button>
+					{user.status === 'inactive' && <Button background={'ok'} fontSize="subheading" onClick={activateUser}>Activate</Button>}
+					{user.status === 'active' && <Button background={'warn'} fontSize="subheading" onClick={deactivateUser}>Deactivate</Button>}
+				</CardButtons>
 			}
 		</Card>
 	)

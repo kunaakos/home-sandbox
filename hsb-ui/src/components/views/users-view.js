@@ -6,7 +6,7 @@ import {
 	gql
 } from '@apollo/client'
 
-import { UserCard } from '../user-cards'
+import { UserCard, AddUserCard } from '../user-cards'
 import { CenteredCardContainer } from '../ui-kit/cards'
 import { Label } from '../ui-kit/nubbins'
 
@@ -22,6 +22,12 @@ const USERS_QUERY = gql`
 			status
 			privileges
 		}
+	}
+`
+
+const ADD_USER_MUTATION = gql`
+	mutation AddUser($displayName: String!, $privileges: [String]!) {
+		addUser(displayName: $displayName, privileges: $privileges)
 	}
 `
 
@@ -59,6 +65,17 @@ export const UsersView = () => {
 			}
 		}
 	)
+
+	const [addUserMutation] = useMutation(ADD_USER_MUTATION)
+	const addUser = async ({ displayName }) => {
+		try {
+			console.log(displayName)
+			await addUserMutation({ variables: { displayName, privileges: ["admin"] }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
 
 	const [removeUserMutation] = useMutation(REMOVE_USER_MUTATION)
 	const removeUser = idUser => async () => {
@@ -106,6 +123,7 @@ export const UsersView = () => {
 					activateUser={activateUser(user.id)}
 					deactivateUser={deactivateUser(user.id)}
 				/>)}
+			<AddUserCard addUser={addUser}/>
 		</CenteredCardContainer>
 	)
 

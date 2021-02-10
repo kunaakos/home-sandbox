@@ -12,7 +12,7 @@ import {
 } from '@apollo/client'
 
 import { CenteredCardContainer } from '../ui-kit/cards'
-import { Label, NavButton } from '../ui-kit/nubbins'
+import { CardButtons, Label, NavButton } from '../ui-kit/nubbins'
 
 import { OnboardingCard } from '../user-cards'
 
@@ -65,8 +65,8 @@ export const OnboardingView = () => {
 			{isInvalidLink && <Label>The onboarding link seems malformed or expired :(</Label>}
 			{error && <Label>Something went wrong :(</Label>}
 			{isOnboarded && <>
-				<Label>You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
-				<NavButton to='/login'>Go to login</NavButton>
+				<Label fontSize="paragraph" textAlign="left">You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
+				<CardButtons><NavButton fontSize="subheading" to='/login'>Go to login</NavButton></CardButtons>
 			</>}
 			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardingCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
 		</CenteredCardContainer>
