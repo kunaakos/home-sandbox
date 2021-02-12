@@ -22,7 +22,7 @@ import { GatewaysView } from './views/gateways-view'
 import { lightTheme } from '../themes/light-theme'
 import { DrawerMenu } from './ui-kit/menus'
 import { Label } from './ui-kit/nubbins'
-
+import { CenteredCardContainer } from './ui-kit/cards'
 import {
 	Button,
 	NavButton,
@@ -90,6 +90,9 @@ export const App = () => {
 	const openDrawer = () => setDrawerOpen(true)
 	const closeDrawer = () => setDrawerOpen(false)
 
+	const isActive = auth.status === 'authenticated' && auth.currentUser.status === 'active'
+	const isInactive = auth.status === 'authenticated' && auth.currentUser.status !== 'active'
+
 	return (
 		<ThemeProvider theme={lightTheme}>
 			<Global styles={globalStyles} />
@@ -101,6 +104,7 @@ export const App = () => {
 						<Label>Something went wrong :(</Label>
 					</CenteredCardContainer>
 				</>}
+
 				{auth.status === 'unauthenticated' && <>
 					<Switch>
 						<Route exact path="/">
@@ -116,7 +120,13 @@ export const App = () => {
 					</Switch>
 				</>}
 
-				{auth.status === 'authenticated' && <>
+				{isInactive && <>
+					<CenteredCardContainer>
+						<Label>Your account is not active :(</Label>
+					</CenteredCardContainer>
+				</>}
+
+				{isActive && <>
 					<Switch>
 
 						<Route exact path="/">

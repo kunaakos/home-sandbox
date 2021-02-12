@@ -66,7 +66,7 @@ export const OnboardingView = () => {
 			{error && <Label>Something went wrong :(</Label>}
 			{isOnboarded && <>
 				<Label fontSize="paragraph" textAlign="left">You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
-				<CardButtons><NavButton fontSize="subheading" to='/'>Go to login</NavButton></CardButtons>
+				<CardButtons><NavButton fontSize="subheading" exact to='/'>Go to login</NavButton></CardButtons>
 			</>}
 			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardingCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
 		</CenteredCardContainer>

@@ -58,6 +58,7 @@ const AUTH_STATE_QUERY = gql`
 			currentUser {
 				id,
 				displayName,
+				status,
 				privileges
 			},
 			redirectToOnboard
