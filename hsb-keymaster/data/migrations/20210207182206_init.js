@@ -20,5 +20,4 @@ exports.down = function (knex) {
 	return knex.schema
 		.dropTableIfExists('user')
 		.dropTableIfExists('credentials')
-		.raw('PRAGMA foreign_keys = OFF')
 }
