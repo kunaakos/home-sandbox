@@ -12,9 +12,11 @@ import { Label } from '../ui-kit/nubbins'
 
 const USERS_QUERY = gql`
 	query Users {
-		currentUser {
-			id
-			privileges
+		authState {
+			currentUser {
+				id
+				privileges
+			}
 		}
 		users {
 			id
@@ -69,7 +71,6 @@ export const UsersView = () => {
 	const [addUserMutation] = useMutation(ADD_USER_MUTATION)
 	const addUser = async ({ displayName }) => {
 		try {
-			console.log(displayName)
 			await addUserMutation({ variables: { displayName, privileges: ["admin"] }})
 			refetch()
 		} catch (error) {
@@ -108,22 +109,25 @@ export const UsersView = () => {
 	}
 
 	const users = data && data.users
-	const currentUser = data && data.currentUser
+	const currentUser = data && data.authState && data.authState.currentUser
 
 	return (
 		<CenteredCardContainer>
 			{loading && <Label>Loading...</Label>}
 			{error && <Label>Something went wrong :(</Label>}
-			{!loading && !error && users.map(user =>
-				<UserCard
-					key={user.id}
-					user={user}
-					currentUser={currentUser}
-					removeUser={removeUser(user.id)}
-					activateUser={activateUser(user.id)}
-					deactivateUser={deactivateUser(user.id)}
-				/>)}
-			<AddUserCard addUser={addUser}/>
+			{!loading && !error && <>
+				{users.map(user =>
+					<UserCard
+						key={user.id}
+						user={user}
+						currentUser={currentUser}
+						removeUser={removeUser(user.id)}
+						activateUser={activateUser(user.id)}
+						deactivateUser={deactivateUser(user.id)}
+					/>)}
+				<AddUserCard addUser={addUser}/>
+			</>}
+			
 		</CenteredCardContainer>
 	)
 

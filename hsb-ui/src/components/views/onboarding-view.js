@@ -26,8 +26,8 @@ const ONBOARDING_VIEW_QUERY = gql`
 `
 
 const ONBOARD_USER_MUTATION = gql`
-	mutation OnboardUser($idUser: ID!, $username: String!, $password: String!) {
-		onboardUser(idUser: $idUser, username: $username, password: $password)
+	mutation OnboardUser($idUser: ID!, $displayName: String!, $username: String!, $password: String!) {
+		onboardUser(idUser: $idUser, displayName: $displayName, username: $username, password: $password)
 	}
 `
 
@@ -44,9 +44,9 @@ export const OnboardingView = () => {
 
 	const [isInvalidLink, setIsInvalidLink] = useState(false)
 
-	const onboardUser = async ({username, password}) => { 
+	const onboardUser = async ({displayName, username, password}) => { 
 		try {
-			await onboardUserMutation({ variables: { idUser, username, password } })
+			await onboardUserMutation({ variables: { idUser, displayName, username, password } })
 			refetch()
 		} catch (error) {
 			console.error(error)
@@ -66,7 +66,7 @@ export const OnboardingView = () => {
 			{error && <Label>Something went wrong :(</Label>}
 			{isOnboarded && <>
 				<Label fontSize="paragraph" textAlign="left">You have successfully completed the onboarding process, and can now log in with the credentials you provided.</Label>
-				<CardButtons><NavButton fontSize="subheading" to='/login'>Go to login</NavButton></CardButtons>
+				<CardButtons><NavButton fontSize="subheading" to='/'>Go to login</NavButton></CardButtons>
 			</>}
 			{!loading && !error && !isInvalidLink && !isOnboarded && <OnboardingCard displayName={data.onboardingDetails && data.onboardingDetails.displayName} onboardUser={onboardUser} />}
 		</CenteredCardContainer>

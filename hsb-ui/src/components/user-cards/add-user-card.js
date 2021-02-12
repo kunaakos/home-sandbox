@@ -17,7 +17,6 @@ import {
 export const AddUserCard = ({ addUser }) => {
 
 	const displayNameRef = useRef(null)
-	console.log(addUser)
 
 	const addUserClick = () => {
 		addUser && addUser({

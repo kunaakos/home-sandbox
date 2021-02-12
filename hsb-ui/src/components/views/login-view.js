@@ -2,7 +2,6 @@ import React from 'react'
 import { useRef } from 'react'
 
 import { CenteredCardContainer } from '../ui-kit/cards'
-import { Label } from '../ui-kit/nubbins'
 
 const LoginCard = ({ onSubmit }) => {
 
@@ -37,13 +36,12 @@ const LoginCard = ({ onSubmit }) => {
 }
 
 export const LoginView = ({
-	auth
+	login
 }) => {
 
 	return (
 		<CenteredCardContainer>
-			{auth.status === 'unauthenticated' && <LoginCard onSubmit={auth.login} />}
-			{auth.status === 'error' && <Label>Something went wrong, try reloading :(</Label>}
+			<LoginCard onSubmit={login} />
 		</CenteredCardContainer>
 	)
 

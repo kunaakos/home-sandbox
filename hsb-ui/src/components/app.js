@@ -85,7 +85,6 @@ const ProtectedRoute = ({ children, allowIf, redirectTo, ...rest }) => {
 export const App = () => {
 
 	const auth = useAuth()
-	const isAuthenticated = auth.status === 'authenticated'
 
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const openDrawer = () => setDrawerOpen(true)
@@ -96,92 +95,81 @@ export const App = () => {
 			<Global styles={globalStyles} />
 
 			<Router>
-
-				{auth.status === 'loading'
-					? <Label></Label>
-					: <Switch>
-
-						<ProtectedRoute
-							exact path="/login"
-							allowIf={!isAuthenticated}
-							redirectTo={"/"}
-						>
-							<LoginView
-								auth={auth}
-							/>
-						</ProtectedRoute>
-
-						<ProtectedRoute
-							exact path="/onboarding/:idUser"
-							allowIf={!isAuthenticated}
-							redirectTo={"/"}
-						>
+				{auth.status === 'loading' && <></>}
+				{auth.status === 'error' && <>
+					<CenteredCardContainer>
+						<Label>Something went wrong :(</Label>
+					</CenteredCardContainer>
+				</>}
+				{auth.status === 'unauthenticated' && <>
+					<Switch>
+						<Route exact path="/">
+							{auth.redirectToOnboard && <Redirect to={`/onboarding/${auth.redirectToOnboard}`} />}
+							{!auth.redirectToOnboard && <LoginView login={auth.login}/>}
+						</Route>
+						<Route exact path="/onboarding/:idUser">
 							<OnboardingView />
-						</ProtectedRoute>
+						</Route>
+						<Route path="*">
+							<Redirect to="/" />
+						</Route>
+					</Switch>
+				</>}
 
-						<ProtectedRoute
-							exact path="/"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+				{auth.status === 'authenticated' && <>
+					<Switch>
+
+						<Route exact path="/">
 							<ThingsView />
-						</ProtectedRoute>
+						</Route>
 
-						<ProtectedRoute
-							exact path="/gateways"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+						<Route exact path="/gateways">
 							<GatewaysView />
-						</ProtectedRoute>
+						</Route>
 
-						<ProtectedRoute
-							exact path="/users"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+						<Route exact path="/users">
 							<UsersView />
-						</ProtectedRoute>
+						</Route>
 
 						<Route path="*">
 							<Redirect to="/" />
 						</Route>
 
 					</Switch>
-				}
 
-				<HoverMenu hide={drawerOpen}>
-					<HoverMenuButtonsContainer>
-						<Button onClick={openDrawer}>+</Button>
-					</HoverMenuButtonsContainer>
-				</HoverMenu>
+					<HoverMenu hide={drawerOpen}>
+						<HoverMenuButtonsContainer>
+							<Button onClick={openDrawer}>+</Button>
+						</HoverMenuButtonsContainer>
+					</HoverMenu>
 
-				<DrawerMenu
-					isOpen={drawerOpen}
-					close={closeDrawer}
-				>
-					<DrawerMenuButtonsContainer>
-						<NavButton
-							exact
-							to="/"
-							onClick={closeDrawer}
-						>
-							Things
-						</NavButton>
-						<NavButton
-							to="/gateways"
-							onClick={closeDrawer}
-						>
-							Gateways
-						</NavButton>
-						<NavButton
-							to="/users"
-							onClick={closeDrawer}
-						>
-							Users
-						</NavButton>
-					</DrawerMenuButtonsContainer>
-				</DrawerMenu>
+					<DrawerMenu
+						isOpen={drawerOpen}
+						close={closeDrawer}
+					>
+						<DrawerMenuButtonsContainer>
+							<NavButton
+								exact to="/"
+								onClick={closeDrawer}
+							>
+								Things
+							</NavButton>
+							<NavButton
+								to="/gateways"
+								onClick={closeDrawer}
+							>
+								Gateways
+							</NavButton>
+							<NavButton
+								to="/users"
+								onClick={closeDrawer}
+							>
+								Users
+							</NavButton>
+						</DrawerMenuButtonsContainer>
+					</DrawerMenu>
+				
+				</>}
 
 			</Router>
 

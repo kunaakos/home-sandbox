@@ -3,6 +3,7 @@ import knexConfig from '../knexfile'
 import { v4 as uuid } from 'uuid'
 
 import {
+	DisplayName,
 	User,
 	Credentials
 } from './schemas'
@@ -55,9 +56,13 @@ export const addUser = async ({
 			id: uuid(),
 			display_name: displayName,
 			status: 'onboarding',
-			privileges: JSON.stringify(privileges) // TODO: validate privileges
+			privileges: privileges
 		})
-		await knex('user').insert(user)
+
+		await knex('user').insert({
+			...user,
+			privileges: JSON.stringify(user.privileges)
+		})
 
 		return user.id
 
@@ -98,8 +103,10 @@ export const deactivateUser = async idUser => {
 
 export const onboardUser = async ({
 	idUser,
+	displayName,
 	username,
 	passwordHash,
+	activate
 }) => {
 
 	const trx = await knex.transaction()
@@ -122,7 +129,10 @@ export const onboardUser = async ({
 
 		await trx('user')
 			.where({ id: idUser })
-			.update({ status: 'inactive' })
+			.update({
+				status: activate ? 'active' : 'inactive',
+				display_name: await DisplayName.validateAsync(displayName)
+			})
 
 		await trx('credentials').insert(credentials)
 

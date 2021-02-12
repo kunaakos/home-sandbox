@@ -73,10 +73,15 @@ const typeDefs = gql`
 	isOnboarded: Boolean!
   }
 
+  type AuthStateResponse {
+	  currentUser: User
+	  redirectToOnboard: ID
+  }
+
   extend type Query {
 	# user(id: ID!): User
     users: [User]!
-	currentUser: User,
+	authState: AuthStateResponse!
 	onboardingDetails(idUser: ID!): OnboardingDetailsResponse!
   }
 
@@ -87,7 +92,7 @@ const typeDefs = gql`
 	removeUser(idUser: ID!): ID!
 	activateUser(idUser: ID!): ID!
 	deactivateUser(idUser: ID!): ID!
-	onboardUser(idUser:ID!, username: String!, password: String!): ID!
+	onboardUser(idUser:ID!, displayName: String!, username: String!, password: String!): ID!
   }
 
 `;
@@ -106,7 +111,7 @@ const permissions = shield({
 	}
 })
 
-const resolvers = {
+const resolvers = state => ({
 
 	// User: {
 	// 	_resolveReference(object) {
@@ -134,9 +139,10 @@ const resolvers = {
 			}	
 		},
 
-		currentUser: (parent, args, context) => {
-			return context.user
-		}
+		authState: (parent, args, context) => ({
+			currentUser: context.user,
+			...(Boolean(state.idFirstUser) && { redirectToOnboard: state.idFirstUser })
+		})
 
 	},
 
@@ -203,13 +209,20 @@ const resolvers = {
 			}
 		},
 
-		onboardUser: async (parent, { idUser, username, password: plaintextPassword }) => {
+		onboardUser: async (parent, { idUser, displayName, username, password: plaintextPassword }, context) => {
 			try {
+				const isFirstUser = Boolean(context.state.idFirstUser) && idUser === context.state.idFirstUser
 				await onboardUser({
 					idUser,
+					displayName,
 					username,
-					passwordHash: await bcrypt.hash(plaintextPassword, 10)
+					passwordHash: await bcrypt.hash(plaintextPassword, 10),
+					activate: isFirstUser
 				})
+				if (isFirstUser) {
+					context.state.idFirstUser = null
+					logger.info('first user onboarded')
+				}
 				return idUser
 			} catch (error) {
 				logger.error(error)
@@ -218,9 +231,36 @@ const resolvers = {
 		}
 
 	}
+})
+
+/**
+ * Side effect-ey fucntion that checks if creating a first user is needed.
+ * Returns null if there's at least one active user
+ * or the id of the first user if they were not yet activated.
+ */ 
+const checkForFirstUser = async () => {
+	const users = await getUsers()
+	if (users.length === 0) {
+		// no users added yet
+		logger.info('adding first user to database')
+		return await addUser({
+			displayName: 'First User',
+			privileges: ['admin']
+		})
+	} else if (users.length === 1 && users[0].status === 'onboarding') {
+		// a user was added by the app, but not onboarded yet
+		return users[0].id
+	} else {
+		// there should be at least one active, onboarded user
+		return null
+	}
 }
 
 const main = async () => {
+
+	const state = {
+		idFirstUser: await checkForFirstUser()
+	}
 
 	logger.debug('graphql app initialization')
 
@@ -228,14 +268,14 @@ const main = async () => {
 		schema: applyMiddleware(
 			buildFederatedSchema([{
 				typeDefs,
-				resolvers
+				resolvers: resolvers(state)
 			}]),
 			permissions
 		),
 		logger,
 		context: ({ req }) => {
 			const user = req.headers['hsb-user-json'] ? JSON.parse(req.headers['hsb-user-json']) : null;
-			return { user }
+			return { user, state }
 		}
 	})
 
