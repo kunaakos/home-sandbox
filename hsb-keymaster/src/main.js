@@ -14,7 +14,11 @@ import {
 	removeUser,
 	activateUser,
 	deactivateUser,
-	onboardUser
+	onboardUser,
+	createGatewayConfig,
+	readAllGatewayConfig,
+	updateGatewayConfig,
+	deleteGatewayConfig
 } from './queries'
 
 import { logger } from './logger'
@@ -78,11 +82,20 @@ const typeDefs = gql`
 	  redirectToOnboard: ID
   }
 
+  type GatewayConfig {
+	  id: ID!
+	  type: String!
+	  label: String!
+	  isActive: Boolean!
+	  jsonConfig: String!
+  }
+
   extend type Query {
 	# user(id: ID!): User
     users: [User]!
 	authState: AuthStateResponse!
 	onboardingDetails(idUser: ID!): OnboardingDetailsResponse!
+	allGatewayConfig: [GatewayConfig]!
   }
 
   extend type Mutation {
@@ -93,6 +106,9 @@ const typeDefs = gql`
 	activateUser(idUser: ID!): ID!
 	deactivateUser(idUser: ID!): ID!
 	onboardUser(idUser:ID!, displayName: String!, username: String!, password: String!): ID!
+	createGatewayConfig(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
+	updateGatewayConfig(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
+	deleteGatewayConfig(idGatewayConfig: ID!): ID!
   }
 
 `;
@@ -101,13 +117,17 @@ const permissions = shield({
 	Query: {
 		// user: and(isAuthenticated, isActive, isAdmin),
 		users: and(isAuthenticated, isActive, isAdmin),
+		allGatewayConfig: and(isAuthenticated, isActive, isAdmin)
 	},
 	Mutation: {
 		refreshUserToken: isAuthenticated,
 		addUser: and(isAuthenticated, isActive, isAdmin),
 		removeUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves),
 		activateUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves),
-		deactivateUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves)
+		deactivateUser: and(isAuthenticated, isActive, isAdmin, isNotTargetingThemselves),
+		createGatewayConfig: and(isAuthenticated, isActive, isAdmin),
+		updateGatewayConfig: and(isAuthenticated, isActive, isAdmin),
+		deleteGatewayConfig: and(isAuthenticated, isActive, isAdmin)
 	}
 })
 
@@ -142,7 +162,16 @@ const resolvers = state => ({
 		authState: (parent, args, context) => ({
 			currentUser: context.user,
 			...(Boolean(state.idFirstUser) && { redirectToOnboard: state.idFirstUser })
-		})
+		}),
+
+		allGatewayConfig: async (parent, args, context) => {
+			try {
+				return await readAllGatewayConfig()
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not read gateway configs: ${error.message}`)
+			}
+		}
 
 	},
 
@@ -228,7 +257,36 @@ const resolvers = state => ({
 				logger.error(error)
 				throw new Error('Error.')
 			}
-		}
+		},
+
+		createGatewayConfig: async (parent, gatewayConfig, context) => {
+			try {
+				return await createGatewayConfig(gatewayConfig)
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not create gateway config: ${error.message}`)
+			}
+		},
+
+		updateGatewayConfig: async (parent, gatewayConfig, context) => {
+			try {
+				await updateGatewayConfig(gatewayConfig)
+				return gatewayConfig.id
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not update gateway config: ${error.message}`)
+			}
+		},
+
+		deleteGatewayConfig: async (parent, { idGatewayConfig }, context) => {
+			try {
+				await deleteGatewayConfig(idGatewayConfig)
+				return idGatewayConfig
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not delete gateway config: ${error.message}`)
+			}
+		},
 
 	}
 })

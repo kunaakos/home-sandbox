@@ -23,6 +23,7 @@
 		"hsb-service-utils": "0.0.0",
 		"jsonwebtoken": "^8.5.1",
 		"knex": "^0.21.5",
+		"lodash": "^4.17.20",
 		"source-map-support": "^0.5.16",
 		"sqlite3": "^5.0.0",
 		"uuid": "^8.3.2"
