@@ -45,19 +45,23 @@ export const CurrentUserToken = {
 
 }
 
-const TEN_SECONDS = 10000
+// token is valid for two days, but should be refreshed more often
+const EIGHT_HOURS = 8 * 60 * 60 * 1000
 
-const untilItsAlmost = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() - TEN_SECONDS
+const untilItsAlmost = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() - EIGHT_HOURS
 const isPast = tokenExpiresAt => tokenExpiresAt * 1000 <= Date.now()
-const isClose = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() <= TEN_SECONDS
+const isClose = tokenExpiresAt => tokenExpiresAt * 1000 - Date.now() <= EIGHT_HOURS
 
-const CURRENT_USER_QUERY = gql`
-	query GetCurrentUser {
-		currentUser {
-			id,
-			displayName,
-			username,
-			permissions
+const AUTH_STATE_QUERY = gql`
+	query AuthState {
+		authState {
+			currentUser {
+				id,
+				displayName,
+				status,
+				privileges
+			},
+			redirectToOnboard
 		}
 	}
 `
@@ -83,11 +87,11 @@ const REFRESH_TOKEN_MUTATION = gql`
 export const useAuth = () => {
 
 	const {
-		loading: currentUserLoading,
-		error: currentUserError,
-		data: currentUserData,
+		loading: authStateLoading,
+		error: authStateError,
+		data: { authState = {} } = {},
 		refetch: refetchCurrentUser
-	} = useQuery(CURRENT_USER_QUERY)
+	} = useQuery(AUTH_STATE_QUERY)
 
 	const [loginMutation] = useMutation(LOGIN_MUTATION)
 	const [refreshTokenMutation] = useMutation(REFRESH_TOKEN_MUTATION)
@@ -133,15 +137,17 @@ export const useAuth = () => {
 
 	}
 
+	const redirectToOnboard = authState.redirectToOnboard || null
+
 	let currentUser = null
 	let status = 'unauthenticated'
 
-	if (currentUserLoading) {
+	if (authStateLoading) {
 		status = 'loading'
-	} else if (currentUserError) {
+	} else if (authStateError) {
 		status = 'error'
-	} else if (currentUserData.currentUser) {
-		currentUser = currentUserData.currentUser
+	} else if (authState.currentUser) {
+		currentUser = authState.currentUser
 		status = 'authenticated'
 	}
 
@@ -156,6 +162,7 @@ export const useAuth = () => {
 			})
 		},
 		currentUser,
+		redirectToOnboard,
 		status
 	}
 
