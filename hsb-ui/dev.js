@@ -18,7 +18,7 @@ const clientBundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, 'build/client'),
 		outFile: 'index.html',
-		publicUrl: './',
+		publicUrl: '/',
 		watch: true,
 		cache: true,
 		cacheDir: Path.join(__dirname, '.parcel-cache/client'),

@@ -3,6 +3,7 @@ import Slider from '@material-ui/core/Slider'
 import { NavLink } from 'react-router-dom'
 
 export const Button = styled.button`
+	cursor: pointer;
 	width: ${({ fullWidth }) => fullWidth ? '100%' : 'fit-content'};
 	text-align: ${({ textAlign = 'center' }) => textAlign};
 	user-select: none;
@@ -53,6 +54,11 @@ export const Label = styled.div`
 `
 export const CardLabel = styled(Label)`
 	margin-left: 1rem;
+`
+
+export const CardButtons = styled.div`
+	display: flex;
+	justify-content: flex-end;
 `
 
 export const VerticalButtonsContainer = styled.div`

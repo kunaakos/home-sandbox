@@ -22,7 +22,7 @@ import { GatewaysView } from './views/gateways-view'
 import { lightTheme } from '../themes/light-theme'
 import { DrawerMenu } from './ui-kit/menus'
 import { Label } from './ui-kit/nubbins'
-
+import { CenteredCardContainer } from './ui-kit/cards'
 import {
 	Button,
 	NavButton,
@@ -82,105 +82,104 @@ const ProtectedRoute = ({ children, allowIf, redirectTo, ...rest }) => {
 	)
 }
 
-
 export const App = () => {
 
 	const auth = useAuth()
-	const isAuthenticated = auth.status === 'authenticated'
 
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const openDrawer = () => setDrawerOpen(true)
 	const closeDrawer = () => setDrawerOpen(false)
+
+	const isActive = auth.status === 'authenticated' && auth.currentUser.status === 'active'
+	const isInactive = auth.status === 'authenticated' && auth.currentUser.status !== 'active'
 
 	return (
 		<ThemeProvider theme={lightTheme}>
 			<Global styles={globalStyles} />
 
 			<Router>
+				{auth.status === 'loading' && <></>}
+				{auth.status === 'error' && <>
+					<CenteredCardContainer>
+						<Label>Something went wrong :(</Label>
+					</CenteredCardContainer>
+				</>}
 
-				{auth.status === 'loading'
-					? <Label></Label>
-					: <Switch>
-
-						<ProtectedRoute
-							path="/login"
-							allowIf={!isAuthenticated}
-							redirectTo={"/"}
-						>
-							<LoginView
-								auth={auth}
-							/>
-						</ProtectedRoute>
-
-						{/* TODO: this should only render when the app is in onboarding mode, outside the router */}
-						<Route
-							path="/onboarding"
-						>
+				{auth.status === 'unauthenticated' && <>
+					<Switch>
+						<Route exact path="/">
+							{auth.redirectToOnboard && <Redirect to={`/onboarding/${auth.redirectToOnboard}`} />}
+							{!auth.redirectToOnboard && <LoginView login={auth.login}/>}
+						</Route>
+						<Route exact path="/onboarding/:idUser">
 							<OnboardingView />
 						</Route>
+						<Route path="*">
+							<Redirect to="/" />
+						</Route>
+					</Switch>
+				</>}
 
-						<ProtectedRoute
-							exact path="/"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+				{isInactive && <>
+					<CenteredCardContainer>
+						<Label>Your account is not active :(</Label>
+					</CenteredCardContainer>
+				</>}
+
+				{isActive && <>
+					<Switch>
+
+						<Route exact path="/">
 							<ThingsView />
-						</ProtectedRoute>
+						</Route>
 
-						<ProtectedRoute
-							path="/gateways"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+						<Route exact path="/gateways">
 							<GatewaysView />
-						</ProtectedRoute>
+						</Route>
 
-						<ProtectedRoute
-							path="/users"
-							allowIf={isAuthenticated}
-							redirectTo={"/login"}
-						>
+						<Route exact path="/users">
 							<UsersView />
-						</ProtectedRoute>
+						</Route>
 
 						<Route path="*">
 							<Redirect to="/" />
 						</Route>
 
 					</Switch>
-				}
 
-				<HoverMenu hide={drawerOpen}>
-					<HoverMenuButtonsContainer>
-						<Button onClick={openDrawer}>+</Button>
-					</HoverMenuButtonsContainer>
-				</HoverMenu>
+					<HoverMenu hide={drawerOpen}>
+						<HoverMenuButtonsContainer>
+							<Button onClick={openDrawer}>+</Button>
+						</HoverMenuButtonsContainer>
+					</HoverMenu>
 
-				<DrawerMenu
-					isOpen={drawerOpen}
-					close={closeDrawer}
-				>
-					<DrawerMenuButtonsContainer>
-						<NavButton
-							to="/"
-							onClick={closeDrawer}
-						>
-							Things
-						</NavButton>
-						<NavButton
-							to="/gateways"
-							onClick={closeDrawer}
-						>
-							Gateways
-						</NavButton>
-						<NavButton
-							to="/users"
-							onClick={closeDrawer}
-						>
-							Users
-						</NavButton>
-					</DrawerMenuButtonsContainer>
-				</DrawerMenu>
+					<DrawerMenu
+						isOpen={drawerOpen}
+						close={closeDrawer}
+					>
+						<DrawerMenuButtonsContainer>
+							<NavButton
+								exact to="/"
+								onClick={closeDrawer}
+							>
+								Things
+							</NavButton>
+							<NavButton
+								to="/gateways"
+								onClick={closeDrawer}
+							>
+								Gateways
+							</NavButton>
+							<NavButton
+								to="/users"
+								onClick={closeDrawer}
+							>
+								Users
+							</NavButton>
+						</DrawerMenuButtonsContainer>
+					</DrawerMenu>
+				
+				</>}
 
 			</Router>
 
