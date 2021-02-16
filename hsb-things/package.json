@@ -21,11 +21,15 @@
 		"graphql-middleware": "^4.0.2",
 		"graphql-shield": "^7.3.3",
 		"hsb-service-utils": "0.0.0",
-		"lodash": "^4.17.15",
+		"joi": "^17.4.0",
+		"knex": "^0.21.17",
+		"lodash": "^4.17.20",
 		"node-fetch": "^2.6.0",
 		"node-tradfri-client": "^2.1.2",
 		"serialport": "^8.0.7",
-		"source-map-support": "^0.5.16"
+		"source-map-support": "^0.5.16",
+		"sqlite3": "^5.0.2",
+		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.7.5",
