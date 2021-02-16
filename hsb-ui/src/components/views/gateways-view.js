@@ -98,6 +98,7 @@ export const GatewaysView = () => {
 			{!loading && !error && <>
 				{gateways && gateways.map(gateway =>
 					<GatewayCard
+						key={gateway.id}
 						gateway={gateway}
 						removeGateway={removeGateway(gateway.id)}
 						activateGateway={activateGateway(gateway.id)}
