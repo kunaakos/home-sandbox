@@ -79,7 +79,6 @@ const typeDefs = gql`
   }
 
   extend type Query {
-	user(idUser: ID!): User
     users: [User]!
 	authState: AuthStateResponse!
 	onboardingDetails(idUser: ID!): OnboardingDetailsResponse!
