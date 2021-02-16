@@ -40,7 +40,7 @@ const typeDefs = gql`
     setThing(id: String!, newValues: String!): Boolean
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
-	removeGateway(idGatewayConfig: ID!): ID!
+	removeGateway(idGateway: ID!): ID!
   }
 
 `
@@ -133,10 +133,10 @@ const makeResolvers = ({ things }) => ({
 			}
 		},
 
-		removeGateway: async (parent, { idGatewayConfig }, context) => {
+		removeGateway: async (parent, { idGateway }, context) => {
 			try {
-				await removeGatewayConfig(idGatewayConfig)
-				return idGatewayConfig
+				await removeGatewayConfig(idGateway)
+				return idGateway
 			} catch(error) {
 				logger.error(error)
 				throw new Error(`Could not delete gateway config: ${error.message}`)
