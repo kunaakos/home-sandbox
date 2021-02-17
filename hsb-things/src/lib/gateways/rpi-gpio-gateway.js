@@ -36,18 +36,24 @@ export const makeRpiGpioGateway = ({
 		logger.warn(`GPIO not enabled, #${description.id} continuing in mock mode`)
 	}
 
-	const { thingDefinitions } = config
+	const { things: thingConfigs } = config
 
-	thingDefinitions.forEach(async ({ config, description, initialState }) => {
+	thingConfigs.forEach(async ({ id, label, hidden, pinNr }) => {
 
 		const changeState = await initOutputPin({
-			pinNr: config.pinNr
+			pinNr
 		})
-		await changeState(initialState.isOn)
+		await changeState(false) // OFF by default
 
 		things.add(makeSwitch({
-			description,
-			initialState,
+			description: {
+				id,
+				label,
+				hidden,
+			},
+			initialState: {
+				isOn: false
+			},
 			publishChange,
 			effects: {
 				changeState
