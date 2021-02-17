@@ -34,3 +34,7 @@ export const CenteredCardContainer = styled(CardContainer)`
 export const TitleBar = styled.div`
 	padding: 0.4rem 0 0.6rem 0.4rem;
 `
+
+export const CardContent = styled.div`
+	margin-left: 1rem;
+`

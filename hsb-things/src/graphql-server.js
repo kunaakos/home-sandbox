@@ -3,7 +3,14 @@ import { logger } from './logger'
 import { ApolloServer, gql } from 'apollo-server'
 import { buildFederatedSchema } from '@apollo/federation'
 import { applyMiddleware } from 'graphql-middleware'
-import { rule, shield } from 'graphql-shield'
+import { rule, shield, and } from 'graphql-shield'
+
+import {
+	addGatewayConfig,
+	readGatewayConfigs,
+	updateGatewayConfig,
+	removeGatewayConfig
+} from './db-queries'
 
 const typeDefs = gql`
 
@@ -15,13 +22,25 @@ const typeDefs = gql`
     state: String! # stringified JSON object
   }
 
+  type GatewayConfig {
+	  id: ID!
+	  type: String!
+	  label: String!
+	  isActive: Boolean!
+	  jsonConfig: String!
+  }
+
   extend type Query {
 	thing(id: String!): Thing
     things(visibleOnly: Boolean): [Thing]
+	gateways: [GatewayConfig]!
   }
 
   extend type Mutation {
     setThing(id: String!, newValues: String!): Boolean
+	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
+	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
+	removeGateway(idGateway: ID!): ID!
   }
 
 `
@@ -45,35 +64,47 @@ const mapThingState = thing => {
 	}
 }
 
-const isAuthenticated = rule()((parent, args, { user }) => {
-	return user !== null
-})
+const isAuthenticated = rule()((parent, args, { user }) => user !== null)
+const isActive = rule()((parent, args, { user }) => user && user.status === 'active')
+const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('admin'))
 
 const permissions = shield({
 	Query: {
-		things: isAuthenticated
+		things: and(isAuthenticated, isActive, isAdmin),
+		gateways: and(isAuthenticated, isActive, isAdmin)
 	},
 	Mutation: {
-		setThing: isAuthenticated
+		setThing: and(isAuthenticated, isActive, isAdmin),
+		addGateway: and(isAuthenticated, isActive, isAdmin),
+		updateGateway: and(isAuthenticated, isActive, isAdmin),
+		removeGateway: and(isAuthenticated, isActive, isAdmin)
 	}
 })
 
 const makeResolvers = ({ things }) => ({
-	Thing: {
-		_resolveReference(object) {
-			return mapThingState(things.get(object.id))
-		}
-	},
+
 	Query: {
+
 		things: (parent, args) => {
 			const allThings = things.getAll().map(mapThingState)
 
 			return args.visibleOnly
 				? allThings.filter(thing => !thing.hidden)
 				: allThings
+		},
+
+		gateways: async (parent, args, context) => {
+			try {
+				return await readGatewayConfigs()
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not read gateway configs: ${error.message}`)
+			}
 		}
+
 	},
 	Mutation: {
+
 		setThing: async (parent, { id, newValues }) => {
 			try {
 				things.set(id, JSON.parse(newValues))
@@ -82,6 +113,36 @@ const makeResolvers = ({ things }) => ({
 				return false // figure out what to return later (errors if any, but what format)
 			}
 		},
+
+		addGateway: async (parent, gatewayConfig, context) => {
+			try {
+				return await addGatewayConfig(gatewayConfig)
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not create gateway config: ${error.message}`)
+			}
+		},
+
+		updateGateway: async (parent, gatewayConfig, context) => {
+			try {
+				await updateGatewayConfig(gatewayConfig)
+				return gatewayConfig.id
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not update gateway config: ${error.message}`)
+			}
+		},
+
+		removeGateway: async (parent, { idGateway }, context) => {
+			try {
+				await removeGatewayConfig(idGateway)
+				return idGateway
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not delete gateway config: ${error.message}`)
+			}
+		}
+
 	}
 })
 

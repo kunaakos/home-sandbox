@@ -79,7 +79,6 @@ const typeDefs = gql`
   }
 
   extend type Query {
-	# user(id: ID!): User
     users: [User]!
 	authState: AuthStateResponse!
 	onboardingDetails(idUser: ID!): OnboardingDetailsResponse!
@@ -99,8 +98,7 @@ const typeDefs = gql`
 
 const permissions = shield({
 	Query: {
-		// user: and(isAuthenticated, isActive, isAdmin),
-		users: and(isAuthenticated, isActive, isAdmin),
+		users: and(isAuthenticated, isActive, isAdmin)
 	},
 	Mutation: {
 		refreshUserToken: isAuthenticated,
@@ -111,14 +109,7 @@ const permissions = shield({
 	}
 })
 
-const resolvers = state => ({
-
-	// User: {
-	// 	_resolveReference(object) {
-	// 		// TODO
-	// 		return null
-	// 	}
-	// },
+const makeResolvers = ({ state }) => ({
 
 	Query: {
 
@@ -234,7 +225,7 @@ const resolvers = state => ({
 })
 
 /**
- * Side effect-ey fucntion that checks if creating a first user is needed.
+ * Side effect-ey function that checks if creating a first user is needed.
  * Returns null if there's at least one active user
  * or the id of the first user if they were not yet activated.
  */ 
@@ -268,7 +259,7 @@ const main = async () => {
 		schema: applyMiddleware(
 			buildFederatedSchema([{
 				typeDefs,
-				resolvers: resolvers(state)
+				resolvers: makeResolvers({ state })
 			}]),
 			permissions
 		),
