@@ -33,7 +33,9 @@ const EDITOR_COLORS = {
 
 export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivateGateway, saveGatewayConfig }) => {
 
-	const [editedJsonConfig, setEditedJsonConfig] = useState(null)
+	const [editedJsonConfig, setEditedJsonConfig] = useState(gateway.jsonConfig)
+	const isConfigSaved = editedJsonConfig === gateway.jsonConfig
+
 	return (
 		<Card
 			data-id={gateway.id}
@@ -59,14 +61,20 @@ export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivat
 					colors={EDITOR_COLORS}
 					width="100%"
 					height="300px"
-					onChange={({json}) => setEditedJsonConfig(json)}
+					onChange={({json}) => { console.log(json); setEditedJsonConfig(json)}}
 				/>
 			</CardContent>
 			<CardButtons>
 				<Button background={'error'} fontSize="subheading" onClick={removeGateway}>Remove</Button>
 				{!gateway.isActive && <Button background={'ok'} fontSize="subheading" onClick={activateGateway}>Activate</Button>}
 				{gateway.isActive && <Button background={'warn'} fontSize="subheading" onClick={deactivateGateway}>Deactivate</Button>}
-				<Button fontSize="subheading" onClick={() => saveGatewayConfig(editedJsonConfig)}>Save Config</Button>
+				<Button	
+					fontSize="subheading"
+					background={isConfigSaved ? 'fg1' : 'brand'}
+					onClick={() => saveGatewayConfig(editedJsonConfig)}
+				>
+					Save Config
+				</Button>
 			</CardButtons>
 		</Card>
 	)
