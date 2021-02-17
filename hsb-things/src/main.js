@@ -17,8 +17,11 @@ import { initializeGqlServer } from './graphql-server'
 import {
 	subscriptions,
 	thingDefinitions,
-	gatewayDefinitions
 } from './config'
+
+import {
+	readGatewayConfigs
+} from './db-queries'
 
 const initializeThing = deps => thingDefinition => {
 
@@ -39,14 +42,18 @@ const initializeThing = deps => thingDefinition => {
 	}
 }
 
-const initializeGateway = deps => gatewayDefinition => {
+const initializeGateway = deps => ({ type, id, label, jsonConfig, ...config }) => {
 
 	const args = {
 		...deps,
-		...gatewayDefinition
+		description: {
+			id,
+			label
+		},
+		config: JSON.parse(jsonConfig)
 	}
 
-	switch (gatewayDefinition.type) {
+	switch (type) {
 
 		case 'tradfri-gateway':
 			return makeTradfriGateway(args)
@@ -91,8 +98,9 @@ const main = async () => {
 	const initializeThingWithDeps = initializeThing({ publishChange })
 	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
 
+	const gatewayConfigs = await readGatewayConfigs()
 	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
-	gatewayDefinitions.forEach(gatewayDefinition => { initializeGatewayWithDeps(gatewayDefinition) })
+	gatewayConfigs.forEach(gatewayConfig => { gatewayConfig.isActive && initializeGatewayWithDeps(gatewayConfig) })
 
 	initializeGqlServer({
 		things

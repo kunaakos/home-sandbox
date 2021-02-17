@@ -49,7 +49,7 @@ const thingIdFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
 export const makeMiBleGateway = ({
 	description,
-	config,
+	config: {devices = []} = {},
 	things
 }) => {
 
@@ -67,7 +67,7 @@ export const makeMiBleGateway = ({
 			}
 
 			const thingId = thingIdFrom(address)
-			const device = config.devices.find(device => device.address === address)
+			const device = devices.find(device => device.address === address)
 
 			if (!device) { return }
 
@@ -127,7 +127,7 @@ export const makeMiBleGateway = ({
 	}
 
 	const scanner = makeMiBleScanner({
-		devices: config.devices,
+		devices,
 		onSensorReport,
 		logger
 	})
