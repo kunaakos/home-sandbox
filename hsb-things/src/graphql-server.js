@@ -9,7 +9,11 @@ import {
 	addGatewayConfig,
 	readGatewayConfigs,
 	updateGatewayConfig,
-	removeGatewayConfig
+	removeGatewayConfig,
+	addSubscription,
+	readSubscriptions,
+	updateSubscription,
+	removeSubscription
 } from './db-queries'
 
 const typeDefs = gql`
@@ -22,18 +26,27 @@ const typeDefs = gql`
     state: String! # stringified JSON object
   }
 
-  type GatewayConfig {
-	  id: ID!
-	  type: String!
-	  label: String!
-	  isActive: Boolean!
-	  jsonConfig: String!
+  type GatewayConfig @key(fields: "id") {
+	id: ID!
+	type: String!
+	label: String!
+	isActive: Boolean!
+	jsonConfig: String!
+  }
+
+  type SubscriptionConfig @key(fields: "id") {
+	id: ID!
+	idPublisher: ID!
+	idSubscriber: ID!
+	jsonMapping: String!
+	isActive: Boolean!
   }
 
   extend type Query {
 	thing(id: String!): Thing
     things(visibleOnly: Boolean): [Thing]
 	gateways: [GatewayConfig]!
+	subscriptions: [SubscriptionConfig]!
   }
 
   extend type Mutation {
@@ -41,6 +54,9 @@ const typeDefs = gql`
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
 	removeGateway(idGateway: ID!): ID!
+	addSubscription(idPublisher: ID!, idSubscriber: ID!, jsonMapping: String!, isActive: Boolean!): ID!
+	updateSubscription(idSubscription: ID!, jsonMapping: String!, isActive: Boolean!): ID!
+	removeSubscription(idSubscription: ID!): ID!
   }
 
 `
@@ -71,13 +87,17 @@ const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('adm
 const permissions = shield({
 	Query: {
 		things: and(isAuthenticated, isActive, isAdmin),
-		gateways: and(isAuthenticated, isActive, isAdmin)
+		gateways: and(isAuthenticated, isActive, isAdmin),
+		subscriptions: and(isAuthenticated, isActive, isAdmin)
 	},
 	Mutation: {
 		setThing: and(isAuthenticated, isActive, isAdmin),
 		addGateway: and(isAuthenticated, isActive, isAdmin),
 		updateGateway: and(isAuthenticated, isActive, isAdmin),
-		removeGateway: and(isAuthenticated, isActive, isAdmin)
+		removeGateway: and(isAuthenticated, isActive, isAdmin),
+		addSubscription: and(isAuthenticated, isActive, isAdmin),
+		updateSubscription: and(isAuthenticated, isActive, isAdmin),
+		removeSubscription: and(isAuthenticated, isActive, isAdmin)
 	}
 })
 
@@ -100,7 +120,16 @@ const makeResolvers = ({ things }) => ({
 				logger.error(error)
 				throw new Error(`Could not read gateway configs: ${error.message}`)
 			}
-		}
+		},
+
+		subscriptions: async (parent, args, context) => {
+			try {
+				return await readSubscriptions()
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not read subscriptions: ${error.message}`)
+			}
+		},
 
 	},
 	Mutation: {
@@ -137,6 +166,35 @@ const makeResolvers = ({ things }) => ({
 			try {
 				await removeGatewayConfig(idGateway)
 				return idGateway
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not delete gateway config: ${error.message}`)
+			}
+		},
+
+		addSubscription: async (parent, args, context) => {
+			try {
+				return await addSubscription(args)
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not create gateway config: ${error.message}`)
+			}
+		},
+
+		updateSubscription: async (parent, args, context) => {
+			try {
+				await updateSubscription(args)
+				return args.idSubscription
+			} catch(error) {
+				logger.error(error)
+				throw new Error(`Could not update gateway config: ${error.message}`)
+			}
+		},
+
+		removeSubscription: async (parent, { idSubscription }, context) => {
+			try {
+				await removeSubscription(idSubscription)
+				return idSubscription
 			} catch(error) {
 				logger.error(error)
 				throw new Error(`Could not delete gateway config: ${error.message}`)

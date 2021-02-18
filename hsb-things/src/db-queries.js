@@ -9,7 +9,9 @@ import {
 
 import {
 	GatewayConfigSchema,
-	GatewayConfigUpdateSchema
+	GatewayConfigUpdateSchema,
+	SubscriptionSchema,
+	SubscriptionUpdateSchema
 } from './db-schemas'
 
 const knex = Knex(knexConfig)
@@ -66,4 +68,44 @@ export const updateGatewayConfig = async ({
 		.update(await GatewayConfigUpdateSchema.validateAsync(stringifyJsonPropertyIfAvailable('json_config')(snakeCaseKeys(gatewayConfigUpdate))))
 
 export const removeGatewayConfig = async idGateway =>
-	knex('gateway_config').where({ id: idGateway }).del()
+	knex(GATEWAY_CONFIG_TABLE).where({ id: idGateway }).del()
+
+
+const SUBSCRIPTION_TABLE = 'subscription'
+
+export const addSubscription = async subscription => {
+	const idSubscription = uuid()
+	await knex(SUBSCRIPTION_TABLE).insert(
+		await SubscriptionSchema.validateAsync(
+			stringifyJsonPropertyIfAvailable('json_mapping')(
+				snakeCaseKeys({
+					...subscription,
+					id: idSubscription,
+					idPubSub: `${subscription.idPublisher}_${subscription.idSubscriber}`
+				})
+			)
+		)
+	)
+	return idSubscription
+}
+
+export const readSubscriptions = async () => {
+	const subscriptions = await knex(SUBSCRIPTION_TABLE)
+	return subscriptions
+		.map(parseJsonPropertyIfAvailable('json_mapping'))
+		.map(camelCaseKeys)
+}
+
+export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}) =>
+	knex(SUBSCRIPTION_TABLE)
+		.where({ id: idSubscription })
+		.update(
+			await SubscriptionUpdateSchema.validateAsync(
+				stringifyJsonPropertyIfAvailable('json_mapping')(
+					snakeCaseKeys(subscriptionUpdate)
+				)
+			)
+		)
+
+export const removeSubscription = async idSubscription =>
+	knex(SUBSCRIPTION_TABLE).where({ id: idSubscription }).del()
