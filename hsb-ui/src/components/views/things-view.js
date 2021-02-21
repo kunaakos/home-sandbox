@@ -23,7 +23,7 @@ const THINGS_QUERY = gql`
 `
 
 const SET_THING_MUTATION = gql`
-	mutation SetThing($id: String!, $newValues: String!) {
+	mutation SetThing($id: ID!, $newValues: String!) {
 		setThing(id: $id, newValues: $newValues)
 	}
 `

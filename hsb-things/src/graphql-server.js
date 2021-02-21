@@ -19,8 +19,8 @@ import {
 const typeDefs = gql`
 
   type Thing @key(fields: "id") {
+	id: ID!
     type: String!
-	id: String!
 	label: String!
 	hidden: Boolean! 
     state: String! # stringified JSON object
@@ -43,14 +43,14 @@ const typeDefs = gql`
   }
 
   extend type Query {
-	thing(id: String!): Thing
+	thing(id: ID!): Thing
     things(visibleOnly: Boolean): [Thing]
 	gateways: [GatewayConfig]!
 	subscriptions: [SubscriptionConfig]!
   }
 
   extend type Mutation {
-    setThing(id: String!, newValues: String!): Boolean
+    setThing(id: ID!, newValues: String!): Boolean
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
 	removeGateway(idGateway: ID!): ID!
@@ -132,6 +132,7 @@ const makeResolvers = ({ things }) => ({
 		},
 
 	},
+
 	Mutation: {
 
 		setThing: async (parent, { id, newValues }) => {
