@@ -18,6 +18,7 @@ import { OnboardingView } from './views/onboarding-view'
 import { UsersView } from './views/users-view'
 import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
+import { AutomationsView } from './views/automations-view'
 
 import { lightTheme } from '../themes/light-theme'
 import { DrawerMenu } from './ui-kit/menus'
@@ -137,6 +138,10 @@ export const App = () => {
 							<GatewaysView />
 						</Route>
 
+						<Route exact path="/automations">
+							<AutomationsView />
+						</Route>
+
 						<Route exact path="/users">
 							<UsersView />
 						</Route>
@@ -169,6 +174,12 @@ export const App = () => {
 								onClick={closeDrawer}
 							>
 								Gateways
+							</NavButton>
+							<NavButton
+								to="/automations"
+								onClick={closeDrawer}
+							>
+								Automations
 							</NavButton>
 							<NavButton
 								to="/users"

@@ -96,8 +96,8 @@ export const readSubscriptions = async () => {
 		.map(camelCaseKeys)
 }
 
-export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}) =>
-	knex(SUBSCRIPTION_TABLE)
+export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}) =>{
+	return await knex(SUBSCRIPTION_TABLE)
 		.where({ id: idSubscription })
 		.update(
 			await SubscriptionUpdateSchema.validateAsync(
@@ -106,6 +106,7 @@ export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}
 				)
 			)
 		)
+}
 
 export const removeSubscription = async idSubscription =>
 	knex(SUBSCRIPTION_TABLE).where({ id: idSubscription }).del()

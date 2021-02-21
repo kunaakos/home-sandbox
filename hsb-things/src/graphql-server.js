@@ -55,7 +55,7 @@ const typeDefs = gql`
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
 	removeGateway(idGateway: ID!): ID!
 	addSubscription(idPublisher: ID!, idSubscriber: ID!, jsonMapping: String!, isActive: Boolean!): ID!
-	updateSubscription(idSubscription: ID!, jsonMapping: String!, isActive: Boolean!): ID!
+	updateSubscription(idSubscription: ID!, jsonMapping: String, isActive: Boolean): ID!
 	removeSubscription(idSubscription: ID!): ID!
   }
 

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import JSONInput from 'react-json-editor-ajrm'
 import EN_LOCALE from 'react-json-editor-ajrm/locale/en'
 
-import { lightTheme } from '../../themes/light-theme'
+import { editorColors } from '../../themes/light-theme'
 
 import {
 	Card,
@@ -17,19 +17,6 @@ import {
 	CardButtons,
 	Label
 } from '../ui-kit/nubbins'
-
-const colors = lightTheme.colors
-const EDITOR_COLORS = {
-	default: colors.fg1,
-	background: colors.bg1,
-	background_warning: colors.warn,
-	string: colors.neutral3,
-	number: colors.neutral2,
-	colon: colors.fg1,
-	keys: colors.neutral1,
-	keys_whiteSpace: colors.neutral2,
-	primitive: colors.neutral2
-}
 
 export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivateGateway, saveGatewayConfig }) => {
 
@@ -58,10 +45,10 @@ export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivat
 				<JSONInput
 					placeholder={JSON.parse(gateway.jsonConfig)}
 					locale={EN_LOCALE}
-					colors={EDITOR_COLORS}
+					colors={editorColors}
 					width="100%"
 					height="300px"
-					onChange={({json}) => { console.log(json); setEditedJsonConfig(json)}}
+					onChange={({json}) => { setEditedJsonConfig(json) }}
 				/>
 			</CardContent>
 			<CardButtons>
