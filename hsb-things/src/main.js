@@ -15,12 +15,12 @@ import { handleSubscriptions } from './lib/thing-subscriptions'
 import { initializeGqlServer } from './graphql-server'
 
 import {
-	subscriptions,
 	thingDefinitions,
 } from './config'
 
 import {
-	readGatewayConfigs
+	readGatewayConfigs,
+	readSubscriptions
 } from './db-queries'
 
 const initializeThing = deps => thingDefinition => {
@@ -89,6 +89,7 @@ const main = async () => {
 		publishChange
 	})
 
+	const subscriptions = await readSubscriptions()
 	handleSubscriptions({
 		subscriptions,
 		things,
