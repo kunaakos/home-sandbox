@@ -52,16 +52,12 @@ export const SubscriptionSchema = Joi.object({
 	is_active: Joi.boolean()
 		.required(),
 
-	id_pub_sub: Joi.string()
-		.max(255)
-		.required(),
-
 })
 
 export const SubscriptionUpdateSchema =
 	SubscriptionSchema
 		.fork(
-			['id', 'id_publisher', 'id_subscriber', 'id_pub_sub'],
+			['id', 'id_publisher', 'id_subscriber'],
 			schema => schema.forbidden()
 		)
 		.fork(

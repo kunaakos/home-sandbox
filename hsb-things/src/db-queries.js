@@ -80,8 +80,7 @@ export const addSubscription = async subscription => {
 			stringifyJsonPropertyIfAvailable('json_mapping')(
 				snakeCaseKeys({
 					...subscription,
-					id: idSubscription,
-					idPubSub: `${subscription.idPublisher}_${subscription.idSubscriber}`
+					id: idSubscription
 				})
 			)
 		)
