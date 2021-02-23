@@ -9,13 +9,14 @@ const THIRTY_SECONDS = 1000 * 30
 const TWO_MINUTES = 1000 * 60 * 2
 
 export const makeThermostat = ({
-	description,
+	fingerprint,
+	label,
+	isHidden,
 	config = {},
-	initialState = {},
-	publishChange
+	// publishChange
 }) => {
 
-	logger.debug(`initializing thermostat #${description.id}`)
+	logger.debug(`initializing thermostat #${fingerprint}`)
 
 	let {
 		overrun = 0.1,
@@ -28,14 +29,13 @@ export const makeThermostat = ({
 		heatRequest: false,
 		targetTemperature: 0,
 		currentTemperature: 0,
-		...initialState
 	}
 
 	const watchdog = makeWatchdog({
 		onTimedOut: () => {
-			logger.warn(`thermostat #${description.id} timed out, turning heat 'OFF'`)
+			logger.warn(`thermostat #${fingerprint} timed out, turning heat 'OFF'`)
 			state.heatRequest = false
-			publishChange(description.id)(['heatRequest', 'timedOut'])
+			// publishChange(fingerprint)(['heatRequest', 'timedOut'])
 		},
 		interval: watchdogTimeout
 	})
@@ -51,7 +51,7 @@ export const makeThermostat = ({
 			state.heatRequest === false &&
 			state.currentTemperature < state.targetTemperature - underrun
 		) {
-			logger.debug(`thermostat #${description.id} turning heat 'ON'`)
+			logger.debug(`thermostat #${fingerprint} turning heat 'ON'`)
 			state.heatRequest = true
 			return true
 		}
@@ -60,7 +60,7 @@ export const makeThermostat = ({
 			state.heatRequest === true &&
 			state.currentTemperature > state.targetTemperature + overrun
 		) {
-			logger.debug(`thermostat #${description.id} turning heat 'OFF'`)
+			logger.debug(`thermostat #${fingerprint} turning heat 'OFF'`)
 			state.heatRequest = false
 			return true
 		}
@@ -73,14 +73,16 @@ export const makeThermostat = ({
 
 	return makeThing({
 		type: 'thermostat',
-		description,
+		fingerprint,
+		label,
+		isHidden,
 		mutators: {
 			targetTemperature: {
 				type: 'number',
 				get: () => state.targetTemperature,
 				set: async newTargetTemperature => {
 					state.targetTemperature = preciseRound(newTargetTemperature, 1)
-					logger.trace(`thermostat #${description.id} target temperature set to '${state.targetTemperature}'`)
+					logger.trace(`thermostat #${fingerprint} target temperature set to '${state.targetTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'targetTemperature']
 						: ['targetTemperature']
@@ -93,7 +95,7 @@ export const makeThermostat = ({
 				set: async newCurrentTemperature => {
 					watchdog.pet()
 					state.currentTemperature = preciseRound(newCurrentTemperature, 1)
-					logger.trace(`thermostat #${description.id} current temperature set to '${state.currentTemperature}'`)
+					logger.trace(`thermostat #${fingerprint} current temperature set to '${state.currentTemperature}'`)
 					return updateHeatRequest()
 						? ['heatRequest', 'currentTemperature']
 						: ['currentTemperature']

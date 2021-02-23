@@ -65,15 +65,16 @@ const mapThingState = thing => {
 	const {
 		type,
 		id,
+		fingerprint,
 		label,
-		hidden,
+		isHidden,
 		...state
 	} = thing
 	return {
 		type,
 		id,
 		label,
-		hidden,
+		hidden: isHidden,
 		// the shape of the state object is different for every type of thing, will have to figure out a better way to type it
 		// this is why this function is needed
 		state: JSON.stringify(state)

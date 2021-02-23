@@ -5,6 +5,8 @@
 
 import { logger } from '../logger'
 
+import { v4 as uuid } from 'uuid'
+
 function ThingStore(functions) {
 	Object.assign(this, functions)
 }
@@ -14,6 +16,16 @@ export const makeThingStore = ({
 }) => {
 
 	const things = {}
+	const thingIds = new Map()
+
+	const getThingId = fingerprint => {
+		if (thingIds.has(fingerprint)) {
+			return thingIds.get(fingerprint)
+		} else {
+			thingIds.set(fingerprint, uuid())
+			return thingIds.get(fingerprint)
+		}
+	}
 
 	const has = id => Boolean(things[id])
 
@@ -33,7 +45,10 @@ export const makeThingStore = ({
 				logger.error(result, `store failed getting state of #${id}`)
 				return null
 			} else {
-				return result
+				return {
+					id,
+					...result
+				}
 			}
 		}
 	}
@@ -44,13 +59,14 @@ export const makeThingStore = ({
 			.filter(Boolean)
 
 	const add = (thing, changedKeys) => {
-		const thingId = thing.id
-		if (typeof thingId !== 'string') {
+		if (typeof thing.fingerprint !== 'string') {
 			// TODO: validate properly
 			logger.error(new Error(`store cannot add malformed thing #${JSON.stringify(thing)}`))
 		} else {
+			const thingId = getThingId(thing.fingerprint)
 			things[thingId] = thing
 			publishChange(thingId)(changedKeys)
+			return thingId
 		}
 	}
 

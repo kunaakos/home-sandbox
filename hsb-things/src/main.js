@@ -23,15 +23,15 @@ import {
 	readSubscriptions
 } from './db-queries'
 
-const initializeThing = deps => thingDefinition => {
+const initializeThing = deps => thingConfig => {
 
 	const args = {
 		...deps,
-		...thingDefinition,
+		...thingConfig,
 		initialState: {}
 	}
 
-	switch (thingDefinition.type) {
+	switch (thingConfig.type) {
 
 		case 'thermostat':
 			return makeThermostat(args)

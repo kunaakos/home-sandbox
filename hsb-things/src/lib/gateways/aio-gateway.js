@@ -86,11 +86,9 @@ export const makeAioGateway = ({
 
 	things.add(
 		makeDataSink({
-			description: {
-				id: 'aio-feeds',
-				label: 'adafruit.io feeds',
-				hidden: true
-			},
+			fingerprint: 'aio-feeds',
+			label: 'adafruit.io feeds',
+			isHidden: true,
 			config: {
 				values
 			},

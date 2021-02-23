@@ -3,7 +3,7 @@ import { makeThing } from '../thing'
 import { logger } from '../../logger'
 
 const makeMutator = ({
-	description,
+	fingerprint,
 	initialState,
 	state,
 	type,
@@ -16,7 +16,7 @@ const makeMutator = ({
 		skipEqualityCheck,
 		set: async newValue => {
 			state[propertyName] = newValue
-			logger.trace(`ambient sensor #${description.id} property '${propertyName}' updated with value '${newValue}'`)
+			logger.trace(`ambient sensor #${fingerprint} property '${propertyName}' updated with value '${newValue}'`)
 			return [propertyName]
 		},
 		get: () => state[propertyName]
@@ -24,12 +24,14 @@ const makeMutator = ({
 }
 
 export const makeAmbientSensor = ({
-	description,
+	fingerprint,
+	label,
+	isHidden,
 	initialState = {},
 	properties
 }) => {
 
-	logger.debug(`initializing ambient sensor #${description.id}`)
+	logger.debug(`initializing ambient sensor #${fingerprint}`)
 
 	const state = {}
 
@@ -38,7 +40,7 @@ export const makeAmbientSensor = ({
 			return {
 				...mutators,
 				[property.propertyName]: makeMutator({
-					description,
+					fingerprint,
 					initialState,
 					state,
 					...property
@@ -50,7 +52,9 @@ export const makeAmbientSensor = ({
 
 	const thing =  makeThing({
 		type: 'ambient-sensor',
-		description,
+		fingerprint,
+		label,
+		isHidden,
 		mutators
 	})
 

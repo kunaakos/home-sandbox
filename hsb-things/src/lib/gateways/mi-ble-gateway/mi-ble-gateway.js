@@ -45,7 +45,7 @@ const MI_BLE_SENSOR_PROPERTIES = {
 
 const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPERTIES, properties))
 
-const thingIdFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
+const fingerprintFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
 export const makeMiBleGateway = ({
 	description,
@@ -55,7 +55,9 @@ export const makeMiBleGateway = ({
 
 	logger.info(`initializing MI BLE gateway #${description.id}`)
 
-	const onSensorReport = ({
+	const thingIds = new Map()
+
+	const onSensorReport = async({
 		name,
 		address,
 		values: newValues = {}
@@ -66,38 +68,38 @@ export const makeMiBleGateway = ({
 				return
 			}
 
-			const thingId = thingIdFrom(address)
 			const device = devices.find(device => device.address === address)
 
 			if (!device) { return }
 
+			const fingerprint = fingerprintFrom(address)
 			const newProperties = Object.keys(newValues)
 
-			// add sensor as thing if first seen and configured
-			if (!things.has(thingId)) {
-				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${thingId}`)
-				things.add(
-					makeAmbientSensor({
-						description: {
-							id: thingId,
-							label: device.label,
-							hidden: false,
-						},
-						properties: getMiBleProperties(newProperties),
-						initialState: newValues
-					}),
+			// add sensor as thing when first seen
+			if (!thingIds.has(fingerprint)) {
+				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${fingerprint}`)
+				const ambientSensor = makeAmbientSensor({
+					fingerprint,
+					label: device.label,
+					isHidden: false,
+					properties: getMiBleProperties(newProperties),
+					initialState: newValues
+				})
+				const thingId = things.add(
+					ambientSensor,
 					newProperties
 				)
+				thingIds.set(fingerprint, thingId)
 				return
 			}
 
-			const currentValues = things.get(thingId)
+			const currentValues = things.get(thingIds.get(fingerprint))
 			const currentProperties = Object.keys(currentValues)
 			const firstReportedProperties = difference(newProperties, currentProperties)
 
 			// re-add sensor as thing if new properties were reported
 			if (firstReportedProperties.length) {
-				logger.debug(`MI BLE gateway #${description.id} re-initializing sensor #${thingId}`)
+				logger.debug(`MI BLE gateway #${description.id} re-initializing sensor #${fingerprint}`)
 				const allValues = {
 					...currentValues,
 					...newValues
@@ -106,11 +108,9 @@ export const makeMiBleGateway = ({
 
 				things.add(
 					makeAmbientSensor({
-						description: {
-							id: thingId,
-							label: device.label,
-							hidden: false,
-						},
+						fingerprint: fingerprint,
+						label: device.label,
+						isHidden: false,
 						properties: getMiBleProperties(allProperties),
 						initialState: allValues
 					}),
@@ -120,7 +120,7 @@ export const makeMiBleGateway = ({
 			}
 
 			// update existing properties of sensor thing
-			things.set(thingIdFrom(address), newValues)
+			things.set(thingIds.get(fingerprint), newValues)
 		} catch (error) {
 			logger.error(error, `error updating things with values received by #${description.id} from sensor '${name}'`)
 		}

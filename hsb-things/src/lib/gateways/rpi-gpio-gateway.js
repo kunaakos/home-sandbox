@@ -28,7 +28,6 @@ export const makeRpiGpioGateway = ({
 	description,
 	config,
 	things,
-	publishChange
 }) => {
 
 	logger.info(`initializing GPIO gateway #${description.id}`)
@@ -38,23 +37,20 @@ export const makeRpiGpioGateway = ({
 
 	const { things: thingConfigs } = config
 
-	thingConfigs.forEach(async ({ id, label, hidden, pinNr }) => {
+	thingConfigs.forEach(async ({ label, isHidden, pinNr }) => {
 
 		const changeState = await initOutputPin({
 			pinNr
 		})
 		await changeState(false) // OFF by default
 
-		things.add(makeSwitch({
-			description: {
-				id,
-				label,
-				hidden,
-			},
+		await things.add(makeSwitch({
+			fingerprint: `GPIO__${pinNr}`,
+			label,
+			isHidden,
 			initialState: {
 				isOn: false
 			},
-			publishChange,
 			effects: {
 				changeState
 			}

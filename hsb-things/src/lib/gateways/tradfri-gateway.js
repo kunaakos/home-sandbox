@@ -49,8 +49,6 @@ export const connect = async ({
 	return tradfriClient
 }
 
-const neverPublishChange = () => () => { console.warn('Something is borked, a tradfri device advertised a state change.') }
-
 const thingIdFrom = instanceId => `TRADFRI__${instanceId}`
 const labelFrom = device => device.name
 
@@ -89,14 +87,12 @@ const makeLightFromTradfriLightbulb = device => {
 	const isAdjustableColorTemperature = device.lightList[0].spectrum === 'white'
 
 	return makeLight({
-		description: {
-			id: thingIdFrom(device.instanceId),
-			label: labelFrom(device),
-			hidden: false,
-			isDimmable,
-			isColor,
-			...(isAdjustableColorTemperature && { colorTemperatureRange: [2200, 4000] })
-		},
+		fingerprint: thingIdFrom(device.instanceId),
+		label: labelFrom(device),
+		isHidden: false,
+		isDimmable,
+		isColor,
+		...(isAdjustableColorTemperature && { colorTemperatureRange: [2200, 4000] }),
 		initialState: {
 			isOn: getTradfriLightbulbState(device),
 			...(isDimmable && { brightness: getTradfriLightbulbBrightness(device) }),
@@ -108,8 +104,7 @@ const makeLightFromTradfriLightbulb = device => {
 			...(isDimmable && { changeBrightness: setTradfriLightbulbBrightness(device) }),
 			...(isColor && { changeColor: setTradfriLightbulbColor(device) }),
 			...(isAdjustableColorTemperature && { changeColorTemperature: setTradfriLightbulbColorTemperature(device) })
-		},
-		publishChange: neverPublishChange
+		}
 	})
 
 }
@@ -124,18 +119,15 @@ const setTradfriPlugState = device => async newState => {
 
 const makeSwitchFromTradfriPlug = device =>
 	makeSwitch({
-		description: {
-			id: thingIdFrom(device.instanceId),
-			label: labelFrom(device),
-			hidden: false,
-		},
+		fingerprint: thingIdFrom(device.instanceId),
+		label: labelFrom(device),
+		isHidden: false,
 		initialState: {
 			isOn: getTradfriPlugState(device)
 		},
 		effects: {
 			changeState: setTradfriPlugState(device)
-		},
-		publishChange: neverPublishChange
+		}
 	})
 
 export const makeTradfriGateway = ({
@@ -158,11 +150,11 @@ export const makeTradfriGateway = ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on light #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
+				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing light #${thingIdFrom(device.instanceId)}`)
 				things.add(makeLightFromTradfriLightbulb(device))
 				break
 			case AccessoryTypes.plug:
-				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on switch #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
+				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing switch #${thingIdFrom(device.instanceId)}`)
 				things.add(makeSwitchFromTradfriPlug(device))
 				break
 

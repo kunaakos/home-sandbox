@@ -11,7 +11,7 @@ import { logger } from '../../logger'
 
 import { makeAmbientSensor } from '../things/ambient-sensor'
 
-const thingIdFrom = sensorId => `SERIAL__${sensorId}`
+const fingerprintFrom = sensorId => `SERIAL__${sensorId}`
 
 export const makeSerialGateway = ({
 	description,
@@ -21,7 +21,9 @@ export const makeSerialGateway = ({
 
 	logger.info(`initializing serial gateway #${description.id}`)
 
-	const onDataReceived = data => {
+	const thingIds = new Map()
+
+	const onDataReceived = async data => {
 		try {
 			const reading = JSON.parse(data)
 			const { id: sensorId, t: temperature } = reading
@@ -29,25 +31,33 @@ export const makeSerialGateway = ({
 				logger.warn(`serial gateway #${description.id} received invalid data`)
 				return
 			}
-			const thingId = thingIdFrom(sensorId)
+			const fingerprint = fingerprintFrom(sensorId)
 
-			if (things.has(thingId)) {
-				logger.trace(`serial gateway #${description.id} received data for #${thingId}`)
-				things.set(thingId, { temperature })
+			if (thingIds.has(fingerprint)) {
+				logger.trace(`serial gateway #${description.id} received data for #${fingerprint}`)
+				things.set(thingIds.get(fingerprint), { temperature })
 			} else {
-				logger.debug(`serial gateway #${description.id} initializing new sensor #${thingId}`)
+				logger.debug(`serial gateway #${description.id} initializing new sensor #${fingerprint}`)
 
+				
 				const ambientSensor = makeAmbientSensor({
-					description: {
-						id: thingId,
-						label: `Sensor with ID "${sensorId}" reporting via serial.`,
-						hidden: true
-					},
+					fingerprint,
+					label: `Sensor with ID "${sensorId}" reporting via serial`,
+					isHidden: false,
+					properties: [
+						{
+							propertyName: 'temperature',
+							type: 'number',
+							skipEqualityCheck: true,
+						},
+					],
 					initialState: {
 						temperature
 					}
 				})
-				things.add(ambientSensor)
+
+				const thingId = await things.add(ambientSensor)
+				thingIds.set(fingerprint, thingId)
 			}
 
 		} catch (error) {
