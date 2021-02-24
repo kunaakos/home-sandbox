@@ -16,13 +16,13 @@ import {
 
 export const AddSubscriptionCard = ({ addSubscription }) => {
 
-	const idPublisherRef = useRef(null)
-	const idSubscriberRef = useRef(null)
+	const publisherIdRef = useRef(null)
+	const subscriberIdRef = useRef(null)
 
 	const addSubscriptionClick = () => {
 		addSubscription && addSubscription({
-			idPublisher: idPublisherRef.current.value,
-			idSubscriber: idSubscriberRef.current.value,
+			publisherId: publisherIdRef.current.value,
+			subscriberId: subscriberIdRef.current.value,
 		})
 	}
 
@@ -40,8 +40,8 @@ export const AddSubscriptionCard = ({ addSubscription }) => {
 					New subscription
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize="paragraph">publisher id <input name="id-publisher" ref={idPublisherRef} /></CardLabel>
-			<CardLabel fontSize="paragraph">subscriber id <input name="id-subscriber" ref={idSubscriberRef} /></CardLabel>
+			<CardLabel fontSize="paragraph">publisher id <input name="id-publisher" ref={publisherIdRef} /></CardLabel>
+			<CardLabel fontSize="paragraph">subscriber id <input name="id-subscriber" ref={subscriberIdRef} /></CardLabel>
 			<CardButtons>
 				<Button fontSize="subheading" onClick={addSubscriptionClick}>Add</Button>
 			</CardButtons>

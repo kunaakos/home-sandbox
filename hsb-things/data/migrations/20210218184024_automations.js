@@ -2,9 +2,9 @@ exports.up = knex =>
 	knex.schema
 		.createTable('subscription', table => {
 			table.uuid('id').primary()
-			table.string('id_publisher', 255).notNullable()
-			table.string('id_subscriber', 255).notNullable()
-			table.unique(['id_publisher', 'id_subscriber'])
+			table.string('publisher_id', 255).notNullable()
+			table.string('subscriber_id', 255).notNullable()
+			table.unique(['publisher_id', 'subscriber_id'])
 			table.json('json_mapping').notNullable()
 			table.boolean('is_active').notNullable()
 		})

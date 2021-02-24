@@ -39,8 +39,8 @@ export const SubscriptionCard = ({ subscription, removeSubscription, activateSub
 				</Label>
 			</TitleBar>
 			<CardLabel fontSize='paragraph' textAlign='left'>status: {subscription.isActive ? 'active' : 'inactive'}</CardLabel>
-			<CardLabel fontSize='paragraph' textAlign='left'>publisher id: {subscription.idPublisher}</CardLabel>
-			<CardLabel fontSize='paragraph' textAlign='left'>subscriber id: {subscription.idSubscriber}</CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left'>publisher id: {subscription.publisherId}</CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left'>subscriber id: {subscription.subscriberId}</CardLabel>
 			<CardLabel fontSize='paragraph' textAlign='left'>mapping:</CardLabel>
 			<CardContent>
 				<JSONInput

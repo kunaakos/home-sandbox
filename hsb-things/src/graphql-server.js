@@ -36,8 +36,8 @@ const typeDefs = gql`
 
   type SubscriptionConfig @key(fields: "id") {
 	id: ID!
-	idPublisher: ID!
-	idSubscriber: ID!
+	publisherId: ID!
+	subscriberId: ID!
 	jsonMapping: String!
 	isActive: Boolean!
   }
@@ -54,9 +54,9 @@ const typeDefs = gql`
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
 	removeGateway(idGateway: ID!): ID!
-	addSubscription(idPublisher: ID!, idSubscriber: ID!, jsonMapping: String!, isActive: Boolean!): ID!
-	updateSubscription(idSubscription: ID!, jsonMapping: String, isActive: Boolean): ID!
-	removeSubscription(idSubscription: ID!): ID!
+	addSubscription(publisherId: ID!, subscriberId: ID!, jsonMapping: String!, isActive: Boolean!): ID!
+	updateSubscription(subscriptionId: ID!, jsonMapping: String, isActive: Boolean): ID!
+	removeSubscription(subscriptionId: ID!): ID!
   }
 
 `
@@ -200,17 +200,17 @@ const makeResolvers = ({ things }) => ({
 		updateSubscription: async (parent, args, context) => {
 			try {
 				await updateSubscription(args)
-				return args.idSubscription
+				return args.subscriptionId
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not update gateway config: ${error.message}`)
 			}
 		},
 
-		removeSubscription: async (parent, { idSubscription }, context) => {
+		removeSubscription: async (parent, { subscriptionId }, context) => {
 			try {
-				await removeSubscription(idSubscription)
-				return idSubscription
+				await removeSubscription(subscriptionId)
+				return subscriptionId
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not delete gateway config: ${error.message}`)

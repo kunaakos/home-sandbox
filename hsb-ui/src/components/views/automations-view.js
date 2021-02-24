@@ -18,8 +18,8 @@ const AUTOMATIONS_QUERY = gql`
 	query Subscriptions {
 		subscriptions{
 			id
-			idPublisher
-			idSubscriber
+			publisherId
+			subscriberId
 			isActive
 			jsonMapping
 		}
@@ -27,20 +27,20 @@ const AUTOMATIONS_QUERY = gql`
 `
 
 const ADD_SUBSCRIPTION_MUTATION = gql`
-	mutation addSubscription($idPublisher: ID!, $idSubscriber: ID!, $jsonMapping: String!, $isActive: Boolean!) {
-		addSubscription(idPublisher: $idPublisher, idSubscriber: $idSubscriber, jsonMapping: $jsonMapping, isActive: $isActive)
+	mutation addSubscription($publisherId: ID!, $subscriberId: ID!, $jsonMapping: String!, $isActive: Boolean!) {
+		addSubscription(publisherId: $publisherId, subscriberId: $subscriberId, jsonMapping: $jsonMapping, isActive: $isActive)
 	}
 `
 
 const UPDATE_SUBSCRIPTION_MUTATION = gql`
-	mutation updateSubscription($idSubscription: ID!, $jsonMapping: String, $isActive: Boolean) {
-		updateSubscription(idSubscription: $idSubscription, jsonMapping: $jsonMapping, isActive: $isActive)
+	mutation updateSubscription($subscriptionId: ID!, $jsonMapping: String, $isActive: Boolean) {
+		updateSubscription(subscriptionId: $subscriptionId, jsonMapping: $jsonMapping, isActive: $isActive)
 	}
 `
 
 const REMOVE_SUBSCRIPTION_MUTATION = gql`
-	mutation removeSubscription($idSubscription: ID!) {
-		removeSubscription(idSubscription: $idSubscription)
+	mutation removeSubscription($subscriptionId: ID!) {
+		removeSubscription(subscriptionId: $subscriptionId)
 	}
 `
 
@@ -56,9 +56,9 @@ export const AutomationsView = () => {
 	)
 
 	const [addSubscriptionMutation] = useMutation(ADD_SUBSCRIPTION_MUTATION)
-	const addSubscription = async ({ idPublisher, idSubscriber }) => {
+	const addSubscription = async ({ publisherId, subscriberId }) => {
 		try {
-			await addSubscriptionMutation({ variables: { idPublisher, idSubscriber, isActive: false, jsonMapping: "[]" }})
+			await addSubscriptionMutation({ variables: { publisherId, subscriberId, isActive: false, jsonMapping: "[]" }})
 			refetch()
 		} catch (error) {
 			console.error(error)
@@ -66,22 +66,22 @@ export const AutomationsView = () => {
 	}
 
 	const [updateSubscriptionMutation] = useMutation(UPDATE_SUBSCRIPTION_MUTATION)
-	const updateSubscription = async ({ idSubscription, jsonMapping, isActive }) => {
+	const updateSubscription = async ({ subscriptionId, jsonMapping, isActive }) => {
 		try {
-			await updateSubscriptionMutation({ variables: { idSubscription, isActive, jsonMapping }})
+			await updateSubscriptionMutation({ variables: { subscriptionId, isActive, jsonMapping }})
 			refetch()
 		} catch (error) {
 			console.error(error)
 		}
 	}
-	const activateSubscription = idSubscription => () => updateSubscription({ idSubscription, isActive: true })
-	const deactivateSubscription = idSubscription => () => updateSubscription({ idSubscription, isActive: false })
-	const saveSubscriptionMapping = idSubscription => jsonMapping => updateSubscription({ idSubscription, jsonMapping })
+	const activateSubscription = subscriptionId => () => updateSubscription({ subscriptionId, isActive: true })
+	const deactivateSubscription = subscriptionId => () => updateSubscription({ subscriptionId, isActive: false })
+	const saveSubscriptionMapping = subscriptionId => jsonMapping => updateSubscription({ subscriptionId, jsonMapping })
 
 	const [removeSubscriptionMutation] = useMutation(REMOVE_SUBSCRIPTION_MUTATION)
-	const removeSubscription =  idSubscription => async () => {
+	const removeSubscription =  subscriptionId => async () => {
 		try {
-			await removeSubscriptionMutation({ variables: { idSubscription }})
+			await removeSubscriptionMutation({ variables: { subscriptionId }})
 			refetch()
 		} catch (error) {
 			console.error(error)

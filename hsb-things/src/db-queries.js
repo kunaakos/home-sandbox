@@ -74,18 +74,18 @@ export const removeGatewayConfig = async idGateway =>
 const SUBSCRIPTION_TABLE = 'subscription'
 
 export const addSubscription = async subscription => {
-	const idSubscription = uuid()
+	const subscriptionId = uuid()
 	await knex(SUBSCRIPTION_TABLE).insert(
 		await SubscriptionSchema.validateAsync(
 			stringifyJsonPropertyIfAvailable('json_mapping')(
 				snakeCaseKeys({
 					...subscription,
-					id: idSubscription
+					id: subscriptionId
 				})
 			)
 		)
 	)
-	return idSubscription
+	return subscriptionId
 }
 
 export const readSubscriptions = async () => {
@@ -95,9 +95,9 @@ export const readSubscriptions = async () => {
 		.map(camelCaseKeys)
 }
 
-export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}) =>{
+export const updateSubscription = async ({subscriptionId, ...subscriptionUpdate}) =>{
 	return await knex(SUBSCRIPTION_TABLE)
-		.where({ id: idSubscription })
+		.where({ id: subscriptionId })
 		.update(
 			await SubscriptionUpdateSchema.validateAsync(
 				stringifyJsonPropertyIfAvailable('json_mapping')(
@@ -107,5 +107,5 @@ export const updateSubscription = async ({idSubscription, ...subscriptionUpdate}
 		)
 }
 
-export const removeSubscription = async idSubscription =>
-	knex(SUBSCRIPTION_TABLE).where({ id: idSubscription }).del()
+export const removeSubscription = async subscriptionId =>
+	knex(SUBSCRIPTION_TABLE).where({ id: subscriptionId }).del()

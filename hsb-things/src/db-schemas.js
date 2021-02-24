@@ -38,11 +38,11 @@ export const SubscriptionSchema = Joi.object({
 		.guid({ version: ['uuidv4'] })
 		.required(),
 	
-	id_publisher: Joi.string()
+	publisher_id: Joi.string()
 		.guid({ version: ['uuidv4'] })
 		.required(),
 
-	id_subscriber: Joi.string()
+	subscriber_id: Joi.string()
 		.guid({ version: ['uuidv4'] })
 		.required(),
 
@@ -57,7 +57,7 @@ export const SubscriptionSchema = Joi.object({
 export const SubscriptionUpdateSchema =
 	SubscriptionSchema
 		.fork(
-			['id', 'id_publisher', 'id_subscriber'],
+			['id', 'publisher_id', 'subscriber_id'],
 			schema => schema.forbidden()
 		)
 		.fork(
