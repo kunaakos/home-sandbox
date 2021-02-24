@@ -87,6 +87,7 @@ const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('adm
 
 const permissions = shield({
 	Query: {
+		thing: and(isAuthenticated, isActive, isAdmin),
 		things: and(isAuthenticated, isActive, isAdmin),
 		gateways: and(isAuthenticated, isActive, isAdmin),
 		subscriptions: and(isAuthenticated, isActive, isAdmin)
@@ -103,15 +104,28 @@ const permissions = shield({
 })
 
 const makeResolvers = ({ things }) => ({
-
+	
 	Query: {
 
-		things: (parent, args) => {
-			const allThings = things.getAll().map(mapThingState)
+		thing: (parent, {id}) => {
+			try {
+				return mapThingState(things.get(id))
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not get state for thing ${id}: ${error.message}`)
+			}
+		},
 
-			return args.visibleOnly
-				? allThings.filter(thing => !thing.hidden)
-				: allThings
+		things: (parent, args) => {
+			try {
+				const allThings = things.getAll().map(mapThingState)
+				return args.visibleOnly
+					? allThings.filter(thing => !thing.hidden)
+					: allThings
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not thing states: ${error.message}`)
+			}
 		},
 
 		gateways: async (parent, args, context) => {
@@ -119,7 +133,7 @@ const makeResolvers = ({ things }) => ({
 				return await readGatewayConfigs()
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not read gateway configs: ${error.message}`)
+				return new Error(`Could not read gateway configs: ${error.message}`)
 			}
 		},
 
@@ -128,7 +142,7 @@ const makeResolvers = ({ things }) => ({
 				return await readSubscriptions()
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not read subscriptions: ${error.message}`)
+				return new Error(`Could not read subscriptions: ${error.message}`)
 			}
 		},
 
@@ -150,7 +164,7 @@ const makeResolvers = ({ things }) => ({
 				return await addGatewayConfig(gatewayConfig)
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not create gateway config: ${error.message}`)
+				return new Error(`Could not create gateway config: ${error.message}`)
 			}
 		},
 
@@ -160,7 +174,7 @@ const makeResolvers = ({ things }) => ({
 				return gatewayConfig.id
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not update gateway config: ${error.message}`)
+				return new Error(`Could not update gateway config: ${error.message}`)
 			}
 		},
 
@@ -170,7 +184,7 @@ const makeResolvers = ({ things }) => ({
 				return idGateway
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not delete gateway config: ${error.message}`)
+				return new Error(`Could not delete gateway config: ${error.message}`)
 			}
 		},
 
@@ -179,7 +193,7 @@ const makeResolvers = ({ things }) => ({
 				return await addSubscription(args)
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not create gateway config: ${error.message}`)
+				return new Error(`Could not create gateway config: ${error.message}`)
 			}
 		},
 
@@ -189,7 +203,7 @@ const makeResolvers = ({ things }) => ({
 				return args.idSubscription
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not update gateway config: ${error.message}`)
+				return new Error(`Could not update gateway config: ${error.message}`)
 			}
 		},
 
@@ -199,7 +213,7 @@ const makeResolvers = ({ things }) => ({
 				return idSubscription
 			} catch(error) {
 				logger.error(error)
-				throw new Error(`Could not delete gateway config: ${error.message}`)
+				return new Error(`Could not delete gateway config: ${error.message}`)
 			}
 		}
 
