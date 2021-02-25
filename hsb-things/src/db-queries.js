@@ -11,7 +11,8 @@ import {
 	GatewayConfigSchema,
 	GatewayConfigUpdateSchema,
 	SubscriptionSchema,
-	SubscriptionUpdateSchema
+	SubscriptionUpdateSchema,
+	ThingIdSchema
 } from './db-schemas'
 
 const knex = Knex(knexConfig)
@@ -109,3 +110,30 @@ export const updateSubscription = async ({subscriptionId, ...subscriptionUpdate}
 
 export const removeSubscription = async subscriptionId =>
 	knex(SUBSCRIPTION_TABLE).where({ id: subscriptionId }).del()
+
+
+const THING_ID_TABLE = 'thing_id'
+
+export const addThingId = async ({ fingerprint, gatewayId }) => {
+	const id = uuid()
+	await knex(THING_ID_TABLE).insert(
+		await ThingIdSchema.validateAsync(
+			snakeCaseKeys({
+				id,
+				fingerprint,
+				gatewayId
+			})
+		)
+	)
+	return id
+}
+
+export const readThingIds = async () => {
+	const things = await knex(THING_ID_TABLE)
+	return things
+		.map(parseJsonPropertyIfAvailable('json_mapping'))
+		.map(camelCaseKeys)
+}
+
+export const removeThingId = async id =>
+	knex(THING_ID_TABLE).where({ id }).del()

@@ -80,7 +80,7 @@ const setTradfriLightbulbColorTemperature = device => async colorTemperature => 
 	return null
 }
 
-const makeLightFromTradfriLightbulb = device => {
+const makeLightFromTradfriLightbulb = ({ device, gatewayId }) => {
 
 	const isDimmable = device.lightList[0].isDimmable
 	const isColor = device.lightList[0].spectrum === 'rgb'
@@ -88,6 +88,7 @@ const makeLightFromTradfriLightbulb = device => {
 
 	return makeLight({
 		fingerprint: thingIdFrom(device.instanceId),
+		gatewayId,
 		label: labelFrom(device),
 		isHidden: false,
 		isDimmable,
@@ -117,9 +118,10 @@ const setTradfriPlugState = device => async newState => {
 	return null
 }
 
-const makeSwitchFromTradfriPlug = device =>
+const makeSwitchFromTradfriPlug = ({ device, gatewayId }) =>
 	makeSwitch({
 		fingerprint: thingIdFrom(device.instanceId),
+		gatewayId,
 		label: labelFrom(device),
 		isHidden: false,
 		initialState: {
@@ -130,7 +132,7 @@ const makeSwitchFromTradfriPlug = device =>
 		}
 	})
 
-export const makeTradfriGateway = ({
+export const makeTradfriGateway = async ({
 	description,
 	config,
 	things
@@ -146,16 +148,16 @@ export const makeTradfriGateway = ({
 	// stopped working after a state change and keeping tradfri lib and
 	// app state in sync was painful.
 	// This works, might cause a memory leak, revisit if it does.
-	const addOrReplaceThing = device => {
+	const addOrReplaceThing = async device => {
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
 				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing light #${thingIdFrom(device.instanceId)}`)
-				things.add(makeLightFromTradfriLightbulb(device))
+				await things.add(makeLightFromTradfriLightbulb({ device, gatewayId: description.id }))
 				break
 			case AccessoryTypes.plug:
 				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing switch #${thingIdFrom(device.instanceId)}`)
-				things.add(makeSwitchFromTradfriPlug(device))
+				await things.add(makeSwitchFromTradfriPlug({ device, gatewayId: description.id }))
 				break
 
 			default:
@@ -184,15 +186,15 @@ export const makeTradfriGateway = ({
 			identity,
 			psk
 		})
-			.then(tradfriClient => {
+			.then(async tradfriClient => {
 
 				tradfriClient
-					.on('device updated', device => {
+					.on('device updated', async device => {
 						try {
 							if (unsupportedInstanceIds.includes(device.instanceId)) {
 								// unsupported device updated, do nothing
 							} else {
-								addOrReplaceThing(device)
+								await addOrReplaceThing(device)
 							}
 						} catch (error) {
 							logger.error(error, `error updating IKEA Tradfri device ${device.instanceId}`)

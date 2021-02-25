@@ -32,20 +32,18 @@ const updateAioFeed = ({
 
 }
 
-export const makeAioGateway = ({
+export const makeAioGateway = async ({
 	description,
-	config,
-	things
-}) => {
-
-	logger.info(`initializing adafruit.io gateway #${description.id}`)
-
-	const {
+	config: {
 		username,
 		aioKey,
 		groupKey,
 		feeds
-	} = config
+	},
+	things
+}) => {
+
+	logger.info(`initializing adafruit.io gateway #${description.id}`)
 
 	const mockMode = !(username && aioKey)
 
@@ -84,9 +82,10 @@ export const makeAioGateway = ({
 			}
 		)
 
-	things.add(
+	await things.add(
 		makeDataSink({
-			fingerprint: 'aio-feeds',
+			fingerprint: 'AIO_FEEDS__ALL',
+			gatewayId: description.id,
 			label: 'adafruit.io feeds',
 			isHidden: true,
 			config: {

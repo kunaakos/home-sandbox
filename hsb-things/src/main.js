@@ -14,13 +14,14 @@ import { handleSubscriptions } from './lib/thing-subscriptions'
 
 import { initializeGqlServer } from './graphql-server'
 
-import {
-	thingDefinitions,
-} from './config'
+import { thingConfigs } from './config'
 
 import {
 	readGatewayConfigs,
-	readSubscriptions
+	readSubscriptions,
+	addThingId,
+	readThingIds,
+	removeThingId
 } from './db-queries'
 
 const initializeThing = deps => thingConfig => {
@@ -42,7 +43,7 @@ const initializeThing = deps => thingConfig => {
 	}
 }
 
-const initializeGateway = deps => ({ type, id, label, jsonConfig, ...config }) => {
+const initializeGateway = deps => async ({ type, id, label, jsonConfig }) => {
 
 	const args = {
 		...deps,
@@ -56,19 +57,19 @@ const initializeGateway = deps => ({ type, id, label, jsonConfig, ...config }) =
 	switch (type) {
 
 		case 'tradfri-gateway':
-			return makeTradfriGateway(args)
+			return await makeTradfriGateway(args)
 
 		case 'serial-gateway':
-			return makeSerialGateway(args)
+			return await makeSerialGateway(args)
 
 		case 'rpi-gpio-gateway':
-			return makeRpiGpioGateway(args)
+			return await makeRpiGpioGateway(args)
 
 		case 'aio-gateway':
-			return makeAioGateway(args)
+			return await makeAioGateway(args)
 		
 		case 'mi-ble-gateway':
-			return makeMiBleGateway(args)
+			return await makeMiBleGateway(args)
 
 		default:
 			throw new Error(`Unsupported gateway config type '${type}'.`)
@@ -85,8 +86,11 @@ const main = async () => {
 		unsubscribeFromChanges
 	} = makeThingEvents()
 
-	const things = makeThingStore({
-		publishChange
+	const things = await makeThingStore({
+		publishChange,
+		addThingId,
+		readThingIds,
+		removeThingId
 	})
 
 	const subscriptions = await readSubscriptions()
@@ -96,12 +100,16 @@ const main = async () => {
 		subscribeToChanges
 	})
 
-	const initializeThingWithDeps = initializeThing({ publishChange })
-	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
+	// const initializeThingWithDeps = initializeThing({ publishChange })
+	// for (const thingConfig of thingConfigs) {
+	// 	await things.add(initializeThingWithDeps(thingConfig))
+	// }
 
 	const gatewayConfigs = await readGatewayConfigs()
 	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
-	gatewayConfigs.forEach(gatewayConfig => { gatewayConfig.isActive && initializeGatewayWithDeps(gatewayConfig) })
+	for (const gatewayConfig of gatewayConfigs) {
+		gatewayConfig.isActive && await initializeGatewayWithDeps(gatewayConfig)
+	}
 
 	initializeGqlServer({
 		things

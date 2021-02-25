@@ -10,6 +10,7 @@ const TWO_MINUTES = 1000 * 60 * 2
 
 export const makeThermostat = ({
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	config = {},
@@ -74,6 +75,7 @@ export const makeThermostat = ({
 	return makeThing({
 		type: 'thermostat',
 		fingerprint,
+		gatewayId,
 		label,
 		isHidden,
 		mutators: {

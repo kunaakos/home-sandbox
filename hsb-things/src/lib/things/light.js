@@ -5,6 +5,7 @@ import { logger } from '../../logger'
 
 export const makeLight = ({
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	isColor,
@@ -37,6 +38,7 @@ export const makeLight = ({
 	return makeThing({
 		type: 'light',
 		fingerprint,
+		gatewayId,
 		label,
 		isHidden,
 		isColor,

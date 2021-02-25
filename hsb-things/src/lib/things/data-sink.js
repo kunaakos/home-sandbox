@@ -7,6 +7,7 @@ import { logger } from '../../logger'
 
 export const makeDataSink = ({
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	config,
@@ -72,6 +73,7 @@ export const makeDataSink = ({
 	return makeThing({
 		type: 'data-sink',
 		fingerprint,
+		gatewayId,
 		label,
 		isHidden,
 		mutators,

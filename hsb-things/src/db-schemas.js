@@ -64,3 +64,19 @@ export const SubscriptionUpdateSchema =
 			['json_mapping', 'is_active'],
 			schema => schema.optional()
 		)
+
+export const ThingIdSchema = Joi.object({
+
+	id: Joi.string()
+		.guid({ version: ['uuidv4'] })
+		.required(),
+	
+	gateway_id: Joi.string()
+		.guid({ version: ['uuidv4'] })
+		.required(),
+
+	fingerprint: Joi.string()
+		.max(255)
+		.required(),
+
+})

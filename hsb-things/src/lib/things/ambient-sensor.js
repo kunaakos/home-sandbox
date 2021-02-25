@@ -25,6 +25,7 @@ const makeMutator = ({
 
 export const makeAmbientSensor = ({
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	initialState = {},
@@ -53,6 +54,7 @@ export const makeAmbientSensor = ({
 	const thing =  makeThing({
 		type: 'ambient-sensor',
 		fingerprint,
+		gatewayId,
 		label,
 		isHidden,
 		mutators

@@ -5,6 +5,7 @@ import { logger } from '../../logger'
 
 export const makeSwitch = ({
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	effects,
@@ -21,6 +22,7 @@ export const makeSwitch = ({
 	return makeThing({
 		type: 'switch',
 		fingerprint,
+		gatewayId,
 		label,
 		isHidden,
 		mutators: {

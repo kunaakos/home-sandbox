@@ -13,7 +13,7 @@ import { makeAmbientSensor } from '../things/ambient-sensor'
 
 const fingerprintFrom = sensorId => `SERIAL__${sensorId}`
 
-export const makeSerialGateway = ({
+export const makeSerialGateway = async ({
 	description,
 	config,
 	things
@@ -42,6 +42,7 @@ export const makeSerialGateway = ({
 				
 				const ambientSensor = makeAmbientSensor({
 					fingerprint,
+					gatewayId: description.id,
 					label: `Sensor with ID "${sensorId}" reporting via serial`,
 					isHidden: false,
 					properties: [

@@ -8,7 +8,15 @@ exports.up = knex =>
 			table.json('json_mapping').notNullable()
 			table.boolean('is_active').notNullable()
 		})
+		.createTable('thing_id', table => {
+			table.uuid('id').primary()
+			table.string('fingerprint', 255).notNullable()
+			table.uuid('gateway_id')
+			table.foreign('gateway_id').references('gateway_config.id').onDelete('CASCADE')
+			table.unique(['gateway_id', 'fingerprint'])
+		})
 
 exports.down = knex =>
 	knex.schema
 		.dropTableIfExists('subscription')
+		.dropTableIfExists('thing_id')

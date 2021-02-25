@@ -47,7 +47,7 @@ const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPER
 
 const fingerprintFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
-export const makeMiBleGateway = ({
+export const makeMiBleGateway = async ({
 	description,
 	config: {devices = []} = {},
 	things
@@ -55,12 +55,13 @@ export const makeMiBleGateway = ({
 
 	logger.info(`initializing MI BLE gateway #${description.id}`)
 
-	const thingIds = new Map()
+	const fingerprints = new Set()
+	const thingIds = {}
 
-	const onSensorReport = async({
+	const onSensorReport = async ({
 		name,
 		address,
-		values: newValues = {}
+		values: latestValues = {}
 	}) => {
 		try {
 			if (!address || !name) {
@@ -73,54 +74,64 @@ export const makeMiBleGateway = ({
 			if (!device) { return }
 
 			const fingerprint = fingerprintFrom(address)
-			const newProperties = Object.keys(newValues)
+			const latestProperties = Object.keys(latestValues)
 
 			// add sensor as thing when first seen
-			if (!thingIds.has(fingerprint)) {
+			if (!fingerprints.has(fingerprint)) {
+				
+				fingerprints.add(fingerprint)
 				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${fingerprint}`)
+				
 				const ambientSensor = makeAmbientSensor({
 					fingerprint,
+					gatewayId: description.id,
 					label: device.label,
 					isHidden: false,
-					properties: getMiBleProperties(newProperties),
-					initialState: newValues
+					properties: getMiBleProperties(latestProperties),
+					initialState: latestValues
 				})
-				const thingId = things.add(
+				
+				thingIds[fingerprint] = await things.add(
 					ambientSensor,
-					newProperties
+					latestProperties
 				)
-				thingIds.set(fingerprint, thingId)
 				return
 			}
 
-			const currentValues = things.get(thingIds.get(fingerprint))
+			// avoid race condition bug when a new report from a new thing
+			// is already being processed before the thing was properly added to the store
+			// after the first report
+			if (!thingIds[fingerprint]) { return }
+
+			const currentValues = things.get(thingIds[fingerprint])
 			const currentProperties = Object.keys(currentValues)
-			const firstReportedProperties = difference(newProperties, currentProperties)
+			const newProperties = difference(latestProperties, currentProperties)
 
 			// re-add sensor as thing if new properties were reported
-			if (firstReportedProperties.length) {
+			if (newProperties.length) {
 				logger.debug(`MI BLE gateway #${description.id} re-initializing sensor #${fingerprint}`)
 				const allValues = {
 					...currentValues,
-					...newValues
+					...latestValues
 				}
 				const allProperties = Object.keys(allValues)
 
-				things.add(
+				await things.add(
 					makeAmbientSensor({
 						fingerprint: fingerprint,
+						gatewayId: description.id,
 						label: device.label,
 						isHidden: false,
 						properties: getMiBleProperties(allProperties),
 						initialState: allValues
 					}),
-					newProperties
+					latestProperties
 				)
 				return
 			}
 
 			// update existing properties of sensor thing
-			things.set(thingIds.get(fingerprint), newValues)
+			things.set(thingIds[fingerprint], latestValues)
 		} catch (error) {
 			logger.error(error, `error updating things with values received by #${description.id} from sensor '${name}'`)
 		}

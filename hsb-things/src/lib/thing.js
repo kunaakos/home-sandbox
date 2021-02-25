@@ -17,6 +17,7 @@ const checkPermissions = (mutators, key) => ({
 export const makeThing = ({
 	type,
 	fingerprint,
+	gatewayId,
 	label,
 	isHidden,
 	mutators,
@@ -164,6 +165,7 @@ export const makeThing = ({
 	return new Thing({
 		type,
 		fingerprint,
+		gatewayId,
 		set,
 		get,
 		typeOf
