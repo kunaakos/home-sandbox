@@ -53,10 +53,10 @@ const typeDefs = gql`
     setThing(id: ID!, newValues: String!): Boolean
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
-	removeGateway(idGateway: ID!): ID!
+	removeGateway(id: ID!): ID!
 	addSubscription(publisherId: ID!, subscriberId: ID!, jsonMapping: String!, isActive: Boolean!): ID!
-	updateSubscription(subscriptionId: ID!, jsonMapping: String, isActive: Boolean): ID!
-	removeSubscription(subscriptionId: ID!): ID!
+	updateSubscription(id: ID!, jsonMapping: String, isActive: Boolean): ID!
+	removeSubscription(id: ID!): ID!
   }
 
 `
@@ -184,10 +184,10 @@ const makeResolvers = ({ things }) => ({
 			}
 		},
 
-		removeGateway: async (parent, { idGateway }, context) => {
+		removeGateway: async (parent, { id }, context) => {
 			try {
-				await removeGatewayConfig(idGateway)
-				return idGateway
+				await removeGatewayConfig(id)
+				return id
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not delete gateway config: ${error.message}`)
@@ -202,7 +202,7 @@ const makeResolvers = ({ things }) => ({
 				})
 			} catch(error) {
 				logger.error(error)
-				return new Error(`Could not create gateway config: ${error.message}`)
+				return new Error(`Could not create subscription: ${error.message}`)
 			}
 		},
 
@@ -215,17 +215,17 @@ const makeResolvers = ({ things }) => ({
 				return rest.subscriptionId
 			} catch(error) {
 				logger.error(error)
-				return new Error(`Could not update gateway config: ${error.message}`)
+				return new Error(`Could not update subscription: ${error.message}`)
 			}
 		},
 
-		removeSubscription: async (parent, { subscriptionId }, context) => {
+		removeSubscription: async (parent, { id }, context) => {
 			try {
-				await removeSubscription(subscriptionId)
-				return subscriptionId
+				await removeSubscription(id)
+				return id
 			} catch(error) {
 				logger.error(error)
-				return new Error(`Could not delete gateway config: ${error.message}`)
+				return new Error(`Could not delete subscription: ${error.message}`)
 			}
 		}
 
