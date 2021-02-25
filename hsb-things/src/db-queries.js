@@ -34,29 +34,29 @@ const snakeCaseKeys = object => mapKeys(object, (value, key) => snakeCase(key))
 const GATEWAY_CONFIG_TABLE = 'gateway_config'
 
 export const addGatewayConfig = async (gatewayConfig) => {
-	const idGatewayConfig = uuid()
+	const id = uuid()
 	await knex(GATEWAY_CONFIG_TABLE).insert(
 	  await GatewayConfigSchema.validateAsync(
-		stringifyJsonPropertyIfAvailable('json_config')(
+		stringifyJsonPropertyIfAvailable('config')(
 		  snakeCaseKeys({
 			...gatewayConfig,
-			id: idGatewayConfig,
+			id,
 		  })
 		)
 	  )
 	)
-	return idGatewayConfig
+	return id
   }
 
 export const readGatewayConfig = async idGateway => {
 	const [gateway_config] = await knex(GATEWAY_CONFIG_TABLE).where({ id: idGateway })
-	return camelCaseKeys(parseJsonPropertyIfAvailable('json_config')(gateway_config))
+	return camelCaseKeys(parseJsonPropertyIfAvailable('config')(gateway_config))
 }
 
 export const readGatewayConfigs = async () => {
-	const data = await knex(GATEWAY_CONFIG_TABLE)
-	return data
-		.map(parseJsonPropertyIfAvailable('json_config'))
+	const gateway_configs = await knex(GATEWAY_CONFIG_TABLE)
+	return gateway_configs
+		.map(parseJsonPropertyIfAvailable('config'))
 		.map(camelCaseKeys)
 }
 
@@ -66,7 +66,7 @@ export const updateGatewayConfig = async ({
 }) => 
 	knex(GATEWAY_CONFIG_TABLE)
 		.where({ id: idGatewayConfig})
-		.update(await GatewayConfigUpdateSchema.validateAsync(stringifyJsonPropertyIfAvailable('json_config')(snakeCaseKeys(gatewayConfigUpdate))))
+		.update(await GatewayConfigUpdateSchema.validateAsync(stringifyJsonPropertyIfAvailable('config')(snakeCaseKeys(gatewayConfigUpdate))))
 
 export const removeGatewayConfig = async idGateway =>
 	knex(GATEWAY_CONFIG_TABLE).where({ id: idGateway }).del()
@@ -75,24 +75,24 @@ export const removeGatewayConfig = async idGateway =>
 const SUBSCRIPTION_TABLE = 'subscription'
 
 export const addSubscription = async subscription => {
-	const subscriptionId = uuid()
+	const id = uuid()
 	await knex(SUBSCRIPTION_TABLE).insert(
 		await SubscriptionSchema.validateAsync(
-			stringifyJsonPropertyIfAvailable('json_mapping')(
+			stringifyJsonPropertyIfAvailable('mapping')(
 				snakeCaseKeys({
 					...subscription,
-					id: subscriptionId
+					id
 				})
 			)
 		)
 	)
-	return subscriptionId
+	return id
 }
 
 export const readSubscriptions = async () => {
 	const subscriptions = await knex(SUBSCRIPTION_TABLE)
 	return subscriptions
-		.map(parseJsonPropertyIfAvailable('json_mapping'))
+		.map(parseJsonPropertyIfAvailable('mapping'))
 		.map(camelCaseKeys)
 }
 
@@ -101,7 +101,7 @@ export const updateSubscription = async ({subscriptionId, ...subscriptionUpdate}
 		.where({ id: subscriptionId })
 		.update(
 			await SubscriptionUpdateSchema.validateAsync(
-				stringifyJsonPropertyIfAvailable('json_mapping')(
+				stringifyJsonPropertyIfAvailable('mapping')(
 					snakeCaseKeys(subscriptionUpdate)
 				)
 			)
@@ -131,7 +131,7 @@ export const addThingId = async ({ fingerprint, gatewayId }) => {
 export const readThingIds = async () => {
 	const things = await knex(THING_ID_TABLE)
 	return things
-		.map(parseJsonPropertyIfAvailable('json_mapping'))
+		.map(parseJsonPropertyIfAvailable('mapping'))
 		.map(camelCaseKeys)
 }
 

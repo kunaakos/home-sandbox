@@ -43,7 +43,7 @@ const initializeThing = deps => thingConfig => {
 	}
 }
 
-const initializeGateway = deps => async ({ type, id, label, jsonConfig }) => {
+const initializeGateway = deps => async ({ type, id, label, config }) => {
 
 	const args = {
 		...deps,
@@ -51,7 +51,7 @@ const initializeGateway = deps => async ({ type, id, label, jsonConfig }) => {
 			id,
 			label
 		},
-		config: JSON.parse(jsonConfig)
+		config: config
 	}
 
 	switch (type) {

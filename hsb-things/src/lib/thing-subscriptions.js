@@ -39,7 +39,7 @@ export const handleSubscriptions = ({
 		.reduce((subscriptionsObject, subscription) => {
 			subscriptionsObject[subscription.publisherId] = {
 				...(subscriptionsObject[subscription.publisherId] || {}),
-				[subscription.subscriberId]: JSON.parse(subscription.jsonMapping)
+				[subscription.subscriberId]: subscription.mapping
 			}
 			return subscriptionsObject
 		}, {})

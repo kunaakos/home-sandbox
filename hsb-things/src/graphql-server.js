@@ -130,7 +130,7 @@ const makeResolvers = ({ things }) => ({
 
 		gateways: async (parent, args, context) => {
 			try {
-				return await readGatewayConfigs()
+				return (await readGatewayConfigs()).map(({config, ...rest}) => ({ jsonConfig: JSON.stringify(config), ...rest }))
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not read gateway configs: ${error.message}`)
@@ -139,7 +139,7 @@ const makeResolvers = ({ things }) => ({
 
 		subscriptions: async (parent, args, context) => {
 			try {
-				return await readSubscriptions()
+				return (await readSubscriptions()).map(({mapping, ...rest}) => ({ jsonMapping: JSON.stringify(mapping), ...rest }))
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not read subscriptions: ${error.message}`)
@@ -159,19 +159,25 @@ const makeResolvers = ({ things }) => ({
 			}
 		},
 
-		addGateway: async (parent, gatewayConfig, context) => {
+		addGateway: async (parent, { jsonConfig, ...rest }, context) => {
 			try {
-				return await addGatewayConfig(gatewayConfig)
+				return await addGatewayConfig({
+					config: JSON.parse(jsonConfig),
+					...rest
+				})
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not create gateway config: ${error.message}`)
 			}
 		},
 
-		updateGateway: async (parent, gatewayConfig, context) => {
+		updateGateway: async (parent, { jsonConfig, ...rest }, context) => {
 			try {
-				await updateGatewayConfig(gatewayConfig)
-				return gatewayConfig.id
+				await updateGatewayConfig({
+					config: JSON.parse(JSON.parse(jsonConfig)),
+					...rest
+				})
+				return rest.id
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not update gateway config: ${error.message}`)
@@ -188,19 +194,25 @@ const makeResolvers = ({ things }) => ({
 			}
 		},
 
-		addSubscription: async (parent, args, context) => {
+		addSubscription: async (parent, { jsonMapping, ...rest }, context) => {
 			try {
-				return await addSubscription(args)
+				return await addSubscription({
+					mapping: JSON.parse(jsonMapping),
+					...rest
+				})
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not create gateway config: ${error.message}`)
 			}
 		},
 
-		updateSubscription: async (parent, args, context) => {
+		updateSubscription: async (parent, { jsonMapping, ...rest }, context) => {
 			try {
-				await updateSubscription(args)
-				return args.subscriptionId
+				await updateSubscription({
+					mapping: JSON.parse(jsonMapping),
+					...rest
+				})
+				return rest.subscriptionId
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not update gateway config: ${error.message}`)

@@ -16,7 +16,7 @@ export const GatewayConfigSchema = Joi.object({
 	is_active: Joi.boolean()
 		.required(),
 	
-	json_config: Joi.string()
+	config: Joi.string()
 		.required()
 
 })
@@ -28,7 +28,7 @@ export const GatewayConfigUpdateSchema =
 			schema => schema.forbidden()
 		)
 		.fork(
-			['type', 'label', 'is_active', 'json_config'],
+			['type', 'label', 'is_active', 'config'],
 			schema => schema.optional()
 		)
 
@@ -46,7 +46,7 @@ export const SubscriptionSchema = Joi.object({
 		.guid({ version: ['uuidv4'] })
 		.required(),
 
-	json_mapping: Joi.string()
+	mapping: Joi.string()
 		.required(),
 	
 	is_active: Joi.boolean()
@@ -61,7 +61,7 @@ export const SubscriptionUpdateSchema =
 			schema => schema.forbidden()
 		)
 		.fork(
-			['json_mapping', 'is_active'],
+			['mapping', 'is_active'],
 			schema => schema.optional()
 		)
 

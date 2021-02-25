@@ -5,7 +5,7 @@ exports.up = knex =>
 			table.string('publisher_id', 255).notNullable()
 			table.string('subscriber_id', 255).notNullable()
 			table.unique(['publisher_id', 'subscriber_id'])
-			table.json('json_mapping').notNullable()
+			table.json('mapping').notNullable()
 			table.boolean('is_active').notNullable()
 		})
 		.createTable('thing_id', table => {
