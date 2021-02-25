@@ -1,3 +1,5 @@
+import { snakeCase, deburr } from 'lodash'
+
 import { logger } from './logger'
 
 import { makeThermostat } from './lib/things/thermostat'
@@ -17,18 +19,41 @@ import { initializeGqlServer } from './graphql-server'
 import { thingConfigs } from './config'
 
 import {
+	readGatewayConfig,
 	readGatewayConfigs,
+	addGatewayConfig,
 	readSubscriptions,
 	addThingId,
 	readThingIds,
 	removeThingId
 } from './db-queries'
 
-const initializeThing = deps => thingConfig => {
+
+const AUTOMATIONS_GATEWAY_ID = `4a4a4a4a-4a4a-4a4a-a4a4-a4a4a4a4a4a4` // hahaha
+
+/**
+ * Side effect-ey function that checks if creating the automations gateway is needed
+ */ 
+const checkForAUtomationsGateway = async () => {
+	if (!(await readGatewayConfig(AUTOMATIONS_GATEWAY_ID))) {
+		logger.info('adding automations gateway config to database')
+		return await addGatewayConfig({
+			id: AUTOMATIONS_GATEWAY_ID,
+			type: 'automations-gateway',
+			label: 'Automations',
+			isActive: false,
+			config: {}
+		})
+	}
+}
+
+const initializeVirtualThing = ({ thingConfig, publishChange }) => {
 
 	const args = {
-		...deps,
+		publishChange,
 		...thingConfig,
+		fingerprint: `VIRTUAL__${snakeCase(deburr(thingConfigs.label))}`,
+		gatewayId: AUTOMATIONS_GATEWAY_ID,
 		initialState: {}
 	}
 
@@ -43,18 +68,19 @@ const initializeThing = deps => thingConfig => {
 	}
 }
 
-const initializeGateway = deps => async ({ type, id, label, config }) => {
+const initializeGateway = async ({
+	gatewayConfig,
+	things,
+	publishChange,
+}) => {
 
 	const args = {
-		...deps,
-		description: {
-			id,
-			label
-		},
-		config: config
+		things,
+		publishChange,
+		...gatewayConfig
 	}
 
-	switch (type) {
+	switch (gatewayConfig.type) {
 
 		case 'tradfri-gateway':
 			return await makeTradfriGateway(args)
@@ -67,18 +93,21 @@ const initializeGateway = deps => async ({ type, id, label, config }) => {
 
 		case 'aio-gateway':
 			return await makeAioGateway(args)
-		
+
 		case 'mi-ble-gateway':
 			return await makeMiBleGateway(args)
 
+		case 'automations':
+			return;
+
 		default:
-			throw new Error(`Unsupported gateway config type '${type}'.`)
-
+			throw new Error(`Unsupported gateway config type '${type}'.`);
 	}
-
 }
 
 const main = async () => {
+
+	await checkForAUtomationsGateway()
 
 	const {
 		publishChange,
@@ -100,15 +129,13 @@ const main = async () => {
 		subscribeToChanges
 	})
 
-	// const initializeThingWithDeps = initializeThing({ publishChange })
-	// for (const thingConfig of thingConfigs) {
-	// 	await things.add(initializeThingWithDeps(thingConfig))
-	// }
+	for (const thingConfig of thingConfigs) {
+		await things.add(initializeVirtualThing({ thingConfig, publishChange }))
+	}
 
 	const gatewayConfigs = await readGatewayConfigs()
-	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
 	for (const gatewayConfig of gatewayConfigs) {
-		gatewayConfig.isActive && await initializeGatewayWithDeps(gatewayConfig)
+		gatewayConfig.isActive && await initializeGateway({ gatewayConfig, things, publishChange })
 	}
 
 	initializeGqlServer({

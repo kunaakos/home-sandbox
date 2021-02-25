@@ -25,14 +25,16 @@ const initOutputPin = async ({ pinNr }) => {
 }
 
 export const makeRpiGpioGateway = async ({
-	description,
-	config: { things: thingConfigs = {} } = {},
+	id,
+	config: {
+		things: thingConfigs = {}
+	} = {},
 	things,
 }) => {
 
-	logger.info(`initializing GPIO gateway #${description.id}`)
+	logger.info(`initializing GPIO gateway #${id}`)
 	if (!gpio) {
-		logger.warn(`GPIO not enabled, #${description.id} continuing in mock mode`)
+		logger.warn(`GPIO not enabled, #${id} continuing in mock mode`)
 	}
 
 	for (const { label, isHidden, pinNr } of thingConfigs) {
@@ -44,7 +46,7 @@ export const makeRpiGpioGateway = async ({
 
 		await things.add(makeSwitch({
 			fingerprint: `GPIO__${pinNr}`,
-			gatewayId: description.id,
+			gatewayId: id,
 			label,
 			isHidden,
 			initialState: {
@@ -57,8 +59,4 @@ export const makeRpiGpioGateway = async ({
 
 	}
 
-	return {
-		type: 'serial-gateway',
-		id: description.id
-	}
 }

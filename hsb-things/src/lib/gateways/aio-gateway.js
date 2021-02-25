@@ -33,7 +33,7 @@ const updateAioFeed = ({
 }
 
 export const makeAioGateway = async ({
-	description,
+	id,
 	config: {
 		username,
 		aioKey,
@@ -43,12 +43,12 @@ export const makeAioGateway = async ({
 	things
 }) => {
 
-	logger.info(`initializing adafruit.io gateway #${description.id}`)
+	logger.info(`initializing adafruit.io gateway #${id}`)
 
 	const mockMode = !(username && aioKey)
 
 	if (mockMode) {
-		logger.warn(`credentials missing for adafruit.io gateway #${description.id}, continuing in mock mode`)
+		logger.warn(`credentials missing for adafruit.io gateway #${id}, continuing in mock mode`)
 	}
 
 	const { values, effects } = feeds
@@ -85,7 +85,7 @@ export const makeAioGateway = async ({
 	await things.add(
 		makeDataSink({
 			fingerprint: 'AIO_FEEDS__ALL',
-			gatewayId: description.id,
+			gatewayId: id,
 			label: 'adafruit.io feeds',
 			isHidden: true,
 			config: {
@@ -95,8 +95,4 @@ export const makeAioGateway = async ({
 		})
 	)
 
-	return {
-		type: 'aio-gateway',
-		id: description.id
-	}
 }

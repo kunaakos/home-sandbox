@@ -15,6 +15,8 @@ import {
 	ThingIdSchema
 } from './db-schemas'
 
+const AUTOMATIONS_GATEWAY_ID = `4a4a4a4a-4a4a-4a4a-a4a4-a4a4a4a4a4a4` // hahaha
+
 const knex = Knex(knexConfig)
 
 const mapPropertyIfAvailable = (object, key, fn) => 
@@ -34,7 +36,7 @@ const snakeCaseKeys = object => mapKeys(object, (value, key) => snakeCase(key))
 const GATEWAY_CONFIG_TABLE = 'gateway_config'
 
 export const addGatewayConfig = async (gatewayConfig) => {
-	const id = uuid()
+	const id = gatewayConfig.id || uuid()
 	await knex(GATEWAY_CONFIG_TABLE).insert(
 	  await GatewayConfigSchema.validateAsync(
 		stringifyJsonPropertyIfAvailable('config')(
@@ -50,11 +52,12 @@ export const addGatewayConfig = async (gatewayConfig) => {
 
 export const readGatewayConfig = async id => {
 	const [gateway_config] = await knex(GATEWAY_CONFIG_TABLE).where({ id })
+	if (!gateway_config) { return null }
 	return camelCaseKeys(parseJsonPropertyIfAvailable('config')(gateway_config))
 }
 
 export const readGatewayConfigs = async () => {
-	const gateway_configs = await knex(GATEWAY_CONFIG_TABLE)
+	const gateway_configs = await knex(GATEWAY_CONFIG_TABLE).whereNot({ id: AUTOMATIONS_GATEWAY_ID })
 	return gateway_configs
 		.map(parseJsonPropertyIfAvailable('config'))
 		.map(camelCaseKeys)
@@ -63,13 +66,17 @@ export const readGatewayConfigs = async () => {
 export const updateGatewayConfig = async ({
 	idGatewayConfig,
 	...gatewayConfigUpdate
-}) => 
+}) => {
+	if (id === AUTOMATIONS_GATEWAY_ID) { throw new Error('that\'s a no') }
 	knex(GATEWAY_CONFIG_TABLE)
 		.where({ idGatewayConfig})
 		.update(await GatewayConfigUpdateSchema.validateAsync(stringifyJsonPropertyIfAvailable('config')(snakeCaseKeys(gatewayConfigUpdate))))
-
-export const removeGatewayConfig = async id =>
-	knex(GATEWAY_CONFIG_TABLE).where({ id }).del()
+}
+	
+export const removeGatewayConfig = async id => {
+	if (id === AUTOMATIONS_GATEWAY_ID) { throw new Error('that\'s a no') }
+	await knex(GATEWAY_CONFIG_TABLE).where({ id }).del()
+}
 
 
 const SUBSCRIPTION_TABLE = 'subscription'

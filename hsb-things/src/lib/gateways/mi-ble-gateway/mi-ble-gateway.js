@@ -48,12 +48,14 @@ const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPER
 const fingerprintFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
 export const makeMiBleGateway = async ({
-	description,
-	config: {devices = []} = {},
+	id,
+	config: {
+		devices = []
+	} = {},
 	things
 }) => {
 
-	logger.info(`initializing MI BLE gateway #${description.id}`)
+	logger.info(`initializing MI BLE gateway #${id}`)
 
 	const fingerprints = new Set()
 	const thingIds = {}
@@ -80,11 +82,11 @@ export const makeMiBleGateway = async ({
 			if (!fingerprints.has(fingerprint)) {
 				
 				fingerprints.add(fingerprint)
-				logger.debug(`MI BLE gateway #${description.id} initializing new sensor #${fingerprint}`)
+				logger.debug(`MI BLE gateway #${id} initializing new sensor #${fingerprint}`)
 				
 				const ambientSensor = makeAmbientSensor({
 					fingerprint,
-					gatewayId: description.id,
+					gatewayId: id,
 					label: device.label,
 					isHidden: false,
 					properties: getMiBleProperties(latestProperties),
@@ -109,7 +111,7 @@ export const makeMiBleGateway = async ({
 
 			// re-add sensor as thing if new properties were reported
 			if (newProperties.length) {
-				logger.debug(`MI BLE gateway #${description.id} re-initializing sensor #${fingerprint}`)
+				logger.debug(`MI BLE gateway #${id} re-initializing sensor #${fingerprint}`)
 				const allValues = {
 					...currentValues,
 					...latestValues
@@ -119,7 +121,7 @@ export const makeMiBleGateway = async ({
 				await things.add(
 					makeAmbientSensor({
 						fingerprint: fingerprint,
-						gatewayId: description.id,
+						gatewayId: id,
 						label: device.label,
 						isHidden: false,
 						properties: getMiBleProperties(allProperties),
@@ -133,7 +135,7 @@ export const makeMiBleGateway = async ({
 			// update existing properties of sensor thing
 			things.set(thingIds[fingerprint], latestValues)
 		} catch (error) {
-			logger.error(error, `error updating things with values received by #${description.id} from sensor '${name}'`)
+			logger.error(error, `error updating things with values received by #${id} from sensor '${name}'`)
 		}
 	}
 
@@ -145,8 +147,4 @@ export const makeMiBleGateway = async ({
 
 	scanner.start()
 
-	return {
-		type: 'mi-ble-gateway',
-		id: description.id
-	}
 }

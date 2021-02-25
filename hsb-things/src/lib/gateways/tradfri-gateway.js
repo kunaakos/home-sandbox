@@ -133,12 +133,12 @@ const makeSwitchFromTradfriPlug = ({ device, gatewayId }) =>
 	})
 
 export const makeTradfriGateway = async ({
-	description,
+	id,
 	config,
 	things
 }) => {
 
-	logger.info(`initializing IKEA Tradfri gateway #${description.id}`)
+	logger.info(`initializing IKEA Tradfri gateway #${id}`)
 
 	const unsupportedInstanceIds = []
 
@@ -152,17 +152,17 @@ export const makeTradfriGateway = async ({
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing light #${thingIdFrom(device.instanceId)}`)
-				await things.add(makeLightFromTradfriLightbulb({ device, gatewayId: description.id }))
+				logger.debug(`IKEA Tradfri gateway #${id} re-initializing light #${thingIdFrom(device.instanceId)}`)
+				await things.add(makeLightFromTradfriLightbulb({ device, gatewayId: id }))
 				break
 			case AccessoryTypes.plug:
-				logger.debug(`IKEA Tradfri gateway #${description.id} re-initializing switch #${thingIdFrom(device.instanceId)}`)
-				await things.add(makeSwitchFromTradfriPlug({ device, gatewayId: description.id }))
+				logger.debug(`IKEA Tradfri gateway #${id} re-initializing switch #${thingIdFrom(device.instanceId)}`)
+				await things.add(makeSwitchFromTradfriPlug({ device, gatewayId: id }))
 				break
 
 			default:
 				unsupportedInstanceIds.push(device.instanceId)
-				logger.debug(`IKEA Tradfri gateway #${description.id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
+				logger.debug(`IKEA Tradfri gateway #${id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
 				break
 		}
 	}
@@ -178,7 +178,7 @@ export const makeTradfriGateway = async ({
 		!identity ||
 		!psk
 	) {
-		logger.warn(`IKEA Tradfri gateway #${description.id} credentials not provided, continuing in mock mode`)
+		logger.warn(`IKEA Tradfri gateway #${id} credentials not provided, continuing in mock mode`)
 	} else {
 		connect({
 			// customLogger: msg => logger.trace(`NODE-TRADFRI: ${msg}`),
@@ -213,14 +213,10 @@ export const makeTradfriGateway = async ({
 					.on('error', error => logger.error(error, 'caught \'node-tradfri-client\' error'))
 					.observeDevices()
 
-				logger.info(`IKEA Tradfri gateway #${description.id} connected`)
+				logger.info(`IKEA Tradfri gateway #${id} connected`)
 
 			})
 			.catch(err => logger.error(err, 'error connecting to IKEA Tradfri gateway'))
 	}
 
-	return {
-		type: 'ikea-tradfri-gateway',
-		id: description.id
-	}
 }
