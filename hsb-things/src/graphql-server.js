@@ -209,10 +209,10 @@ const makeResolvers = ({ things }) => ({
 		updateSubscription: async (parent, { jsonMapping, ...rest }, context) => {
 			try {
 				await updateSubscription({
-					mapping: JSON.parse(jsonMapping),
+					mapping: jsonMapping && JSON.parse(jsonMapping),
 					...rest
 				})
-				return rest.subscriptionId
+				return rest.id
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not update subscription: ${error.message}`)

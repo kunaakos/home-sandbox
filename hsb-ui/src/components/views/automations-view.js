@@ -33,14 +33,14 @@ const ADD_SUBSCRIPTION_MUTATION = gql`
 `
 
 const UPDATE_SUBSCRIPTION_MUTATION = gql`
-	mutation updateSubscription($subscriptionId: ID!, $jsonMapping: String, $isActive: Boolean) {
-		updateSubscription(subscriptionId: $subscriptionId, jsonMapping: $jsonMapping, isActive: $isActive)
+	mutation updateSubscription($id: ID!, $jsonMapping: String, $isActive: Boolean) {
+		updateSubscription(id: $id, jsonMapping: $jsonMapping, isActive: $isActive)
 	}
 `
 
 const REMOVE_SUBSCRIPTION_MUTATION = gql`
-	mutation removeSubscription($subscriptionId: ID!) {
-		removeSubscription(subscriptionId: $subscriptionId)
+	mutation removeSubscription($id: ID!) {
+		removeSubscription(id: $id)
 	}
 `
 
@@ -66,22 +66,22 @@ export const AutomationsView = () => {
 	}
 
 	const [updateSubscriptionMutation] = useMutation(UPDATE_SUBSCRIPTION_MUTATION)
-	const updateSubscription = async ({ subscriptionId, jsonMapping, isActive }) => {
+	const updateSubscription = async ({ id, jsonMapping, isActive }) => {
 		try {
-			await updateSubscriptionMutation({ variables: { subscriptionId, isActive, jsonMapping }})
+			await updateSubscriptionMutation({ variables: { id, isActive, jsonMapping }})
 			refetch()
 		} catch (error) {
 			console.error(error)
 		}
 	}
-	const activateSubscription = subscriptionId => () => updateSubscription({ subscriptionId, isActive: true })
-	const deactivateSubscription = subscriptionId => () => updateSubscription({ subscriptionId, isActive: false })
-	const saveSubscriptionMapping = subscriptionId => jsonMapping => updateSubscription({ subscriptionId, jsonMapping })
+	const activateSubscription = id => () => updateSubscription({ id, isActive: true })
+	const deactivateSubscription = id => () => updateSubscription({ id, isActive: false })
+	const saveSubscriptionMapping = id => jsonMapping => updateSubscription({ id, jsonMapping })
 
 	const [removeSubscriptionMutation] = useMutation(REMOVE_SUBSCRIPTION_MUTATION)
-	const removeSubscription =  subscriptionId => async () => {
+	const removeSubscription =  id => async () => {
 		try {
-			await removeSubscriptionMutation({ variables: { subscriptionId }})
+			await removeSubscriptionMutation({ variables: { id }})
 			refetch()
 		} catch (error) {
 			console.error(error)

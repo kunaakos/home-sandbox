@@ -52,7 +52,7 @@ const initializeVirtualThing = ({ thingConfig, publishChange }) => {
 	const args = {
 		publishChange,
 		...thingConfig,
-		fingerprint: `VIRTUAL__${snakeCase(deburr(thingConfigs.label))}`,
+		fingerprint: `VIRTUAL__${snakeCase(deburr(thingConfig.label))}`,
 		gatewayId: AUTOMATIONS_GATEWAY_ID,
 		initialState: {}
 	}
