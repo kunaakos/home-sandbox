@@ -14,7 +14,7 @@ export const makeThermostat = ({
 	label,
 	isHidden,
 	config = {},
-	// publishChange
+	publishChange
 }) => {
 
 	logger.debug(`initializing thermostat #${fingerprint}`)
@@ -36,7 +36,7 @@ export const makeThermostat = ({
 		onTimedOut: () => {
 			logger.warn(`thermostat #${fingerprint} timed out, turning heat 'OFF'`)
 			state.heatRequest = false
-			// publishChange(fingerprint)(['heatRequest', 'timedOut'])
+			publishChange(['heatRequest', 'timedOut'])
 		},
 		interval: watchdogTimeout
 	})
