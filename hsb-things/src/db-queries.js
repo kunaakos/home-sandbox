@@ -64,12 +64,12 @@ export const readGatewayConfigs = async () => {
 }
 
 export const updateGatewayConfig = async ({
-	idGatewayConfig,
+	id,
 	...gatewayConfigUpdate
 }) => {
 	if (id === AUTOMATIONS_GATEWAY_ID) { throw new Error('that\'s a no') }
 	knex(GATEWAY_CONFIG_TABLE)
-		.where({ idGatewayConfig})
+		.where({ id })
 		.update(await GatewayConfigUpdateSchema.validateAsync(stringifyJsonPropertyIfAvailable('config')(snakeCaseKeys(gatewayConfigUpdate))))
 }
 	

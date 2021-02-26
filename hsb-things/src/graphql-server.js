@@ -174,7 +174,7 @@ const makeResolvers = ({ things }) => ({
 		updateGateway: async (parent, { jsonConfig, ...rest }, context) => {
 			try {
 				await updateGatewayConfig({
-					config: JSON.parse(JSON.parse(jsonConfig)),
+					config: jsonConfig && JSON.parse(jsonConfig),
 					...rest
 				})
 				return rest.id
