@@ -104,13 +104,13 @@ const isAdmin = rule()((parent, args, { user }) => user.privileges.includes('adm
 
 const permissions = shield({
 	Query: {
-		thing: and(isAuthenticated, isActive, isAdmin),
-		things: and(isAuthenticated, isActive, isAdmin),
+		thing: and(isAuthenticated, isActive),
+		things: and(isAuthenticated, isActive),
 		gateways: and(isAuthenticated, isActive, isAdmin),
 		subscriptions: and(isAuthenticated, isActive, isAdmin)
 	},
 	Mutation: {
-		setThing: and(isAuthenticated, isActive, isAdmin),
+		setThing: and(isAuthenticated, isActive),
 		addGateway: and(isAuthenticated, isActive, isAdmin),
 		updateGateway: and(isAuthenticated, isActive, isAdmin),
 		removeGateway: and(isAuthenticated, isActive, isAdmin),
