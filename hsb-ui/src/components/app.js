@@ -93,7 +93,7 @@ export const App = () => {
 
 	const isActive = auth.status === 'authenticated' && auth.currentUser.status === 'active'
 	const isInactive = auth.status === 'authenticated' && auth.currentUser.status !== 'active'
-	const isAdmin = auth.currentUser && auth.currentUser.privileges && auth.currentUser.privileges.length && auth.currentUser.privileges.includes('admin')
+	const isAdmin = Boolean(auth.currentUser && auth.currentUser.privileges && auth.currentUser.privileges.length && auth.currentUser.privileges.includes('admin'))
 
 	return (
 		<ThemeProvider theme={lightTheme}>
