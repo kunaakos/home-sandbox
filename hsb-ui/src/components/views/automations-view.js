@@ -7,6 +7,8 @@ import {
 } from '@apollo/client'
 
 import {
+	VirtualThingConfigCard,
+	AddVirtualThingConfigCard,
 	SubscriptionCard,
 	AddSubscriptionCard
 } from '../automation-cards'
@@ -15,14 +17,39 @@ import { CenteredCardContainer } from '../ui-kit/cards'
 import { Label } from '../ui-kit/nubbins'
 
 const AUTOMATIONS_QUERY = gql`
-	query Subscriptions {
-		subscriptions{
+	query Automations {
+		virtualThingConfigs {
+			id
+			type
+			label
+			isActive
+			jsonConfig
+		}
+		subscriptions {
 			id
 			publisherId
 			subscriberId
 			isActive
 			jsonMapping
 		}
+	}
+`
+
+const ADD_VIRTUAL_THING_CONFIG_MUTATION = gql`
+	mutation addVirtualThingConfig($type: String!, $label: String!, $isActive: Boolean!, $jsonConfig: String!) {
+		addVirtualThingConfig(type: $type, label: $label, isActive: $isActive, jsonConfig: $jsonConfig)
+	}
+`
+
+const UPDATE_VIRTUAL_THING_CONFIG_MUTATION = gql`
+	mutation updateVirtualThingConfig($id: ID!, $type: String, $label: String, $isActive: Boolean, $jsonConfig: String) {
+		updateVirtualThingConfig(id: $id, type: $type, label: $label, isActive: $isActive, jsonConfig: $jsonConfig)
+	}
+`
+
+const REMOVE_VIRTUAL_THING_CONFIG_MUTATION = gql`
+	mutation removeVirtualThingConfig($id: ID!) {
+		removeVirtualThingConfig(id: $id)
 	}
 `
 
@@ -49,11 +76,47 @@ export const AutomationsView = () => {
 	const {
 		loading,
 		error,
-		data: {subscriptions} = {},
+		data: {
+			virtualThingConfigs,
+			subscriptions
+		} = {},
 		refetch
 	} = useQuery(
 		AUTOMATIONS_QUERY
 	)
+
+	const [addVirtualThingConfigMutation] = useMutation(ADD_VIRTUAL_THING_CONFIG_MUTATION)
+	const addVirtualThingConfig = async ({ type, label }) => {
+		try {
+			await addVirtualThingConfigMutation({ variables: { type, label, isActive: false, jsonConfig: "{}" }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const [updateVirtualThingConfigMutation] = useMutation(UPDATE_VIRTUAL_THING_CONFIG_MUTATION)
+	const updateVirtualThingConfig = async ({ id, type, label, isActive, jsonConfig }) => {
+		try {
+			await updateVirtualThingConfigMutation({ variables: { id, type, label, isActive, jsonConfig }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+	const activateVirtualThing = id => () => updateVirtualThingConfig({ id, isActive: true })
+	const deactivateVirtualThing = id => () => updateVirtualThingConfig({ id, isActive: false })
+	const saveVirtualThingConfig = id => jsonConfig => updateVirtualThingConfig({ id, jsonConfig })
+
+	const [removeVirtualThingConfigMutation] = useMutation(REMOVE_VIRTUAL_THING_CONFIG_MUTATION)
+	const removeVirtualThingConfig = id => async () => {
+		try {
+			await removeVirtualThingConfigMutation({ variables: { id }})
+			refetch()
+		} catch (error) {
+			console.error(error)
+		}
+	}
 
 	const [addSubscriptionMutation] = useMutation(ADD_SUBSCRIPTION_MUTATION)
 	const addSubscription = async ({ publisherId, subscriberId }) => {
@@ -93,6 +156,18 @@ export const AutomationsView = () => {
 			{loading && <Label>Loading...</Label>}
 			{error && <Label>Something went wrong :(</Label>}
 			{!loading && !error && <>
+				<Label>Virtual Things</Label>
+				{virtualThingConfigs && virtualThingConfigs.map(virtualThingConfig =>
+					<VirtualThingConfigCard
+						key={virtualThingConfig.id}
+						virtualThingConfig={virtualThingConfig}
+						removeVirtualThingConfig={removeVirtualThingConfig(virtualThingConfig.id)}
+						activateVirtualThing={activateVirtualThing(virtualThingConfig.id)}
+						deactivateVirtualThing={deactivateVirtualThing(virtualThingConfig.id)}
+						saveVirtualThingConfig={saveVirtualThingConfig(virtualThingConfig.id)}
+					/>
+				)}
+				<AddVirtualThingConfigCard addVirtualThingConfig={addVirtualThingConfig} />
 				<Label>Subscriptions</Label>
 				{subscriptions && subscriptions.map(subscription =>
 					<SubscriptionCard
