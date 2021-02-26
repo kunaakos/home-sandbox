@@ -13,7 +13,11 @@ import {
 	addSubscription,
 	readSubscriptions,
 	updateSubscription,
-	removeSubscription
+	removeSubscription,
+	addVirtualThingConfig,
+	readVirtualThingConfigs,
+	updateVirtualThingConfig,
+	removeVirtualThingConfig,
 } from './db-queries'
 
 const typeDefs = gql`
@@ -34,6 +38,14 @@ const typeDefs = gql`
 	jsonConfig: String!
   }
 
+  type VirtualThingConfig @key(fields: "id") {
+	id: ID!
+	type: String!
+	label: String!
+	isActive: Boolean!
+	jsonConfig: String!
+  }
+
   type SubscriptionConfig @key(fields: "id") {
 	id: ID!
 	publisherId: ID!
@@ -42,10 +54,12 @@ const typeDefs = gql`
 	isActive: Boolean!
   }
 
+
   extend type Query {
 	thing(id: ID!): Thing
     things(visibleOnly: Boolean): [Thing]
 	gateways: [GatewayConfig]!
+	virtualThingConfigs: [VirtualThingConfig]!
 	subscriptions: [SubscriptionConfig]!
   }
 
@@ -54,6 +68,9 @@ const typeDefs = gql`
 	addGateway(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
 	updateGateway(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
 	removeGateway(id: ID!): ID!
+	addVirtualThingConfig(type: String!, label: String!, isActive: Boolean!, jsonConfig: String!): ID!
+	updateVirtualThingConfig(id: ID!, type: String, label: String, isActive: Boolean, jsonConfig: String): ID!
+	removeVirtualThingConfig(id: ID!): ID!
 	addSubscription(publisherId: ID!, subscriberId: ID!, jsonMapping: String!, isActive: Boolean!): ID!
 	updateSubscription(id: ID!, jsonMapping: String, isActive: Boolean): ID!
 	removeSubscription(id: ID!): ID!
@@ -97,6 +114,9 @@ const permissions = shield({
 		addGateway: and(isAuthenticated, isActive, isAdmin),
 		updateGateway: and(isAuthenticated, isActive, isAdmin),
 		removeGateway: and(isAuthenticated, isActive, isAdmin),
+		addVirtualThingConfig: and(isAuthenticated, isActive, isAdmin),
+		updateVirtualThingConfig: and(isAuthenticated, isActive, isAdmin),
+		removeVirtualThingConfig: and(isAuthenticated, isActive, isAdmin),
 		addSubscription: and(isAuthenticated, isActive, isAdmin),
 		updateSubscription: and(isAuthenticated, isActive, isAdmin),
 		removeSubscription: and(isAuthenticated, isActive, isAdmin)
@@ -134,6 +154,15 @@ const makeResolvers = ({ things }) => ({
 			} catch(error) {
 				logger.error(error)
 				return new Error(`Could not read gateway configs: ${error.message}`)
+			}
+		},
+
+		virtualThingConfigs: async (parent, args, context) => {
+			try {
+				return (await readVirtualThingConfigs()).map(({config, ...rest}) => ({ jsonConfig: JSON.stringify(config), ...rest }))
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not read virtual thing configs: ${error.message}`)
 			}
 		},
 
@@ -194,6 +223,41 @@ const makeResolvers = ({ things }) => ({
 			}
 		},
 
+		addVirtualThingConfig: async (parent, { jsonConfig, ...rest }, context) => {
+			try {
+				return await addVirtualThingConfig({
+					config: JSON.parse(jsonConfig),
+					...rest
+				})
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not create virtual thing config: ${error.message}`)
+			}
+		},
+
+		updateVirtualThingConfig: async (parent, { jsonConfig, ...rest }, context) => {
+			try {
+				await updateVirtualThingConfig({
+					config: jsonConfig && JSON.parse(jsonConfig),
+					...rest
+				})
+				return rest.id
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not update virtual thing config: ${error.message}`)
+			}
+		},
+
+		removeVirtualThingConfig: async (parent, { id }, context) => {
+			try {
+				await removeVirtualThingConfig(id)
+				return id
+			} catch(error) {
+				logger.error(error)
+				return new Error(`Could not delete virtual thing config: ${error.message}`)
+			}
+		},
+
 		addSubscription: async (parent, { jsonMapping, ...rest }, context) => {
 			try {
 				return await addSubscription({
@@ -227,7 +291,7 @@ const makeResolvers = ({ things }) => ({
 				logger.error(error)
 				return new Error(`Could not delete subscription: ${error.message}`)
 			}
-		}
+		},
 
 	}
 })

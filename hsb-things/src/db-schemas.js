@@ -32,6 +32,9 @@ export const GatewayConfigUpdateSchema =
 			schema => schema.optional()
 		)
 
+export const VirtualThingConfigSchema = GatewayConfigSchema
+export const VirtualThingConfigUpdateSchema = GatewayConfigUpdateSchema
+
 export const SubscriptionSchema = Joi.object({
 
 	id: Joi.string()

@@ -15,8 +15,16 @@ exports.up = knex =>
 			table.foreign('gateway_id').references('gateway_config.id').onDelete('CASCADE')
 			table.unique(['gateway_id', 'fingerprint'])
 		})
+		.createTable('virtual_thing_config', table => {
+			table.uuid('id').primary()
+			table.string('type', 255).notNullable()
+			table.string('label', 255).unique().notNullable()
+			table.boolean('is_active').notNullable()
+			table.json('config').notNullable()
+		})
 
 exports.down = knex =>
 	knex.schema
 		.dropTableIfExists('subscription')
 		.dropTableIfExists('thing_id')
+		.dropTableIfExists('virtual_thing_config')
