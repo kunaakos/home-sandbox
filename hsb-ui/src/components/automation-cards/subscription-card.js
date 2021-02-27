@@ -18,7 +18,15 @@ import {
 	Label
 } from '../ui-kit/nubbins'
 
-export const SubscriptionCard = ({ subscription, removeSubscription, activateSubscription, deactivateSubscription, saveSubscriptionMapping }) => {
+export const SubscriptionCard = ({
+	subscription,
+	publisherLabel,
+	subscriberLabel,
+	removeSubscription,
+	activateSubscription,
+	deactivateSubscription,
+	saveSubscriptionMapping
+}) => {
 
 	const [editedSubscriptionMapping, setEditedSubscriptionMapping] = useState(subscription.jsonMapping)
 	const isConfigSaved = editedSubscriptionMapping === subscription.jsonMapping
@@ -35,12 +43,11 @@ export const SubscriptionCard = ({ subscription, removeSubscription, activateSub
 					background={'bg1'}
 					color={'fg1'}
 				>
-					{subscription.label}
+					{publisherLabel}
+					<br/>
+					→ {subscriberLabel}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph' textAlign='left'>status: {subscription.isActive ? 'active' : 'inactive'}</CardLabel>
-			<CardLabel fontSize='paragraph' textAlign='left'>publisher id: {subscription.publisherId}</CardLabel>
-			<CardLabel fontSize='paragraph' textAlign='left'>subscriber id: {subscription.subscriberId}</CardLabel>
 			<CardLabel fontSize='paragraph' textAlign='left'>mapping:</CardLabel>
 			<CardContent>
 				<JSONInput

@@ -13,7 +13,7 @@ import {
 	AddSubscriptionCard
 } from '../automation-cards'
 
-import { CenteredCardContainer } from '../ui-kit/cards'
+import { CenteredCardContainer, SectionTitleCard } from '../ui-kit/cards'
 import { Label } from '../ui-kit/nubbins'
 
 const AUTOMATIONS_QUERY = gql`
@@ -31,6 +31,10 @@ const AUTOMATIONS_QUERY = gql`
 			subscriberId
 			isActive
 			jsonMapping
+		}
+		things {
+			id
+			label
 		}
 	}
 `
@@ -78,7 +82,8 @@ export const AutomationsView = () => {
 		error,
 		data: {
 			virtualThingConfigs,
-			subscriptions
+			subscriptions,
+			things
 		} = {},
 		refetch
 	} = useQuery(
@@ -151,12 +156,18 @@ export const AutomationsView = () => {
 		}
 	}
 
+	const thingLabels = things && things.reduce((thingLabels, {id, label}) => ({
+		...thingLabels,
+		[id]: label
+	}), {})
+
 	return (
 		<CenteredCardContainer>
 			{loading && <Label>Loading...</Label>}
 			{error && <Label>Something went wrong :(</Label>}
 			{!loading && !error && <>
-				<Label>Virtual Things</Label>
+
+				<SectionTitleCard>Virtual Things</SectionTitleCard>
 				{virtualThingConfigs && virtualThingConfigs.map(virtualThingConfig =>
 					<VirtualThingConfigCard
 						key={virtualThingConfig.id}
@@ -168,18 +179,22 @@ export const AutomationsView = () => {
 					/>
 				)}
 				<AddVirtualThingConfigCard addVirtualThingConfig={addVirtualThingConfig} />
-				<Label>Subscriptions</Label>
+
+				<SectionTitleCard>Subscriptions</SectionTitleCard>
 				{subscriptions && subscriptions.map(subscription =>
 					<SubscriptionCard
 						key={subscription.id}
 						subscription={subscription}
+						publisherLabel={thingLabels[subscription.publisherId]}
+						subscriberLabel={thingLabels[subscription.subscriberId]}
 						removeSubscription={removeSubscription(subscription.id)}
 						activateSubscription={activateSubscription(subscription.id)}
 						deactivateSubscription={deactivateSubscription(subscription.id)}
 						saveSubscriptionMapping={saveSubscriptionMapping(subscription.id)}
 					/>
 				)}
-				<AddSubscriptionCard addSubscription={addSubscription} />
+				<AddSubscriptionCard addSubscription={addSubscription} things={things} />
+
 			</>}
 
 		</CenteredCardContainer>

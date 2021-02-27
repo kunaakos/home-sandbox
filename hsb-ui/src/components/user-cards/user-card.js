@@ -9,7 +9,8 @@ import {
 	Button,
 	CardLabel,
 	CardButtons,
-	Label
+	Label,
+	CopyPasta
 } from '../ui-kit/nubbins'
 
 const isAdmin = () => true
@@ -23,14 +24,14 @@ export const UserCard = ({ user, currentUser, removeUser, deactivateUser, activa
 	return (
 		<Card
 			data-id={user.id}
-			background={'bg1'}
+			background='bg1'
 		>
 			<TitleBar>
 				<Label
 					fullWidth
-					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
+					textAlign='start'
+					background='bg1'
+					color='fg1'
 				>
 					{
 						currentUser.id === user.id
@@ -39,9 +40,13 @@ export const UserCard = ({ user, currentUser, removeUser, deactivateUser, activa
 					}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph'>privileges: {user.privileges.map(privilege => <span key={privilege}>{privilege}</span>)}</CardLabel>
-			<CardLabel fontSize='paragraph'>status: {user.status}</CardLabel>
-			{user.status === 'onboarding' && <CardLabel fullWidth fontSize='paragraph'><textarea style={{width: "calc(100% - 2rem)"}}defaultValue={getOnboardingLink(user.id)}/> </CardLabel>}
+			<CardLabel fontSize='paragraph' textAlign='left'>privileges:
+				{ user.privileges.length
+					? user.privileges.map(privilege => <span key={privilege}> {privilege}</span>)
+					: ' none'
+				}
+			</CardLabel>
+			{user.status === 'onboarding' && <CardLabel fontSize='paragraph' textAlign='left'>onboarding link: <CopyPasta>{getOnboardingLink(user.id)}</CopyPasta></CardLabel>}
 			{isAdmin(currentUser) && currentUser.id !== user.id &&
 				<CardButtons>
 					<Button background={'error'} fontSize="subheading" onClick={removeUser}>Remove</Button>

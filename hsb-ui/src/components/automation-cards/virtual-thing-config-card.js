@@ -38,7 +38,6 @@ export const VirtualThingConfigCard = ({ virtualThingConfig, removeVirtualThingC
 					{virtualThingConfig.label}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph'>status: {virtualThingConfig.isActive ? 'active' : 'inactive'}</CardLabel>
 			<CardLabel fontSize='paragraph'>type: {virtualThingConfig.type}</CardLabel>
 			<CardLabel fontSize='paragraph'>config:</CardLabel>
 			<CardContent>
@@ -46,17 +45,17 @@ export const VirtualThingConfigCard = ({ virtualThingConfig, removeVirtualThingC
 					placeholder={JSON.parse(virtualThingConfig.jsonConfig)}
 					locale={EN_LOCALE}
 					colors={editorColors}
-					width="100%"
-					height="300px"
+					width='100%'
+					height='300px'
 					onChange={({json}) => { setEditedJsonConfig(json) }}
 				/>
 			</CardContent>
 			<CardButtons>
-				<Button background={'error'} fontSize="subheading" onClick={removeVirtualThingConfig}>Remove</Button>
-				{!virtualThingConfig.isActive && <Button background={'ok'} fontSize="subheading" onClick={activateVirtualThing}>Activate</Button>}
-				{virtualThingConfig.isActive && <Button background={'warn'} fontSize="subheading" onClick={deactivateVirtualThing}>Deactivate</Button>}
+				<Button background={'error'} fontSize='subheading' onClick={removeVirtualThingConfig}>Remove</Button>
+				{!virtualThingConfig.isActive && <Button background={'ok'} fontSize='subheading' onClick={activateVirtualThing}>Activate</Button>}
+				{virtualThingConfig.isActive && <Button background={'warn'} fontSize='subheading' onClick={deactivateVirtualThing}>Deactivate</Button>}
 				<Button	
-					fontSize="subheading"
+					fontSize='subheading'
 					background={isConfigSaved ? 'fg1' : 'brand'}
 					onClick={() => saveVirtualThingConfig(editedJsonConfig)}
 				>

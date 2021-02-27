@@ -14,7 +14,7 @@ import {
 	CardButtons
 } from '../ui-kit/nubbins'
 
-export const AddSubscriptionCard = ({ addSubscription }) => {
+export const AddSubscriptionCard = ({ addSubscription, things }) => {
 
 	const publisherIdRef = useRef(null)
 	const subscriberIdRef = useRef(null)
@@ -28,22 +28,32 @@ export const AddSubscriptionCard = ({ addSubscription }) => {
 
 	return (
 		<Card
-			background={'bg1'}
+			background={'fg1'}
 		>
 			<TitleBar>
 				<Label
 					fullWidth
 					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
+					background={'fg1'}
+					color={'bg1'}
 				>
 					New subscription
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize="paragraph">publisher id <input name="id-publisher" ref={publisherIdRef} /></CardLabel>
-			<CardLabel fontSize="paragraph">subscriber id <input name="id-subscriber" ref={subscriberIdRef} /></CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left' color={'bg1'}>
+				publisher&nbsp;
+				<select ref={publisherIdRef}>
+					{things.map(thing => <option key={thing.id} value={thing.id}>{thing.label}</option>)}
+				</select>
+			</CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left' color={'bg1'}>
+				subscriber&nbsp;
+				<select ref={subscriberIdRef}>
+					{things.map(thing => <option key={thing.id} value={thing.id}>{thing.label}</option>)}
+				</select>
+			</CardLabel>
 			<CardButtons>
-				<Button fontSize="subheading" onClick={addSubscriptionClick}>Add</Button>
+				<Button fontSize='subheading' onClick={addSubscriptionClick}>Add</Button>
 			</CardButtons>
 		</Card>
 	)

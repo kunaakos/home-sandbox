@@ -22,25 +22,26 @@ export const AddUserCard = ({ addUser }) => {
 		addUser && addUser({
 			displayName: displayNameRef.current.value,
 		})
+		displayNameRef.current.value = ''
 	}
 
 	return (
 		<Card
-			background={'bg1'}
+			background='fg1'
 		>
 			<TitleBar>
 				<Label
 					fullWidth
-					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
+					textAlign='start'
+					background='fg1'
+					color='bg1'
 				>
 					New user
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize="paragraph">Display Name <input name="displayName" ref={displayNameRef} /></CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left' color= 'bg1'>Display Name <input name='displayName'  autoComplete='off' ref={displayNameRef} /></CardLabel>
 			<CardButtons>
-				<Button fontSize="subheading" onClick={addUserClick}>Add</Button>
+				<Button fontSize='subheading' onClick={addUserClick}>Add</Button>
 			</CardButtons>
 		</Card>
 	)

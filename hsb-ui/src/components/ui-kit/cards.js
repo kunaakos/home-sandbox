@@ -1,4 +1,6 @@
+import React from 'react'
 import styled from '@emotion/styled'
+import { Label } from './nubbins'
 
 export const Card = styled.div`
 	position: relative;
@@ -38,3 +40,18 @@ export const TitleBar = styled.div`
 export const CardContent = styled.div`
 	margin-left: 1rem;
 `
+
+export const SectionTitleCard = ({ children }) => (
+	<Card background='brand'>
+		<TitleBar>
+			<Label
+				fullWidth
+				textAlign='start'
+				background='brand'
+				color='bg1'
+			>
+				{children}
+			</Label>
+		</TitleBar>
+	</Card>
+)

@@ -24,26 +24,34 @@ export const AddVirtualThingConfigCard = ({ addVirtualThingConfig }) => {
 			type: typeRef.current.value,
 			label: labelRef.current.value,
 		})
+		labelRef.current.value = ''
 	}
 
 	return (
-		<Card
-			background={'bg1'}
-		>
+		<Card background='fg1' a>
 			<TitleBar>
-				<Label
-					fullWidth
-					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
-				>
+				<Label fullWidth textAlign='start' background='fg1' color='bg1'>
 					New Virtual Thing
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize="paragraph">type <input name="type" ref={typeRef} /></CardLabel>
-			<CardLabel fontSize="paragraph">label <input name="label" ref={labelRef} /></CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left' color='bg1'>
+				type&nbsp;
+				<select ref={typeRef}>
+				{['thermostat'].map((type) => (
+					<option key={type} value={type}>
+					{type}
+					</option>
+				))}
+				</select>
+			</CardLabel>
+			<CardLabel fontSize='paragraph' textAlign='left' color='bg1'>
+				label&nbsp;
+				<input name='label' autoComplete='off' ref={labelRef} />
+			</CardLabel>
 			<CardButtons>
-				<Button fontSize="subheading" onClick={addVirtualThingConfigClick}>Add</Button>
+				<Button fontSize='subheading' onClick={addVirtualThingConfigClick}>
+					Add
+				</Button>
 			</CardButtons>
 		</Card>
 	)

@@ -24,26 +24,41 @@ export const AddGatewayCard = ({ addGateway }) => {
 			type: typeRef.current.value,
 			label: labelRef.current.value,
 		})
+		labelRef.current.value = ''
 	}
 
 	return (
 		<Card
-			background={'bg1'}
+			background='fg1'
 		>
 			<TitleBar>
 				<Label
 					fullWidth
-					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
+					textAlign='start'
+					background='fg1'
+					color='bg1'
 				>
 					New gateway
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize="paragraph">type <input name="type" ref={typeRef} /></CardLabel>
-			<CardLabel fontSize="paragraph">label <input name="label" ref={labelRef} /></CardLabel>
+			<CardLabel fontSize='paragraph' color='bg1' textAlign='left'>
+				type&nbsp;
+				<select ref={typeRef}>
+					{[
+						['tradfri', 'IKEA TRÅDFRI'],
+						['serial', 'Serial'],
+						['rpi-gpio', 'GPIO'],
+						['aio', 'adafruit.io'],
+						['mi-ble', 'Xiaomi Bluetooth'],
+					].map(([type, label ]) => <option key={type} value={type}>{label}</option>)}
+				</select>
+			</CardLabel>
+			<CardLabel fontSize='paragraph' color='bg1' textAlign='left'>
+				label&nbsp;
+				<input name='label' autoComplete='off' ref={labelRef} />
+			</CardLabel>
 			<CardButtons>
-				<Button fontSize="subheading" onClick={addGatewayClick}>Add</Button>
+				<Button fontSize='subheading' onClick={addGatewayClick}>Add</Button>
 			</CardButtons>
 		</Card>
 	)

@@ -26,19 +26,18 @@ export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivat
 	return (
 		<Card
 			data-id={gateway.id}
-			background={'bg1'}
+			background='bg1'
 		>
 			<TitleBar>
 				<Label
 					fullWidth
-					textAlign={'start'}
-					background={'bg1'}
-					color={'fg1'}
+					textAlign='start'
+					background='bg1'
+					color='fg1'
 				>
 					{gateway.label}
 				</Label>
 			</TitleBar>
-			<CardLabel fontSize='paragraph'>status: {gateway.isActive ? 'active' : 'inactive'}</CardLabel>
 			<CardLabel fontSize='paragraph'>type: {gateway.type}</CardLabel>
 			<CardLabel fontSize='paragraph'>config:</CardLabel>
 			<CardContent>
@@ -46,17 +45,17 @@ export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivat
 					placeholder={JSON.parse(gateway.jsonConfig)}
 					locale={EN_LOCALE}
 					colors={editorColors}
-					width="100%"
-					height="300px"
+					width='100%'
+					height='300px'
 					onChange={({json}) => { setEditedJsonConfig(json) }}
 				/>
 			</CardContent>
 			<CardButtons>
-				<Button background={'error'} fontSize="subheading" onClick={removeGateway}>Remove</Button>
-				{!gateway.isActive && <Button background={'ok'} fontSize="subheading" onClick={activateGateway}>Activate</Button>}
-				{gateway.isActive && <Button background={'warn'} fontSize="subheading" onClick={deactivateGateway}>Deactivate</Button>}
+				<Button background='error' fontSize='subheading' onClick={removeGateway}>Remove</Button>
+				{!gateway.isActive && <Button background='ok' fontSize='subheading' onClick={activateGateway}>Activate</Button>}
+				{gateway.isActive && <Button background='warn' fontSize='subheading' onClick={deactivateGateway}>Deactivate</Button>}
 				<Button	
-					fontSize="subheading"
+					fontSize='subheading'
 					background={isConfigSaved ? 'fg1' : 'brand'}
 					onClick={() => saveGatewayConfig(editedJsonConfig)}
 				>
