@@ -2,8 +2,10 @@ import { AUTOMATIONS_GATEWAY_ID } from '../../../config'
 
 import { 
 	readGatewayConfig,
+	addGatewayConfig,
 	readVirtualThingConfigs
 } from '../../../db-queries'
+import { logger } from '../../../logger'
 import { makeThermostat } from '../../things/thermostat'
 
 /**
@@ -64,7 +66,7 @@ export const makeAutomationsGateway  = async ({
 	publishChange
 }) => {
 
-	checkForAutomationsGatewayConfig()
+	await checkForAutomationsGatewayConfig()
 
 	const virtualThingConfigs = await readVirtualThingConfigs()
 	for (const virtualThingConfig of virtualThingConfigs) {

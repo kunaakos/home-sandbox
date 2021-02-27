@@ -15,7 +15,7 @@ import {
 	activateUser,
 	deactivateUser,
 	onboardUser
-} from './queries'
+} from './db-queries'
 
 import { logger } from './logger'
 
@@ -36,7 +36,7 @@ const issueUserToken = user => {
 		},
 		USER_TOKEN_SECRET,
 		{
-			algorithm: "HS256",
+			algorithm: 'HS256',
 			issuer: USER_TOKEN_ISSUER,
 			subject: `${user.id}`
 		}

@@ -6,7 +6,7 @@ import {
 	DisplayName,
 	User,
 	Credentials
-} from './schemas'
+} from './db-schemas'
 
 const knex = Knex(knexConfig)
 
