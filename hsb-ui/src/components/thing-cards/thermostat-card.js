@@ -19,7 +19,7 @@ export const ThermostatCard = ({ thing, setThing }) => {
 
 	const [collapsed, setCollapsed] = useState(true)
 
-	const highlightColor = thing.timedOut
+	const highlightColor = thing.state.timedOut
 		? 'error'
 		: thing.heatRequest ? 'accent3' : 'disabled'
 
