@@ -68,4 +68,4 @@ ENV UDEV=1
 # `hciconfig hci0 reset` might not be needed, was used during debugging
 # omit the first two lines, which are yarn logs, and cause pino-sentry to throw an error 
 # CMD hciconfig hci0 reset && yarn workspace hsb-things prod -s | tail -n +3 | pino-sentry --dsn=$SENTRY_DSN --serverName="things-$BALENA_DEVICE_UUID"
-CMD yarn workspace hsb-things prod -s
+CMD yarn workspace hsb-things knex migrate:latest && yarn workspace hsb-things prod -s
