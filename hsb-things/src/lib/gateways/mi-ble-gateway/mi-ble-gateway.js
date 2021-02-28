@@ -88,11 +88,11 @@ export const makeMiBleGateway = async ({
 					fingerprint,
 					gatewayId: id,
 					label: device.label,
-					isHidden: false,
+					isHidden: device.isHidden || false,
 					properties: getMiBleProperties(latestProperties),
 					initialState: latestValues
 				})
-				
+
 				thingIds[fingerprint] = await things.add(
 					ambientSensor,
 					latestProperties
@@ -123,7 +123,7 @@ export const makeMiBleGateway = async ({
 						fingerprint: fingerprint,
 						gatewayId: id,
 						label: device.label,
-						isHidden: false,
+						isHidden: device.isHidden || false,
 						properties: getMiBleProperties(allProperties),
 						initialState: allValues
 					}),
