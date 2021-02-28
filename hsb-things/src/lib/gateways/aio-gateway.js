@@ -63,7 +63,7 @@ export const makeAioGateway = async ({
 				},
 				effect: mockMode
 					? data => { logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`) }
-					: updateAioFeed({ username, aioKey, groupKey, feedKey })
+					: updateAioFeed({ username, aioKey, groupKey, feedKey }).catch(logger.info)
 			})
 		)
 		.reduce(
