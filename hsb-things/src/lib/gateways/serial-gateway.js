@@ -16,7 +16,8 @@ const fingerprintFrom = sensorId => `SERIAL__${sensorId}`
 export const makeSerialGateway = async ({
 	id,
 	config: {
-		path
+		path,
+		hideSensors = true
 	},
 	things
 }) => {
@@ -45,7 +46,7 @@ export const makeSerialGateway = async ({
 					fingerprint,
 					gatewayId: id,
 					label: `Sensor with ID "${sensorId}" reporting via serial`,
-					isHidden: false,
+					isHidden: hideSensors,
 					properties: [
 						{
 							propertyName: 'temperature',
