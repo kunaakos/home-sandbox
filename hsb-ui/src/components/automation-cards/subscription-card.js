@@ -52,6 +52,7 @@ export const SubscriptionCard = ({
 			<CardContent>
 				<JSONInput
 					placeholder={JSON.parse(subscription.jsonMapping)}
+					reset={false}
 					locale={EN_LOCALE}
 					colors={editorColors}
 					width="100%"

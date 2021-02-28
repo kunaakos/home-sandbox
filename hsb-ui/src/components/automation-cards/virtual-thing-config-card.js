@@ -43,6 +43,7 @@ export const VirtualThingConfigCard = ({ virtualThingConfig, removeVirtualThingC
 			<CardContent>
 				<JSONInput
 					placeholder={JSON.parse(virtualThingConfig.jsonConfig)}
+					reset={false}
 					locale={EN_LOCALE}
 					colors={editorColors}
 					width='100%'

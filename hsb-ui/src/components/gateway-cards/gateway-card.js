@@ -43,6 +43,7 @@ export const GatewayCard = ({ gateway, removeGateway, activateGateway, deactivat
 			<CardContent>
 				<JSONInput
 					placeholder={JSON.parse(gateway.jsonConfig)}
+					reset={false}
 					locale={EN_LOCALE}
 					colors={editorColors}
 					width='100%'
