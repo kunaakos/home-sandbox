@@ -27,7 +27,9 @@ const updateAioFeed = ({
 	const responseBody = await response.json()
 
 	if (responseBody.error) {
-		throw new Error(responseBody.error)
+		logger.trace(`AIO error: ${responseBody.error}`)
+	} else {
+		logger.trace(`AIO updated ${groupKey}.${feedKey}`)
 	}
 
 }
@@ -63,7 +65,7 @@ export const makeAioGateway = async ({
 				},
 				effect: mockMode
 					? data => { logger.trace(`mock adafruit.io update of '${groupKey ? `${groupKey}.` : ''}${feedKey}' with data '${data}'`) }
-					: updateAioFeed({ username, aioKey, groupKey, feedKey }).catch(logger.info)
+					: updateAioFeed({ username, aioKey, groupKey, feedKey })
 			})
 		)
 		.reduce(
@@ -96,3 +98,4 @@ export const makeAioGateway = async ({
 	)
 
 }
+
