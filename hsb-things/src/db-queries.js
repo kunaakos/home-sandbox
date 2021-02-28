@@ -170,8 +170,10 @@ export const removeSubscription = async id =>
 
 const THING_ID_TABLE = 'thing_id'
 
-export const addThingId = async ({ fingerprint, gatewayId }) => {
-	const id = uuid()
+export const addThingId = async ({ fingerprint, gatewayId, predefinedThingId }) => {
+	const id = predefinedThingId || uuid()
+
+	console.log(fingerprint, gatewayId, predefinedThingId, id)
 	await knex(THING_ID_TABLE).insert(
 		await ThingIdSchema.validateAsync(
 			snakeCaseKeys({

@@ -29,18 +29,17 @@ export const makeThingStore = async ({
 	const things = {}
 	const thingIds = (await readThingIds()).reduce(thingIdsReducer, {})
 
-	const getThingId = async (fingerprint, gatewayId) => {
-		if (thingIds[gatewayId] && thingIds[gatewayId][fingerprint]) {
-			return thingIds[gatewayId][fingerprint]
-		} else {
-			logger.debug(`store received new device #${fingerprint} from gateway #${gatewayId}`)
-			const newThingId = await addThingId({ fingerprint, gatewayId })
+	const getThingId = ({ fingerprint, gatewayId }) => 
+		thingIds[gatewayId] && thingIds[gatewayId][fingerprint]
+
+	const storeThingId = async ({ fingerprint, gatewayId, predefinedThingId }) => {
+		logger.debug(`store received new device #${fingerprint} from gateway #${gatewayId}`)
+			const newThingId = await addThingId({ fingerprint, gatewayId, predefinedThingId })
 			if (!thingIds[gatewayId]) {
 				thingIds[gatewayId] = {}
 			}
 			thingIds[gatewayId][fingerprint] = newThingId
 			return newThingId
-		}
 	}
 
 	const has = id => Boolean(things[id])
@@ -74,12 +73,14 @@ export const makeThingStore = async ({
 			.map(id => get(id))
 			.filter(Boolean)
 
-	const add = async (thing, changedKeys) => {
+	const add = async (thing, changedKeys, predefinedThingId) => {
 		if (typeof thing.fingerprint !== 'string' || typeof thing.gatewayId !== 'string') {
 			// TODO: validate properly
 			logger.error(new Error(`store cannot add malformed thing #${JSON.stringify(thing)}`))
 		} else {
-			const thingId = await getThingId(thing.fingerprint, thing.gatewayId)
+			const thingId =
+				getThingId({ fingerprint: thing.fingerprint, gatewayId: thing.gatewayId })
+				|| await storeThingId({ fingerprint: thing.fingerprint, gatewayId: thing.gatewayId, predefinedThingId })
 			things[thingId] = thing
 			publishChange(thingId)(changedKeys)
 			return thingId

@@ -68,9 +68,9 @@ export const makeAutomationsGateway  = async ({
 
 	await checkForAutomationsGatewayConfig()
 
-	const virtualThingConfigs = await readVirtualThingConfigs()
+	const virtualThingConfigs = (await readVirtualThingConfigs()).filter(virtualThingConfig => virtualThingConfig.isActive)
 	for (const virtualThingConfig of virtualThingConfigs) {
-		await things.add(initializeVirtualThing({ virtualThingConfig, publishChange }))
+		await things.add(initializeVirtualThing({ virtualThingConfig, publishChange }), undefined, virtualThingConfig.id)
 	}
 
 }

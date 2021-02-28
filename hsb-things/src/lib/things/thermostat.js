@@ -13,18 +13,13 @@ export const makeThermostat = ({
 	gatewayId,
 	label,
 	isHidden,
-	config = {},
+	overrun = 0.1,
+	underrun = 0.2,
+	watchdogTimeout = TWO_MINUTES,
 	publishChange
 }) => {
 
 	logger.debug(`initializing thermostat #${fingerprint}`)
-
-	let {
-		overrun = 0.1,
-		underrun = 0.2,
-		watchdogTimeout = TWO_MINUTES,
-		tickInterval = THIRTY_SECONDS
-	} = config
 
 	const state = {
 		heatRequest: false,
@@ -69,8 +64,6 @@ export const makeThermostat = ({
 		return false
 
 	}
-
-	setInterval(updateHeatRequest, tickInterval)
 
 	return makeThing({
 		type: 'thermostat',
