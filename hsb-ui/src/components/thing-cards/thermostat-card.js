@@ -1,7 +1,8 @@
 import React from 'react'
 
 import {
-	useState
+	useState,
+	useEffect
 } from 'react'
 
 import {
@@ -18,6 +19,11 @@ import {
 export const ThermostatCard = ({ thing, setThing }) => {
 
 	const [collapsed, setCollapsed] = useState(true)
+	const [targetTemperature, setTargetTemperature ] = useState(thing.state.targetTemperature)
+
+	useEffect(() => {
+		setTargetTemperature(thing.state.targetTemperature)
+	}, [thing.state.targetTemperature])
 
 	const highlightColor = thing.state.timedOut
 		? 'error'
@@ -44,13 +50,14 @@ export const ThermostatCard = ({ thing, setThing }) => {
 
 			{!collapsed && <React.Fragment>
 				<HorizontalSliderLabel fontSize={'subheading'}>
-					target temperature {thing.state.targetTemperature} °C
+					target temperature {targetTemperature} °C
 				</HorizontalSliderLabel>
 				<HorizontalSlider
 					min={0}
 					max={30}
 					step={0.1}
-					value={thing.state.targetTemperature}
+					value={targetTemperature}
+					onChange={(e, value) => { setTargetTemperature(value) }}
 					onChangeCommitted={(e, value) => { setThing(thing.id, { targetTemperature: value }) }}
 				/>
 			</React.Fragment>}
