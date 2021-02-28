@@ -87,7 +87,10 @@ export const AutomationsView = () => {
 		} = {},
 		refetch
 	} = useQuery(
-		AUTOMATIONS_QUERY
+		AUTOMATIONS_QUERY,
+		{
+			pollInterval: 1000
+		}
 	)
 
 	const [addVirtualThingConfigMutation] = useMutation(ADD_VIRTUAL_THING_CONFIG_MUTATION)
