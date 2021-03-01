@@ -9,7 +9,7 @@
  * Subscriptions object schema:
  * 
  *  const schema = {
- *  	'thingId': {
+ *  	'publisherId': {
  *  		'subscriberId': [
  *  			['publisherKey', 'subscriberKey'],
  *  			// ...
@@ -30,9 +30,19 @@ const TOTAL_UPDATE_ATTEMPTS = 3
 
 export const handleSubscriptions = ({
 	things,
-	subscriptions,
+	subscriptions: subscriptionsList,
 	subscribeToChanges
 }) => {
+
+	const subscriptions = subscriptionsList
+		.filter(subscription => subscription.isActive)
+		.reduce((subscriptionsObject, subscription) => {
+			subscriptionsObject[subscription.publisherId] = {
+				...(subscriptionsObject[subscription.publisherId] || {}),
+				[subscription.subscriberId]: subscription.mapping
+			}
+			return subscriptionsObject
+		}, {})
 
 	const onStateChange = ({
 		id: publisherId,
@@ -45,7 +55,7 @@ export const handleSubscriptions = ({
 		const thingSubscriptions = Object.entries(subscriptions[publisherId]) // array of [subscriberId, [[publisherKey, subscriberKey]...]]
 
 		thingSubscriptions.forEach(
-			([subscriberId, keyMaps]) => {
+			([subscriberId, mappings]) => {
 
 				// this recursive function will attempt updating a subscriber three times with a one second delay between retries
 				// it's needed during bootstrapping, when things are being added in no particular order
@@ -68,7 +78,7 @@ export const handleSubscriptions = ({
 						throw new Error (`could not get current state of #${publisherId}`)
 					}
 
-					const newValues = keyMaps
+					const newValues = mappings
 						.filter(
 							([publisherKey,]) => Boolean(changedKeys) // if a list of changed keys were not passed, we're assuming all have changed
 								? changedKeys.includes(publisherKey)

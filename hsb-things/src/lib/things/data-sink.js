@@ -5,15 +5,16 @@ import { makeWatchdog } from '../watchdog'
 
 import { logger } from '../../logger'
 
-const neverPublishChange = () => () => { console.warn('Something is borked, a data sink advertised a state change.') }
-
 export const makeDataSink = ({
-	description,
+	fingerprint,
+	gatewayId,
+	label,
+	isHidden,
 	config,
 	effects
 }) => {
 
-	logger.debug(`initializing data sink #${description.id}`)
+	logger.debug(`initializing data sink #${fingerprint}`)
 
 	const {
 		values
@@ -52,7 +53,7 @@ export const makeDataSink = ({
 					type,
 					skipEqualityCheck: true,
 					set: async newValue => {
-						logger.trace(`data sink #${description.id} property '${key}' updated with value '${newValue}'`)
+						logger.trace(`data sink #${fingerprint} property '${key}' updated with value '${newValue}'`)
 						if (reportOnUpdate) {
 							watchdog && watchdog.pet()
 							value = newValue
@@ -71,8 +72,10 @@ export const makeDataSink = ({
 
 	return makeThing({
 		type: 'data-sink',
-		description,
+		fingerprint,
+		gatewayId,
+		label,
+		isHidden,
 		mutators,
-		publishChange: neverPublishChange
 	})
 }

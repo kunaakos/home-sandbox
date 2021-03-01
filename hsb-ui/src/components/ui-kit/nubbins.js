@@ -56,6 +56,10 @@ export const CardLabel = styled(Label)`
 	margin-left: 1rem;
 `
 
+export const CopyPasta = styled.span`
+	user-select: all;
+`
+
 export const CardButtons = styled.div`
 	display: flex;
 	justify-content: flex-end;

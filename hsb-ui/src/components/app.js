@@ -18,6 +18,7 @@ import { OnboardingView } from './views/onboarding-view'
 import { UsersView } from './views/users-view'
 import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
+import { AutomationsView } from './views/automations-view'
 
 import { lightTheme } from '../themes/light-theme'
 import { DrawerMenu } from './ui-kit/menus'
@@ -92,6 +93,7 @@ export const App = () => {
 
 	const isActive = auth.status === 'authenticated' && auth.currentUser.status === 'active'
 	const isInactive = auth.status === 'authenticated' && auth.currentUser.status !== 'active'
+	const isAdmin = Boolean(auth.currentUser && auth.currentUser.privileges && auth.currentUser.privileges.length && auth.currentUser.privileges.includes('admin'))
 
 	return (
 		<ThemeProvider theme={lightTheme}>
@@ -133,13 +135,19 @@ export const App = () => {
 							<ThingsView />
 						</Route>
 
-						<Route exact path="/gateways">
-							<GatewaysView />
-						</Route>
+						{isAdmin && <>
+							<Route exact path="/gateways">
+								<GatewaysView />
+							</Route>
 
-						<Route exact path="/users">
-							<UsersView />
-						</Route>
+							<Route exact path="/automations">
+								<AutomationsView />
+							</Route>
+
+							<Route exact path="/users">
+								<UsersView />
+							</Route>
+						</>}
 
 						<Route path="*">
 							<Redirect to="/" />
@@ -164,18 +172,27 @@ export const App = () => {
 							>
 								Things
 							</NavButton>
-							<NavButton
-								to="/gateways"
-								onClick={closeDrawer}
-							>
-								Gateways
-							</NavButton>
-							<NavButton
-								to="/users"
-								onClick={closeDrawer}
-							>
-								Users
-							</NavButton>
+
+							{isAdmin && <>
+								<NavButton
+									to="/gateways"
+									onClick={closeDrawer}
+								>
+									Gateways
+								</NavButton>
+								<NavButton
+									to="/automations"
+									onClick={closeDrawer}
+								>
+									Automations
+								</NavButton>
+								<NavButton
+									to="/users"
+									onClick={closeDrawer}
+								>
+									Users
+								</NavButton>
+							</>}
 						</DrawerMenuButtonsContainer>
 					</DrawerMenu>
 				

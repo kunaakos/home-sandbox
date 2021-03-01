@@ -1,7 +1,7 @@
 {
 	"name": "hsb-things",
 	"version": "0.0.0",
-	"description": "home-sandbox service that deals with things and serves a websocket API",
+	"description": "home-sandbox service that deals with things",
 	"author": "Akos Kun",
 	"license": "MIT",
 	"private": true,
@@ -33,7 +33,6 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.7.5",
-		"@babel/node": "^7.7.4",
 		"@babel/preset-env": "^7.7.6",
 		"dotenv": "^8.2.0",
 		"parcel-bundler": "^1.12.4"

@@ -15,7 +15,7 @@ const logger = makeLogger({
 	logLevel: process.env.HSB__LOG_LEVEL || 'warn'
 })
 
-const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
+const USER_TOKEN_SECRET = process.env.HSB__USER_TOKEN_SECRET
 
 class HsbRemoteGraphQLDataSource extends RemoteGraphQLDataSource {
 

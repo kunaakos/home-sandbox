@@ -71,7 +71,7 @@ export const UsersView = () => {
 	const [addUserMutation] = useMutation(ADD_USER_MUTATION)
 	const addUser = async ({ displayName }) => {
 		try {
-			await addUserMutation({ variables: { displayName, privileges: ["admin"] }})
+			await addUserMutation({ variables: { displayName, privileges: [] }})
 			refetch()
 		} catch (error) {
 			console.error(error)

@@ -19,15 +19,15 @@ export const LoginCard = ({ onSubmit }) => {
 
 			<label>username</label>
 			<br />
-			<input name="username" ref={usernameRef} />
+			<input name='username' autoComplete='off' ref={usernameRef} />
 			<br />
 
 			<label>password</label>
 			<br />
-			<input type="password" name="password" ref={passwordRef} />
+			<input type='password' name='password' ref={passwordRef} />
 			<br />
 
-			<input type="submit" />
+			<input type='submit' />
 
 		</form>
 	</div>)

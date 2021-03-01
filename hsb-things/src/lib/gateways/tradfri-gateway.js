@@ -49,8 +49,6 @@ export const connect = async ({
 	return tradfriClient
 }
 
-const neverPublishChange = () => () => { console.warn('Something is borked, a tradfri device advertised a state change.') }
-
 const thingIdFrom = instanceId => `TRADFRI__${instanceId}`
 const labelFrom = device => device.name
 
@@ -82,21 +80,20 @@ const setTradfriLightbulbColorTemperature = device => async colorTemperature => 
 	return null
 }
 
-const makeLightFromTradfriLightbulb = device => {
+const makeLightFromTradfriLightbulb = ({ device, gatewayId }) => {
 
 	const isDimmable = device.lightList[0].isDimmable
 	const isColor = device.lightList[0].spectrum === 'rgb'
 	const isAdjustableColorTemperature = device.lightList[0].spectrum === 'white'
 
 	return makeLight({
-		description: {
-			id: thingIdFrom(device.instanceId),
-			label: labelFrom(device),
-			hidden: false,
-			isDimmable,
-			isColor,
-			...(isAdjustableColorTemperature && { colorTemperatureRange: [2200, 4000] })
-		},
+		fingerprint: thingIdFrom(device.instanceId),
+		gatewayId,
+		label: labelFrom(device),
+		isHidden: false,
+		isDimmable,
+		isColor,
+		...(isAdjustableColorTemperature && { colorTemperatureRange: [2200, 4000] }),
 		initialState: {
 			isOn: getTradfriLightbulbState(device),
 			...(isDimmable && { brightness: getTradfriLightbulbBrightness(device) }),
@@ -108,8 +105,7 @@ const makeLightFromTradfriLightbulb = device => {
 			...(isDimmable && { changeBrightness: setTradfriLightbulbBrightness(device) }),
 			...(isColor && { changeColor: setTradfriLightbulbColor(device) }),
 			...(isAdjustableColorTemperature && { changeColorTemperature: setTradfriLightbulbColorTemperature(device) })
-		},
-		publishChange: neverPublishChange
+		}
 	})
 
 }
@@ -122,29 +118,27 @@ const setTradfriPlugState = device => async newState => {
 	return null
 }
 
-const makeSwitchFromTradfriPlug = device =>
+const makeSwitchFromTradfriPlug = ({ device, gatewayId }) =>
 	makeSwitch({
-		description: {
-			id: thingIdFrom(device.instanceId),
-			label: labelFrom(device),
-			hidden: false,
-		},
+		fingerprint: thingIdFrom(device.instanceId),
+		gatewayId,
+		label: labelFrom(device),
+		isHidden: false,
 		initialState: {
 			isOn: getTradfriPlugState(device)
 		},
 		effects: {
 			changeState: setTradfriPlugState(device)
-		},
-		publishChange: neverPublishChange
+		}
 	})
 
-export const makeTradfriGateway = ({
-	description,
+export const makeTradfriGateway = async ({
+	id,
 	config,
 	things
 }) => {
 
-	logger.info(`initializing IKEA Tradfri gateway #${description.id}`)
+	logger.info(`initializing IKEA Tradfri gateway #${id}`)
 
 	const unsupportedInstanceIds = []
 
@@ -154,21 +148,21 @@ export const makeTradfriGateway = ({
 	// stopped working after a state change and keeping tradfri lib and
 	// app state in sync was painful.
 	// This works, might cause a memory leak, revisit if it does.
-	const addOrReplaceThing = device => {
+	const addOrReplaceThing = async device => {
 		switch (device.type) {
 
 			case AccessoryTypes.lightbulb:
-				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on light #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
-				things.add(makeLightFromTradfriLightbulb(device))
+				logger.debug(`IKEA Tradfri gateway #${id} re-initializing light #${thingIdFrom(device.instanceId)}`)
+				await things.add(makeLightFromTradfriLightbulb({ device, gatewayId: id }))
 				break
 			case AccessoryTypes.plug:
-				logger.debug(`IKEA Tradfri gateway #${description.id} going nuclear on switch #${thingIdFrom(device.instanceId)} ¯\\_(ツ)_/¯`)
-				things.add(makeSwitchFromTradfriPlug(device))
+				logger.debug(`IKEA Tradfri gateway #${id} re-initializing switch #${thingIdFrom(device.instanceId)}`)
+				await things.add(makeSwitchFromTradfriPlug({ device, gatewayId: id }))
 				break
 
 			default:
 				unsupportedInstanceIds.push(device.instanceId)
-				logger.debug(`IKEA Tradfri gateway #${description.id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
+				logger.debug(`IKEA Tradfri gateway #${id} found unsupported device type '${device.type}' with id #${device.instanceId}`)
 				break
 		}
 	}
@@ -184,7 +178,7 @@ export const makeTradfriGateway = ({
 		!identity ||
 		!psk
 	) {
-		logger.warn(`IKEA Tradfri gateway #${description.id} credentials not provided, continuing in mock mode`)
+		logger.warn(`IKEA Tradfri gateway #${id} credentials not provided, continuing in mock mode`)
 	} else {
 		connect({
 			// customLogger: msg => logger.trace(`NODE-TRADFRI: ${msg}`),
@@ -192,15 +186,15 @@ export const makeTradfriGateway = ({
 			identity,
 			psk
 		})
-			.then(tradfriClient => {
+			.then(async tradfriClient => {
 
 				tradfriClient
-					.on('device updated', device => {
+					.on('device updated', async device => {
 						try {
 							if (unsupportedInstanceIds.includes(device.instanceId)) {
 								// unsupported device updated, do nothing
 							} else {
-								addOrReplaceThing(device)
+								await addOrReplaceThing(device)
 							}
 						} catch (error) {
 							logger.error(error, `error updating IKEA Tradfri device ${device.instanceId}`)
@@ -219,14 +213,10 @@ export const makeTradfriGateway = ({
 					.on('error', error => logger.error(error, 'caught \'node-tradfri-client\' error'))
 					.observeDevices()
 
-				logger.info(`IKEA Tradfri gateway #${description.id} connected`)
+				logger.info(`IKEA Tradfri gateway #${id} connected`)
 
 			})
 			.catch(err => logger.error(err, 'error connecting to IKEA Tradfri gateway'))
 	}
 
-	return {
-		type: 'ikea-tradfri-gateway',
-		id: description.id
-	}
 }

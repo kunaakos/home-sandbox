@@ -1,12 +1,10 @@
-# deps cache and bundles
+# deps, cache and builds
 node_modules
 .parcel-cache
 build
 
-# don't commit databases
+# databases and environment variables
 *.sqlite
-
-# every service has their own env file
 *.env
 
 # create and run these during development, instead of running an entire service, don't check them in tho!
@@ -17,6 +15,3 @@ build
 
 # TODO: this should be generated during an ARM build, not on a dev machine, not committing
 yarn.lock
-
-# TODO: things config file was a temporary solution
-hsb-things/src/config.js

@@ -2,6 +2,7 @@ version: "2"
 
 volumes:
   keymaster:
+  things:
 
 # NOTE: services are in host networking mode, because this
 # is the only way I could get bluetooth working for the 
@@ -41,7 +42,9 @@ services:
       dockerfile: ./hsb-things.Dockerfile
     # /sys/* is mounted in privileged mode, but only /sys/class/gpio is used, figure out more secure way
     privileged: true
-    network_mode: "host" 
+    network_mode: "host"
+    volumes:
+      - things:/data
     environment:
       - "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket"
     labels:

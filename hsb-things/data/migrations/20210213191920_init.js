@@ -5,7 +5,7 @@ exports.up = knex =>
 			table.string('type', 255).unique().notNullable()
 			table.string('label', 255).unique().notNullable()
 			table.boolean('is_active').notNullable()
-			table.json('json_config').notNullable()
+			table.json('config').notNullable()
 		})
 
 exports.down = knex =>

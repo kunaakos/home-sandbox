@@ -6,7 +6,7 @@ const clientBundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, './build/client'),
 		outFile: 'index.html',
-		publicUrl: './',
+		publicUrl: '/',
 		watch: false,
 		cache: false,
 		contentHash: true,
@@ -27,7 +27,6 @@ const serverBundler = new Bundler(
 	{
 		outDir: Path.join(__dirname, './build/server'),
 		outFile: 'main.js',
-		publicUrl: './',
 		watch: false,
 		cache: false,
 		contentHash: false,
