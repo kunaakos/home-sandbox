@@ -14,7 +14,7 @@
 		"build": "parcel build src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./"
 	},
 	"dependencies": {
-		"chalk": "^4.1.10",
+		"chalk": "^4.1.0",
 		"pino": "^6.11.1"
 	},
 	"devDependencies": {
