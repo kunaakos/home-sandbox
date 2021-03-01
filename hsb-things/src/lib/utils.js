@@ -70,21 +70,21 @@ export const typecast = (value, toType) => {
 }
 
 export const setterFromEffect = ({
-	thingId,
+	fingerprint,
 	effect,
 	state,
 	key
 }) => async newValue => {
 	const result = await effect(newValue)
 	if (result === null) {
-		logger.trace(`#${thingId} effect for property '${key}' returned with 'null', a state change is expected later.`)
+		logger.trace(`#${fingerprint} effect for property '${key}' returned with 'null', a state change is expected later.`)
 		return []
 	} else if (typeof result !== typeof newValue) {
-		throw new Error(`#${thingId} effect for property '${key}' returned with value of type '${typeof result}' instead of '${typeof newValue}'`)
+		throw new Error(`#${fingerprint} effect for property '${key}' returned with value of type '${typeof result}' instead of '${typeof newValue}'`)
 	} {
 		// the new state should be a validated, rounded etc. value returned by the effect
 		state[key] = result
-		logger.trace(`thing #${thingId} property '${key}' updated with value '${newValue}'`)
+		logger.trace(`thing #${fingerprint} property '${key}' updated with value '${newValue}'`)
 		return [key]
 	}
 }

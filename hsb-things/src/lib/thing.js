@@ -16,8 +16,12 @@ const checkPermissions = (mutators, key) => ({
 
 export const makeThing = ({
 	type,
-	description,
-	mutators
+	fingerprint,
+	gatewayId,
+	label,
+	isHidden,
+	mutators,
+	...rest
 }) => {
 
 	// returns: State | Error
@@ -33,7 +37,7 @@ export const makeThing = ({
 						} else {
 							const result = get()
 							if (typeof result !== type) {
-								throw new Error(`getter for property '${key}' of #${description.id} returned with a value of type '${typeof value}' instead of expected '${type}'`)
+								throw new Error(`getter for property '${key}' of #${fingerprint} returned with a value of type '${typeof value}' instead of expected '${type}'`)
 							} else {
 								acc[key] = result
 								return acc
@@ -45,7 +49,10 @@ export const makeThing = ({
 
 			return {
 				type,
-				...description,
+				fingerprint,
+				label,
+				isHidden,
+				...rest,
 				...currentState
 			}
 		} catch (error) {
@@ -157,7 +164,8 @@ export const makeThing = ({
 
 	return new Thing({
 		type,
-		id: description.id,
+		fingerprint,
+		gatewayId,
 		set,
 		get,
 		typeOf

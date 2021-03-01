@@ -9,11 +9,38 @@ function ThingStore(functions) {
 	Object.assign(this, functions)
 }
 
-export const makeThingStore = ({
-	publishChange
+const thingIdsReducer = (thingIds, { id, fingerprint, gatewayId }) => {
+	return {
+		...thingIds,
+		[gatewayId]: {
+			...(thingIds[gatewayId] || {}),
+			[fingerprint]: id
+		}
+	}
+}
+
+export const makeThingStore = async ({
+	publishChange,
+	addThingId,
+	readThingIds,
+	removeThingId
 }) => {
 
 	const things = {}
+	const thingIds = (await readThingIds()).reduce(thingIdsReducer, {})
+
+	const getThingId = ({ fingerprint, gatewayId }) => 
+		thingIds[gatewayId] && thingIds[gatewayId][fingerprint]
+
+	const storeThingId = async ({ fingerprint, gatewayId, predefinedThingId }) => {
+		logger.debug(`store received new device #${fingerprint} from gateway #${gatewayId}`)
+			const newThingId = await addThingId({ fingerprint, gatewayId, predefinedThingId })
+			if (!thingIds[gatewayId]) {
+				thingIds[gatewayId] = {}
+			}
+			thingIds[gatewayId][fingerprint] = newThingId
+			return newThingId
+	}
 
 	const has = id => Boolean(things[id])
 
@@ -33,7 +60,10 @@ export const makeThingStore = ({
 				logger.error(result, `store failed getting state of #${id}`)
 				return null
 			} else {
-				return result
+				return {
+					id,
+					...result
+				}
 			}
 		}
 	}
@@ -43,14 +73,17 @@ export const makeThingStore = ({
 			.map(id => get(id))
 			.filter(Boolean)
 
-	const add = (thing, changedKeys) => {
-		const thingId = thing.id
-		if (typeof thingId !== 'string') {
+	const add = async (thing, changedKeys, predefinedThingId) => {
+		if (typeof thing.fingerprint !== 'string' || typeof thing.gatewayId !== 'string') {
 			// TODO: validate properly
 			logger.error(new Error(`store cannot add malformed thing #${JSON.stringify(thing)}`))
 		} else {
+			const thingId =
+				getThingId({ fingerprint: thing.fingerprint, gatewayId: thing.gatewayId })
+				|| await storeThingId({ fingerprint: thing.fingerprint, gatewayId: thing.gatewayId, predefinedThingId })
 			things[thingId] = thing
 			publishChange(thingId)(changedKeys)
+			return thingId
 		}
 	}
 

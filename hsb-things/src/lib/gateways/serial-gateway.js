@@ -11,64 +11,88 @@ import { logger } from '../../logger'
 
 import { makeAmbientSensor } from '../things/ambient-sensor'
 
-const thingIdFrom = sensorId => `SERIAL__${sensorId}`
+const fingerprintFrom = sensorId => `SERIAL__${sensorId}`
 
-export const makeSerialGateway = ({
-	description,
-	config,
+const getDeviceConfig = (id, deviceConfigs) => deviceConfigs.find(deviceConfig => deviceConfig.id === id)
+
+const parseSensorData = data => {
+	const reading = JSON.parse(data)
+	const { id, t } = reading
+	return {
+		id: `${id}`,
+		temperature: t
+	}
+}
+
+export const makeSerialGateway = async ({
+	id: gatewayId,
+	config: {
+		path,
+		devices: deviceConfigs = []
+	},
 	things
 }) => {
 
-	logger.info(`initializing serial gateway #${description.id}`)
+	logger.info(`initializing serial gateway #${gatewayId}`)
 
-	const onDataReceived = data => {
+	// ids of things added by this gateway
+	const thingIds = new Map()
+
+	const onDataReceived = async data => {
 		try {
-			const reading = JSON.parse(data)
-			const { id: sensorId, t: temperature } = reading
-			if (!sensorId || !temperature) {
-				logger.warn(`serial gateway #${description.id} received invalid data`)
+			const { id: serialDeviceId , temperature } = parseSensorData(data)
+			if (!serialDeviceId || !temperature) {
+				logger.info(`serial gateway #${gatewayId} received invalid data`)
 				return
 			}
-			const thingId = thingIdFrom(sensorId)
 
-			if (things.has(thingId)) {
-				logger.trace(`serial gateway #${description.id} received data for #${thingId}`)
-				things.set(thingId, { temperature })
+			const fingerprint = fingerprintFrom(serialDeviceId)
+
+			if (thingIds.has(fingerprint)) {
+				// this device is configured and already added as a thing
+				logger.trace(`serial gateway #${gatewayId} received data for #${fingerprint}`)
+				things.set(thingIds.get(fingerprint), { temperature })
 			} else {
-				logger.debug(`serial gateway #${description.id} initializing new sensor #${thingId}`)
+				// this device is not yet added, check if it was configured...
+				const { label, isHidden = true } = getDeviceConfig(serialDeviceId, deviceConfigs) || {}
+				if (!label) { return }
 
+				// and add it as a thing if it was
+				logger.debug(`serial gateway #${gatewayId} initializing new sensor #${fingerprint}`)
 				const ambientSensor = makeAmbientSensor({
-					description: {
-						id: thingId,
-						label: `Sensor with ID "${sensorId}" reporting via serial.`,
-						hidden: true
-					},
+					fingerprint,
+					gatewayId,
+					label,
+					isHidden,
+					properties: [
+						{
+							propertyName: 'temperature',
+							type: 'number',
+							skipEqualityCheck: true,
+						},
+					],
 					initialState: {
 						temperature
 					}
 				})
-				things.add(ambientSensor)
+
+				const thingId = await things.add(ambientSensor)
+				thingIds.set(fingerprint, thingId)
 			}
 
 		} catch (error) {
-			logger.error(error, `error processing data received by #${description.id}`)
+			logger.error(error, `error processing data received by #${gatewayId}`)
 		}
 	}
-
-	const { path } = config
 
 	if (path && fs.existsSync(path)) {
 		const port = new SerialPort(path, { baudRate: 9600 })
 		const parser = new Readline()
 		port.pipe(parser)
 		parser.on('data', onDataReceived)
-		logger.info(`serial gateway #${description.id} listening on port '${path}'`)
+		logger.info(`serial gateway #${gatewayId} listening on port '${path}'`)
 	} else {
-		logger.warn(`port configured for serial gateway #${description.id} is not accessible, continuing in mock mode`)
+		logger.warn(`port configured for serial gateway #${gatewayId} is not accessible, continuing in mock mode`)
 	}
 
-	return {
-		type: 'serial-gateway',
-		id: description.id
-	}
 }

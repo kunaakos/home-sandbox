@@ -4,12 +4,15 @@ import { setterFromEffect } from '../utils'
 import { logger } from '../../logger'
 
 export const makeSwitch = ({
-	description,
+	fingerprint,
+	gatewayId,
+	label,
+	isHidden,
 	effects,
 	initialState
 }) => {
 
-	logger.debug(`initializing switch #${description.id}`)
+	logger.debug(`initializing switch #${fingerprint}`)
 
 	const state = {
 		isOn: false,
@@ -18,13 +21,16 @@ export const makeSwitch = ({
 
 	return makeThing({
 		type: 'switch',
-		description,
+		fingerprint,
+		gatewayId,
+		label,
+		isHidden,
 		mutators: {
 			isOn: {
 				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect({
-					thingId: description.id,
+					fingerprint,
 					effect: effects.changeState,
 					state,
 					key: 'isOn'

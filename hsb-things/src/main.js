@@ -1,7 +1,6 @@
 import { logger } from './logger'
 
-import { makeThermostat } from './lib/things/thermostat'
-
+import { makeAutomationsGateway } from './lib/gateways/automations-gateway'
 import { makeSerialGateway } from './lib/gateways/serial-gateway'
 import { makeTradfriGateway } from './lib/gateways/tradfri-gateway'
 import { makeRpiGpioGateway } from './lib/gateways/rpi-gpio-gateway'
@@ -15,66 +14,46 @@ import { handleSubscriptions } from './lib/thing-subscriptions'
 import { initializeGqlServer } from './graphql-server'
 
 import {
-	subscriptions,
-	thingDefinitions,
-} from './config'
-
-import {
-	readGatewayConfigs
+	readGatewayConfigs,
+	readSubscriptions,
+	addThingId,
+	readThingIds,
+	removeThingId
 } from './db-queries'
 
-const initializeThing = deps => thingDefinition => {
+
+const initializeGateway = async ({
+	gatewayConfig,
+	things,
+	publishChange,
+}) => {
 
 	const args = {
-		...deps,
-		...thingDefinition,
-		initialState: {}
+		things,
+		publishChange,
+		...gatewayConfig
 	}
 
-	switch (thingDefinition.type) {
+	switch (gatewayConfig.type) {
 
-		case 'thermostat':
-			return makeThermostat(args)
+		case 'tradfri':
+			return await makeTradfriGateway(args)
+
+		case 'serial':
+			return await makeSerialGateway(args)
+
+		case 'rpi-gpio':
+			return await makeRpiGpioGateway(args)
+
+		case 'aio':
+			return await makeAioGateway(args)
+
+		case 'mi-ble':
+			return await makeMiBleGateway(args)
 
 		default:
-			throw new Error(`Unsupported thing config type '${type}'.`)
-
+			throw new Error(`Unsupported gateway config type '${type}'.`);
 	}
-}
-
-const initializeGateway = deps => ({ type, id, label, jsonConfig, ...config }) => {
-
-	const args = {
-		...deps,
-		description: {
-			id,
-			label
-		},
-		config: JSON.parse(jsonConfig)
-	}
-
-	switch (type) {
-
-		case 'tradfri-gateway':
-			return makeTradfriGateway(args)
-
-		case 'serial-gateway':
-			return makeSerialGateway(args)
-
-		case 'rpi-gpio-gateway':
-			return makeRpiGpioGateway(args)
-
-		case 'aio-gateway':
-			return makeAioGateway(args)
-		
-		case 'mi-ble-gateway':
-			return makeMiBleGateway(args)
-
-		default:
-			throw new Error(`Unsupported gateway config type '${type}'.`)
-
-	}
-
 }
 
 const main = async () => {
@@ -85,22 +64,26 @@ const main = async () => {
 		unsubscribeFromChanges
 	} = makeThingEvents()
 
-	const things = makeThingStore({
-		publishChange
+	const things = await makeThingStore({
+		publishChange,
+		addThingId,
+		readThingIds,
+		removeThingId
 	})
 
+	const subscriptions = await readSubscriptions()
 	handleSubscriptions({
 		subscriptions,
 		things,
 		subscribeToChanges
 	})
 
-	const initializeThingWithDeps = initializeThing({ publishChange })
-	thingDefinitions.forEach(thingDefinition => { things.add(initializeThingWithDeps(thingDefinition)) })
+	await makeAutomationsGateway({ things, publishChange })
 
 	const gatewayConfigs = await readGatewayConfigs()
-	const initializeGatewayWithDeps = initializeGateway({ things, publishChange })
-	gatewayConfigs.forEach(gatewayConfig => { gatewayConfig.isActive && initializeGatewayWithDeps(gatewayConfig) })
+	for (const gatewayConfig of gatewayConfigs) {
+		gatewayConfig.isActive && await initializeGateway({ gatewayConfig, things, publishChange })
+	}
 
 	initializeGqlServer({
 		things

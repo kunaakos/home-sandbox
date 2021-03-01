@@ -44,3 +44,17 @@ export const lightTheme = {
 	}
 
 }
+
+const colors = lightTheme.colors
+
+export const editorColors = {
+	default: colors.fg1,
+	background: colors.bg1,
+	background_warning: colors.warn,
+	string: colors.neutral3,
+	number: colors.neutral2,
+	colon: colors.fg1,
+	keys: colors.neutral1,
+	keys_whiteSpace: colors.neutral2,
+	primitive: colors.neutral2
+}

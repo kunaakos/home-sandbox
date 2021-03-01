@@ -27,30 +27,30 @@ const updateAioFeed = ({
 	const responseBody = await response.json()
 
 	if (responseBody.error) {
-		throw new Error(responseBody.error)
+		logger.trace(`AIO error: ${responseBody.error}`)
+	} else {
+		logger.trace(`AIO updated ${groupKey}.${feedKey}`)
 	}
 
 }
 
-export const makeAioGateway = ({
-	description,
-	config,
-	things
-}) => {
-
-	logger.info(`initializing adafruit.io gateway #${description.id}`)
-
-	const {
+export const makeAioGateway = async ({
+	id,
+	config: {
 		username,
 		aioKey,
 		groupKey,
 		feeds
-	} = config
+	},
+	things
+}) => {
+
+	logger.info(`initializing adafruit.io gateway #${id}`)
 
 	const mockMode = !(username && aioKey)
 
 	if (mockMode) {
-		logger.warn(`credentials missing for adafruit.io gateway #${description.id}, continuing in mock mode`)
+		logger.warn(`credentials missing for adafruit.io gateway #${id}, continuing in mock mode`)
 	}
 
 	const { values, effects } = feeds
@@ -84,13 +84,12 @@ export const makeAioGateway = ({
 			}
 		)
 
-	things.add(
+	await things.add(
 		makeDataSink({
-			description: {
-				id: 'aio-feeds',
-				label: 'adafruit.io feeds',
-				hidden: true
-			},
+			fingerprint: 'AIO_FEEDS__ALL',
+			gatewayId: id,
+			label: 'adafruit.io feeds',
+			isHidden: true,
 			config: {
 				values
 			},
@@ -98,8 +97,4 @@ export const makeAioGateway = ({
 		})
 	)
 
-	return {
-		type: 'aio-gateway',
-		id: description.id
-	}
 }

@@ -4,18 +4,18 @@ import { setterFromEffect } from '../utils'
 import { logger } from '../../logger'
 
 export const makeLight = ({
-	description,
+	fingerprint,
+	gatewayId,
+	label,
+	isHidden,
+	isColor,
+	isDimmable,
+	colorTemperatureRange,
 	effects,
 	initialState
 }) => {
 
-	logger.debug(`initializing light #${description.id}`)
-
-	const {
-		isColor,
-		isDimmable,
-		colorTemperatureRange
-	} = description
+	logger.debug(`initializing light #${fingerprint}`)
 
 	const defaults = {
 		isOn: false,
@@ -37,13 +37,19 @@ export const makeLight = ({
 
 	return makeThing({
 		type: 'light',
-		description,
+		fingerprint,
+		gatewayId,
+		label,
+		isHidden,
+		isColor,
+		isDimmable,
+		colorTemperatureRange,
 		mutators: {
 			isOn: {
 				type: 'boolean',
 				get: () => state.isOn,
 				set: setterFromEffect({
-					thingId: description.id,
+					fingerprint,
 					effect: effects.changeState,
 					state,
 					key: 'isOn'
@@ -54,7 +60,7 @@ export const makeLight = ({
 					type: 'number',
 					get: () => state.brightness,
 					set: setterFromEffect({
-						thingId: description.id,
+						fingerprint,
 						effect: effects.changeBrightness,
 						state,
 						key: 'brightness'
@@ -66,7 +72,7 @@ export const makeLight = ({
 					type: 'string',
 					get: () => state.color,
 					set: setterFromEffect({
-						thingId: description.id,
+						fingerprint,
 						effect: effects.changeColor,
 						state,
 						key: 'color'
@@ -78,7 +84,7 @@ export const makeLight = ({
 					type: 'number',
 					get: () => state.colorTemperature,
 					set: setterFromEffect({
-						thingId: description.id,
+						fingerprint,
 						effect: effects.changeColorTemperature,
 						state,
 						key: 'colorTemperature'

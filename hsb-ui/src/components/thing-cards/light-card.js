@@ -1,4 +1,8 @@
 import React from 'react'
+import {
+	useState,
+	useEffect
+} from 'react'
 
 import {
 	Card,
@@ -13,8 +17,19 @@ import {
 
 export const LightCard = ({ thing, setThing }) => {
 
+	const [brightness, setBrightness] = useState(thing.state.brightness || 0)
+	const [colorTemperature, setColorTemperature] = useState(thing.state.colorTemperature || 0)
+
+	useEffect(() => {
+		setBrightness(thing.state.brightness)
+	}, [thing.state.brightness])
+
+	useEffect(() => {
+		setColorTemperature(thing.state.colorTemperature)
+	}, [thing.state.colorTemperature])
+
 	const showBrightnessSlider = thing.state.isDimmable
-	const showTemperatureSlider = Boolean(thing.state.colorTemperatureRange)
+	const showColorTemperatureSlider = Boolean(thing.state.colorTemperatureRange)
 	const showColorPicker = thing.state.isColor
 
 	const toggle = () => { setThing(thing.id, { isOn: !thing.state.isOn }) }
@@ -43,19 +58,21 @@ export const LightCard = ({ thing, setThing }) => {
 					<HorizontalSlider
 						min={1}
 						max={100}
-						value={thing.state.brightness}
+						value={brightness}
+						onChange={(e, value) => {setBrightness(value)}}
 						onChangeCommitted={(e, value) => { setThing(thing.id, { brightness: value }) }}
 					/>
 				</React.Fragment>}
 
 				{showColorPicker && <React.Fragment></React.Fragment>}
 
-				{showTemperatureSlider && <React.Fragment>
+				{showColorTemperatureSlider && <React.Fragment>
 					<HorizontalSliderLabel color={'fg1'} fontSize={'subheading'}>color temperature</HorizontalSliderLabel>
 					<HorizontalSlider
 						min={thing.state.colorTemperatureRange[0]}
 						max={thing.state.colorTemperatureRange[1]}
-						value={thing.state.colorTemperature}
+						value={colorTemperature}
+						onChange={(e, value) => {setColorTemperature(value)}}
 						onChangeCommitted={(e, value) => { setThing(thing.id, { colorTemperature: value }) }}
 					/>
 				</React.Fragment>}

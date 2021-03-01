@@ -39,8 +39,8 @@ const UPDATE_GATEWAY_MUTATION = gql`
 `
 
 const REMOVE_GATEWAY_MUTATION = gql`
-	mutation removeGateway($idGateway: ID!) {
-		removeGateway(idGateway: $idGateway)
+	mutation removeGateway($id: ID!) {
+		removeGateway(id: $id)
 	}
 `
 
@@ -77,14 +77,14 @@ export const GatewaysView = () => {
 			console.error(error)
 		}
 	}
-	const activateGateway = idGateway => () => updateGateway({ id: idGateway, isActive: true })
-	const deactivateGateway = idGateway => () => updateGateway({ id: idGateway, isActive: false })
-	const saveGatewayConfig = idGateway => jsonConfig => updateGateway({ id: idGateway, jsonConfig })
+	const activateGateway = id => () => updateGateway({ id, isActive: true })
+	const deactivateGateway = id => () => updateGateway({ id, isActive: false })
+	const saveGatewayConfig = id => jsonConfig => updateGateway({ id, jsonConfig })
 
 	const [removeGatewayMutation] = useMutation(REMOVE_GATEWAY_MUTATION)
-	const removeGateway =  idGateway => async () => {
+	const removeGateway = id => async () => {
 		try {
-			await removeGatewayMutation({ variables: { idGateway }})
+			await removeGatewayMutation({ variables: { id }})
 			refetch()
 		} catch (error) {
 			console.error(error)

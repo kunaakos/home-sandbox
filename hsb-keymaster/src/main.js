@@ -15,11 +15,12 @@ import {
 	activateUser,
 	deactivateUser,
 	onboardUser
-} from './queries'
+} from './db-queries'
 
 import { logger } from './logger'
 
-const USER_TOKEN_SECRET = process.env.GATEKEEPER__USER_TOKEN_SECRET
+const USER_TOKEN_SECRET = process.env.HSB__USER_TOKEN_SECRET
+
 const USER_TOKEN_ISSUER = 'domain.name' // TODO after dynamic dns + https sorted out
 const USER_TOKEN_LIFETIME_IN_SECONDS = 2 * 24 * 60 * 60 // two days
 
@@ -35,7 +36,7 @@ const issueUserToken = user => {
 		},
 		USER_TOKEN_SECRET,
 		{
-			algorithm: "HS256",
+			algorithm: 'HS256',
 			issuer: USER_TOKEN_ISSUER,
 			subject: `${user.id}`
 		}
@@ -126,7 +127,7 @@ const makeResolvers = ({ state }) => ({
 				}
 			} catch(error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}	
 		},
 
@@ -155,7 +156,7 @@ const makeResolvers = ({ state }) => ({
 				}
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		},
 
@@ -166,7 +167,7 @@ const makeResolvers = ({ state }) => ({
 				return await addUser({ displayName, privileges })
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		},
 
@@ -176,7 +177,7 @@ const makeResolvers = ({ state }) => ({
 				return idUser
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		},
 
@@ -186,7 +187,7 @@ const makeResolvers = ({ state }) => ({
 				return idUser
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		},
 
@@ -196,7 +197,7 @@ const makeResolvers = ({ state }) => ({
 				return idUser
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		},
 
@@ -217,7 +218,7 @@ const makeResolvers = ({ state }) => ({
 				return idUser
 			} catch (error) {
 				logger.error(error)
-				throw new Error('Error.')
+				return new Error('Error.')
 			}
 		}
 
