@@ -2,16 +2,12 @@
 
 It's an experiment. If you're planning to use this, don't.
 
-The main branch is outdated, the current work-in-progress version is [the `erden` branch](https://github.com/kunaakos/home-sandbox/tree/erden). That one includes a massive rewrite: rest+websocket apis were replaced with a federated GraphQl setup, and it adds support for bluetooth devices (but at what cost!).
+But if you're curious, this is a JS home automation project (fully functional) running on a Raspberry Pi, that supports IKEA smart thingies, Xiaomi bluetooth sensors, DIY devices and simple switches/lights connected via GPIO.
 
-### current goals
+Things that are interesting, or even unique about it:
 
-A whole bunch of admin UI needs to be written to replace hardcoded configs (easy), and some bluetooth related issues to be solved (not easy) before the `erden` branch is merged.
-
-### long-term goals
-
-This started off as a simple node.js script but snowballed into this entire project. I stuck with vanilla JS because it allowed me to move quickly at first, and write all kinds of hacky but concise code, but I will refactor using TypeScript. I'm also thinking of using [nact](https://nact.io/), because it makes tons of sense for what this project does.
-
-### a more stable version
-
-After the above are done, the project shall be documented and reborn, but first I need to settle in a new home before I continue working on it. Byeee!
+* (basic) access control, so everyone in a household (or their guests) can get separate accounts
+* possible to mix devices from different brands and even DIY gadgets to create automations
+* all data is self-hosted, no external APIS needed (but the project is currently deployed via Balena, sot there's that)
+* it is made up of microservices and yes there is a federated GraphQL setup in here
+* has a React front-end
