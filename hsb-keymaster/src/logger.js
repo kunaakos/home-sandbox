@@ -1,4 +1,4 @@
-import { makeLogger } from 'hsb-service-utils/build/logger'
+import { makeLogger } from 'hsb-service-utils'
 
 export const logger = makeLogger({
 	serviceName: 'kymstr',

@@ -9,9 +9,9 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
-		"build": "NODE_ENV=production node build.js",
-		"prod": "NODE_ENV=production node -r source-map-support/register build/main.js"
+		"dev": "",
+		"build": "NODE_ENV=production",
+		"prod": "NODE_ENV=production"
 	},
 	"dependencies": {
 		"@apollo/gateway": "^0.19.1",
@@ -25,10 +25,6 @@
 		"wait-on": "^5.1.0"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.7.5",
-		"@babel/preset-env": "^7.7.6",
-		"dotenv": "^8.2.0",
-		"lodash": "^4.17.15",
-		"parcel-bundler": "^1.12.4"
+		"dotenv": "^8.2.0"
 	}
 }

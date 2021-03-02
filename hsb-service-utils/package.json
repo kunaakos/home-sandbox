@@ -10,15 +10,13 @@
 	},
 	"main": "build/index.js",
 	"scripts": {
-		"dev": "parcel watch src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./",
-		"build": "parcel build src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./"
+		"dev": "",
+		"build": ""
 	},
 	"dependencies": {
 		"chalk": "^4.1.0",
 		"pino": "^6.11.1"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.8.6",
-		"parcel-bundler": "^1.12.4"
 	}
 }
