@@ -47,6 +47,8 @@ const getMiBleProperties = properties => Object.values(pick(MI_BLE_SENSOR_PROPER
 
 const fingerprintFrom = address => `MI_BLE__${address.replace(/[:]/gi, '')}`
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
+
 export const makeMiBleGateway = async ({
 	id,
 	config: {
@@ -145,6 +147,8 @@ export const makeMiBleGateway = async ({
 		logger
 	})
 
-	scanner.start()
+	wait(1000).then(() => {
+		scanner.start() // takes a while for noble to init
+	})
 
 }
