@@ -9,9 +9,9 @@
 		"node": "12.14.1"
 	},
 	"scripts": {
-		"dev": "",
-		"build": "NODE_ENV=production",
-		"prod": "NODE_ENV=production"
+		"dev": "echo blep",
+		"build": "echo blip",
+		"prod": "echo blup"
 	},
 	"dependencies": {
 		"express": "^4.17.1",
