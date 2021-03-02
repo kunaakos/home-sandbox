@@ -8,15 +8,30 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+					"node": "12.14.1"
+					}
+				}
+			]
+		]
+	},
 	"main": "build/index.js",
 	"scripts": {
 		"dev": "",
-		"build": ""
+		"build": "babel src -d build --source-maps"
 	},
 	"dependencies": {
 		"chalk": "^4.1.0",
 		"pino": "^6.11.1"
 	},
 	"devDependencies": {
+		"@babel/cli": "^7.13.0",
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9"
 	}
 }

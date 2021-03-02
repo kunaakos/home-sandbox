@@ -8,10 +8,22 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+						"node": "12.14.1"
+					}
+				}
+			]
+		]
+	},
 	"scripts": {
 		"dev": "",
-		"build": "NODE_ENV=production",
-		"prod": "NODE_ENV=production"
+		"build": "babel src -d build --source-maps",
+		"serve": "node build/main.js"
 	},
 	"dependencies": {
 		"@apollo/gateway": "^0.19.1",
@@ -25,6 +37,9 @@
 		"wait-on": "^5.1.0"
 	},
 	"devDependencies": {
+		"@babel/cli": "^7.13.0",
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9",
 		"dotenv": "^8.2.0"
 	}
 }

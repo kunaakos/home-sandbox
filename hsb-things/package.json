@@ -8,13 +8,25 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+					"node": "12.14.1"
+					}
+				}
+			]
+		]
+	},
 	"scripts": {
 		"dev": "",
-		"build": "NODE_ENV=production",
-		"prod": "NODE_ENV=production"
+		"build": "babel src -d build --source-maps",
+		"serve": "node build/main.js"
 	},
 	"dependencies": {
-		"@abandonware/noble": "^1.9.2-9",
+		"@abandonware/noble": "1.9.2-9",
 		"@apollo/federation": "^0.19.0",
 		"apollo-server": "^2.16.1",
 		"graphql": "^15.3.0",
@@ -32,6 +44,9 @@
 		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
+		"@babel/cli": "^7.13.0",
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9",
 		"dotenv": "^8.2.0"
 	},
 	"optionalDependencies": {
