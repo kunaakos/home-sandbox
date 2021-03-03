@@ -15,7 +15,7 @@
 		"hsb-service-utils": "0.0.0"
 	},
 	"devDependencies": {
-		"@apollo/client": "^3.1.2",
+		"@apollo/client": "^3.3.11",
 		"@babel/core": "^7.13.8",
 		"@babel/plugin-transform-runtime": "^7.13.9",
 		"@babel/preset-react": "^7.12.13",
