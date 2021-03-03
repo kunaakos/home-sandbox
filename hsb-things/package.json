@@ -8,14 +8,27 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+						"node": "12.14.1"
+					}
+				}
+			]
+		]
+	},
 	"scripts": {
-		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
-		"build": "NODE_ENV=production node build.js",
-		"prod": "NODE_ENV=production node -r source-map-support/register build/main.js"
+		"dev": "nodemon -r dotenv/config --exec babel-node src/main.js dotenv_config_path=../.env",
+		"build": "babel src -d build --source-maps",
+		"serve": "node build/main.js"
 	},
 	"dependencies": {
-		"@abandonware/noble": "^1.9.2-9",
+		"@abandonware/noble": "1.9.2-9",
 		"@apollo/federation": "^0.19.0",
+		"@babel/node": "^7.13.0",
 		"apollo-server": "^2.16.1",
 		"graphql": "^15.3.0",
 		"graphql-middleware": "^4.0.2",
@@ -26,16 +39,17 @@
 		"lodash": "^4.17.20",
 		"node-fetch": "^2.6.0",
 		"node-tradfri-client": "^2.1.2",
+		"nodemon": "^2.0.7",
 		"serialport": "^8.0.7",
 		"source-map-support": "^0.5.16",
 		"sqlite3": "^5.0.2",
 		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.7.5",
-		"@babel/preset-env": "^7.7.6",
-		"dotenv": "^8.2.0",
-		"parcel-bundler": "^1.12.4"
+		"@babel/cli": "^7.13.0",
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9",
+		"dotenv": "^8.2.0"
 	},
 	"optionalDependencies": {
 		"rpi-gpio": "2.1.5"

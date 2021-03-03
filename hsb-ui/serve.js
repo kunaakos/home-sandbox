@@ -12,7 +12,7 @@ logger = makeLogger({
 
 const main = async () => {
 
-	const serveSinglePageApp = express.static(path.join(__dirname, '../../build/client'))
+	const serveSinglePageApp = express.static(path.join(__dirname, './build'))
 
 	const app = express()
 
@@ -24,7 +24,7 @@ const main = async () => {
 	app.get(
 		'*',
 		(req, res) => {
-			res.sendFile(path.join(__dirname, '../../build/client/index.html'))
+			res.sendFile(path.join(__dirname, './build/index.html'))
 		}
 	)
 

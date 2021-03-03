@@ -1,47 +1,39 @@
 {
 	"name": "hsb-ui",
 	"version": "0.0.0",
-	"description": "home-sandbox service serves the user interface",
+	"description": "home-sandbox user interface and lightweight express app serving it in production",
 	"author": "Akos Kun",
 	"license": "MIT",
 	"private": true,
-	"engines": {
-		"node": "12.14.1"
-	},
-	"browserslist": [
-		"> 0.2%",
-		"not dead"
-	],
 	"scripts": {
-		"dev": "node -r dotenv/config -r source-map-support/register dev.js dotenv_config_path=../.env",
-		"TODO": "!!! see .babelrc for the issue that requires the env vars in the following line to be hardcoded !!!",
-		"build": "HSB__PRETTY_PRINT_LOGS=true NODE_ENV=production HSB__UI_PORT=8001 node build.js",
-		"prod": "NODE_ENV=production node -r source-map-support/register build/server/main.js"
+		"dev": "webpack serve --mode=development",
+		"build": "webpack --mode=production",
+		"serve": "node serve.js"
 	},
 	"dependencies": {
 		"express": "^4.17.1",
-		"hsb-service-utils": "0.0.0",
-		"source-map-support": "^0.5.16"
+		"hsb-service-utils": "0.0.0"
 	},
 	"devDependencies": {
-		"@apollo/client": "^3.1.2",
-		"@babel/core": "^7.8.7",
-		"@babel/plugin-transform-runtime": "^7.12.15",
-		"@babel/preset-env": "^7.7.6",
-		"@babel/preset-react": "^7.7.4",
-		"@babel/runtime": "^7.12.13",
-		"@emotion/babel-preset-css-prop": "^10.0.27",
-		"@emotion/core": "^10.0.28",
-		"@emotion/styled": "^10.0.27",
+		"@apollo/client": "^3.3.11",
+		"@babel/core": "^7.13.8",
+		"@babel/plugin-transform-runtime": "^7.13.9",
+		"@babel/preset-react": "^7.12.13",
+		"@emotion/babel-plugin": "^11.2.0",
+		"@emotion/react": "^11.1.5",
+		"@emotion/styled": "^11.1.5",
 		"@material-ui/core": "^4.9.5",
-		"babel-plugin-transform-inline-environment-variables": "^0.4.3",
+		"babel-loader": "^8.2.2",
+		"copy-webpack-plugin": "^7.0.0",
 		"dotenv": "^8.2.0",
-		"emotion-theming": "^10.0.27",
 		"graphql": "^15.3.0",
-		"parcel-bundler": "^1.12.4",
+		"html-webpack-plugin": "^5.2.0",
 		"react": "^16.12.0",
 		"react-dom": "^16.12.0",
 		"react-json-editor-ajrm": "^2.5.13",
-		"react-router-dom": "^5.1.2"
+		"react-router-dom": "^5.1.2",
+		"webpack": "^5.24.2",
+		"webpack-cli": "^4.5.0",
+		"webpack-dev-server": "^3.11.2"
 	}
 }

@@ -8,17 +8,30 @@
 	"engines": {
 		"node": "12.14.1"
 	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+					"node": "12.14.1"
+					}
+				}
+			]
+		]
+	},
 	"main": "build/index.js",
 	"scripts": {
-		"dev": "parcel watch src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./",
-		"build": "parcel build src/*.js --target node --out-dir build --cache-dir .parcel-cache --public-url ./"
+		"dev": "babel src --watch -d build --source-maps",
+		"build": "babel src -d build --source-maps"
 	},
 	"dependencies": {
-		"chalk": "^3.0.0",
-		"pino": "^5.16.0"
+		"chalk": "^4.1.0",
+		"pino": "^6.11.1"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.8.6",
-		"parcel-bundler": "^1.12.4"
+		"@babel/cli": "^7.13.0",
+		"@babel/core": "^7.13.8",
+		"@babel/preset-env": "^7.13.9"
 	}
 }
