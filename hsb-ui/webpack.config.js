@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env, argv) => {
 
@@ -33,8 +34,13 @@ module.exports = (env, argv) => {
 				},
 			],
 		},
+		optimization: {
+			splitChunks: {
+			  	chunks: 'all',
+			},
+		},
 		devServer: {
-			contentBase: './public',
+			contentBase: './static',
 			port: 8001,
 			hot: true,
 			historyApiFallback: true
@@ -47,6 +53,15 @@ module.exports = (env, argv) => {
 			new HtmlWebpackPlugin({
 			  template: './src/index.html',
 			}),
+			...(
+				isProd
+					? [new CopyPlugin({
+						patterns: [
+						  	{ from: 'static', to: '.' },
+						],
+					})]
+					: []
+			)
 		],
 	}
 
