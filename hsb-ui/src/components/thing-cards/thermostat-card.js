@@ -1,4 +1,5 @@
 import React from 'react'
+import styled from '@emotion/styled'
 
 import {
 	useState,
@@ -16,6 +17,10 @@ import {
 	Button
 } from '../ui-kit/nubbins'
 
+const DisabledText = styled.span`
+	color: ${({ theme }) => theme.colors.disabled};
+`
+
 export const ThermostatCard = ({ thing, setThing }) => {
 
 	const [collapsed, setCollapsed] = useState(true)
@@ -27,7 +32,7 @@ export const ThermostatCard = ({ thing, setThing }) => {
 
 	const highlightColor = thing.state.timedOut
 		? 'error'
-		: thing.state.heatRequest ? 'accent3' : 'disabled'
+		: thing.state.heatRequest ? 'accent1' : 'disabled'
 
 	return (
 		<Card
@@ -44,7 +49,7 @@ export const ThermostatCard = ({ thing, setThing }) => {
 					color={'fg1'}
 				>
 					{thing.label}
-					<span css={theme => ({ color: theme.colors.disabled })}> &nbsp;{thing.state.currentTemperature} °C</span>
+					<DisabledText> &nbsp;{thing.state.currentTemperature} °C</DisabledText>
 				</Button>
 			</TitleBar>
 

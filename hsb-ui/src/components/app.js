@@ -1,6 +1,9 @@
-import { Global, css } from '@emotion/core'
+import {
+	Global,
+	css,
+	ThemeProvider
+} from '@emotion/react'
 import styled from '@emotion/styled'
-import { ThemeProvider } from 'emotion-theming'
 
 import React from 'react'
 import { useState } from 'react'
