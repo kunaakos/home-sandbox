@@ -8,8 +8,9 @@ module.exports = (env, argv) => {
 	return {
 		entry: './src/main.js',
 		output: {
-			filename: 'bundle.js',
+			filename: '[name].[contenthash].js',
 			path: path.resolve(__dirname, 'build'),
+			clean: true,
 		},
 		module: {
 			rules: [
