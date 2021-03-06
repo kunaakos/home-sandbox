@@ -37,6 +37,7 @@ const SwitchThumb = styled.label`
 `
 
 const SwitchContainer = styled.div`
+	-webkit-tap-highlight-color:transparent;
 	position: relative;
 	background: lightseagreen;
 	width: ${SPACER * 4}rem;
@@ -77,6 +78,7 @@ export const Switch = ({
 }
 
 const SliderInput = styled.input`
+	-webkit-tap-highlight-color:transparent;
 	/* bless the author of http://danielstern.ca/range.css/ */
 	display: block;
 	width: ${({ width }) => width || '100%'};
@@ -188,6 +190,7 @@ export const Slider = ({
 	/>
 
 const PreciseContainer = styled.div`
+	-webkit-tap-highlight-color:transparent;
 	position: relative;
 	background: lightseagreen;
 	width: ${({ width }) => `${SPACER * width}rem`};
