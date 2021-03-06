@@ -1,5 +1,12 @@
 name: Deploy live styleguide
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+    - 'hsb-ui/**'
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -18,7 +25,7 @@ jobs:
           yarn install
           yarn workspace hsb-ui styleguide-build
 
-      - name: eploy styleguide to gh-pages
+      - name: Deploy styleguide to gh-pages
         uses: JamesIves/github-pages-deploy-action@4.1.0
         with:
           branch: gh-pages
