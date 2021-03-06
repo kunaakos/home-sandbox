@@ -22,6 +22,7 @@
 		"keymaster": "yarn workspace hsb-keymaster dev",
 		"things": "yarn workspace hsb-things dev",
 		"ui": "yarn workspace hsb-ui dev",
+		"styleguide": "yarn workspace hsb-ui styleguide",
 		"dev": "concurrently -r --kill-others-on-fail \"yarn service-utils\" \"yarn keymaster\" \"yarn gatekeeper\" \"yarn things\"",
 		"deploy": "balena push home-sandbox"
 	},
