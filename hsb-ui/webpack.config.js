@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = (env, argv) => {
 
-	const isProd = argv.mode === 'production'
+	const isProd = argv && argv.mode === 'production'
 
 	return {
 		entry: './src/main.js',

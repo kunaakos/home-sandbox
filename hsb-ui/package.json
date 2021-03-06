@@ -6,6 +6,8 @@
 	"license": "MIT",
 	"private": true,
 	"scripts": {
+		"styleguide-dev": "styleguidist server",
+		"styleguide-build": "styleguidist build",
 		"dev": "webpack serve --mode=development",
 		"build": "webpack --mode=production",
 		"serve": "node serve.js"
@@ -32,6 +34,7 @@
 		"react-dom": "^16.12.0",
 		"react-json-editor-ajrm": "^2.5.13",
 		"react-router-dom": "^5.1.2",
+		"react-styleguidist": "^11.1.5",
 		"webpack": "^5.24.2",
 		"webpack-cli": "^4.5.0",
 		"webpack-dev-server": "^3.11.2"
