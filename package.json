@@ -13,8 +13,8 @@
 		"hsb-ui"
 	],
 	"scripts": {
-		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
-		"clean-builds": "find . \\( -name \"build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
+		"clean": "find . \\( -name \"node_modules\" -o -name \"build\" -o -name \"guide-build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
+		"clean-builds": "find . \\( -name \"build\" -o -name \"guide-build\" -o -name \".parcel-cache\" \\) -type d -prune -exec rm -rf '{}' +",
 		"clean-node-modules": "find . -name \"node_modules\" -type d -prune -exec rm -rf '{}' +",
 		"prep": "yarn workspace hsb-service-utils build",
 		"service-utils": "yarn workspace hsb-service-utils dev",
