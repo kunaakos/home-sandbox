@@ -10,8 +10,8 @@ jobs:
       - name: build styleguide
         working-directory: hsb-ui
         run: |
-          npm install
-          npm run styleguide-build
+          yarn install --focus
+          yarn styleguide-build
 
       - name: deploy styleguide to gh-pages
         uses: JamesIves/github-pages-deploy-action@4.1.0
