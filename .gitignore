@@ -1,6 +1,7 @@
 # deps, cache and builds
 node_modules
 build
+guide-build
 
 # databases and environment variables
 *.sqlite

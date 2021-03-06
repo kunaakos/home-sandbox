@@ -6,8 +6,9 @@
 	"license": "MIT",
 	"private": true,
 	"scripts": {
+		"styleguide-dev": "styleguidist server",
+		"styleguide-build": "styleguidist build",
 		"dev": "webpack serve --mode=development",
-		"styleguide": "styleguidist server",
 		"build": "webpack --mode=production",
 		"serve": "node serve.js"
 	},

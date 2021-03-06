@@ -1,5 +1,6 @@
 module.exports = {
 	title: 'HSB STYLE',
+	styleguideDir: 'guide-build',
 	sections: [
 		{
 			name: 'getting wired',
