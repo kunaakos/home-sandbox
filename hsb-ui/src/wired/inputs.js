@@ -33,6 +33,7 @@ const SwitchThumb = styled.label`
 		box-sizing: border-box;
 		border: 2px solid lightseagreen;
 		height: ${SPACER * 2}rem;
+		width: ${SPACER * 2}rem;
 	}
 `
 
@@ -47,11 +48,7 @@ const SwitchContainer = styled.div`
 		transform: translateX(${SPACER * 2}rem);
 	}
 
-	${SwitchThumb}:not(:active):after {
-		width: ${SPACER * 2}rem;
-	}
-
-	${SwitchThumb}:active:after {
+	${SwitchInput}:active + ${SwitchThumb}:after {
 		width: ${SPACER * 4}rem;
 	}
 `
