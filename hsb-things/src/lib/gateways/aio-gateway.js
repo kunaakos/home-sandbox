@@ -27,7 +27,7 @@ const updateAioFeed = ({
 	const responseBody = await response.json()
 
 	if (responseBody.error) {
-		logger.trace(`AIO error: ${responseBody.error}`)
+		logger.debug(`AIO error: ${responseBody.error}`)
 	} else {
 		logger.trace(`AIO updated ${groupKey}.${feedKey}`)
 	}

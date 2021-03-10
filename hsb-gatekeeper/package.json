@@ -23,7 +23,7 @@
 	"scripts": {
 		"dev": "nodemon -r dotenv/config --exec babel-node src/main.js dotenv_config_path=../.env",
 		"build": "babel src -d build --source-maps",
-		"serve": "node build/main.js"
+		"serve": "node -r source-map-support/register build/main.js"
 	},
 	"dependencies": {
 		"@apollo/gateway": "^0.19.1",

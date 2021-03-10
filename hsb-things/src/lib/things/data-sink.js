@@ -32,7 +32,18 @@ export const makeDataSink = ({
 				}) => {
 
 				let value
-				const updateFeed = v => (value !== undefined) && effects[`report${upperFirst(key)}`](v)
+
+				// TODO: clean this up
+				const updateFeed = async v => {
+					if (value === undefined) {
+						return
+					}
+					try {
+						await effects[`report${upperFirst(key)}`](v)
+					} catch (error) {
+						logger.debug(error)
+					}
+				}
 
 				// if reportInterval is set, create a watchdog that will trigger a report after
 				// the set time interval if no new value was received
