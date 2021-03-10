@@ -95,7 +95,7 @@ export const makeThingStore = async ({
 		} else {
 			const [changedKeys, errors] = await things[id].set(values)
 			changedKeys.length && publishChange(id)(changedKeys)
-			errors.forEach(error => logger.error(error, `failed updating a property of #${id}`))
+			errors.forEach(error => logger.debug(error, `failed updating a property of #${id}`))
 		}
 	}
 
