@@ -6,9 +6,11 @@ import {
 	gql
 } from '@apollo/client'
 
-import { ThingCard } from '../thing-cards'
-import { CenteredCardContainer } from '../ui-kit/cards'
-import { Label } from '../ui-kit/nubbins'
+import { ThingVerse } from '../thing-verse'
+import {
+	Scroll,
+	Label
+} from '../../wired'
 
 const THINGS_QUERY = gql`
 	query Things($visibleOnly: Boolean) {
@@ -65,13 +67,13 @@ export const ThingsView = () => {
 		: []
 
 	return (
-		<CenteredCardContainer>
+		<Scroll>
 			{
 				things.length
-					? things.map(thing => <ThingCard key={thing.id} thing={thing} setThing={setThing} />)
+					? things.map(thing => <ThingVerse key={thing.id} thing={thing} setThing={setThing} />)
 					: <Label>You don't seem to have any active things. Check your settings maybe?</Label>
 			}
-		</CenteredCardContainer>
+		</Scroll>
 	)
 
 }

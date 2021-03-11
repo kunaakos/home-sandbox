@@ -1,46 +1,46 @@
 import styled from '@emotion/styled'
 
-const TITLE_SIZE = `2rem`
-const HEADING_SIZE = `1.4rem`
-const TEXT_SIZE = `1rem`
-const SPACER = `1` // rems
+const spacer = ({ theme }) => `${theme.spacerRem}rem`
+const titleFontSize = ({ theme }) => `${theme.fontSize.titleRem}rem`
+const headingFontSize = ({ theme }) => `${theme.fontSize.headingRem}rem`
+const textFontSize = ({ theme }) => `${theme.fontSize.textRem}rem`
 
 /**
  * Try using only one title per screen.
  */
 export const Title = styled.h1`
-	font-family: 'Lato';
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
-	font-size: ${TITLE_SIZE};
+	font-size: ${titleFontSize};
 	color: inherit;
 	display: block;
-	margin: 0 0 ${SPACER}rem 0;
+	margin: 0 0 ${spacer} 0;
 `
 
 /**
  * Headings are great for section titles.
  */
 export const Heading = styled.h2`
-	font-family: 'Lato';
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
-	font-size: ${HEADING_SIZE};
+	font-size: ${headingFontSize};
 	color: inherit;
 	display: block;
 	margin: 0;
-	margin: 0 0 ${SPACER}rem 0;
+	margin: 0 0 ${spacer} 0;
 `
 
 /**
  * A paragraph is a paragraph.
  */
 export const Paragraph = styled.p`
-	font-family: 'Lato';
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
-	font-size: ${TEXT_SIZE};
+	font-size: ${textFontSize};
 	color: inherit;
 	display: block;
 	margin: 0;
-	margin: 0 0 ${SPACER}rem 0;
+	margin: 0 0 ${spacer} 0;
 `
 
 export const TextBlock = styled.div`
@@ -60,7 +60,7 @@ export const Link = styled.a`
  * @param color color
  */
 export const Highlight = styled.span`
-	color: ${({ color }) => color};
+	color: ${({ theme, color }) => theme.colors[color] || color };
 `
 
 /**
@@ -74,18 +74,28 @@ export const Dim = styled.span`
  * Think of it as a button or a link: something that will trigger an action.
  */
 export const Action = styled.button`
-	font-family: 'Lato';
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
 	color: inherit;
-	font-size: ${HEADING_SIZE};
+	font-size: ${headingFontSize};
 `
 
 /**
  * A label is the same size as a button, but not actionable.
  */
 export const Label = styled.div`
-	font-family: 'Lato';
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
 	color: inherit;
-	font-size: ${HEADING_SIZE};
+	font-size: ${headingFontSize};
+`
+
+/**
+ * Small label, smaller than a button.
+ */
+export const SmallLabel = styled.div`
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	color: inherit;
+	font-size: ${textFontSize};
 `

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import JSONInput from 'react-json-editor-ajrm'
 import EN_LOCALE from 'react-json-editor-ajrm/locale/en'
 
-import { editorColors } from '../../themes/light-theme'
+import { editorColors } from '../../themes/wired-dark'
 
 import {
 	Card,
