@@ -52,7 +52,7 @@ export const wiredDarkTheme = {
 	},
 
 	spacerRem: '1',
-	nubbinSizeRem: '2',
+	nubbinSizeRem: '1.6',
 	trackWidthPx: '2',
 	stripeWidthPx: '2',
 

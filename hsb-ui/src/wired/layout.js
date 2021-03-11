@@ -45,11 +45,13 @@ export const ShortStripe = styled.hr`
 `
 
 export const Indent = styled.div`
-	margin-left: calc(2 * ${spacer});
+	margin-left: ${spacer};
 `
 
 export const Arrange = styled.div`
 	display: flex;
+	position: relative; // NOTE: needed by ColorSwatches in LightContainer, not good tho
+
 	${({ width, theme }) => width ? `width: ${width * theme.spacerRem}rem;` : ''}
 	${({ height, theme }) => height ? `height: ${height * theme.spacerRem}rem;` : ''}
 	justify-content: ${({ horizontally }) => {

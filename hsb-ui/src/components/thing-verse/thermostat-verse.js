@@ -43,8 +43,8 @@ export const ThermostatVerse = ({ thing, setThing }) => {
 				</Arrange>
 				<Indent>
 					<Paragraph>
-						Current temperature is <Highlight color='output'>{thing.state.currentTemperature} °C</Highlight>
-						{' '}and heat is <Highlight color='output'>{thing.state.heatRequest ? 'ON' : 'OFF'}</Highlight>
+						Current temperature&nbsp;is&nbsp;<Highlight color='output'>{thing.state.currentTemperature}&nbsp;°C</Highlight>
+						{' '}and heat&nbsp;is&nbsp;<Highlight color='output'>{thing.state.heatRequest ? 'ON' : 'OFF'}</Highlight>
 						{thing.state.timedOut && <>, because this thermostat hasn't received a temperature update in a while</>}.
 					</Paragraph>
 				</Indent>

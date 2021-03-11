@@ -17,10 +17,10 @@ import {
 
 const ColorSwatchContainer = styled.div`
 	display: flex;
-	width: ${({ width = '100%', padding = '0' }) => `calc(${width} - ${padding} * 2)`};
+	position: absolute;
+	width: ${({ width = '100%' }) => width};
 	height: ${({ height = '1rem' }) => height};
-	margin-bottom: ${({ theme }) => `-${theme.stripeWidthPx}px`};
-	${({ padding = '0', theme }) => `border-left: ${padding} solid ${theme.colors.input}; border-right: ${padding} solid ${theme.colors.input};`}
+	margin-bottom: ${({ height }) => `-${height}`};
 `
 
 const ColorSwatch = styled.div`
@@ -32,9 +32,8 @@ const ColorSwatches = ({
 	width,
 	height,
 	colors,
-	padding
 }) =>
-	<ColorSwatchContainer width={width} height={height} padding={padding}>
+	<ColorSwatchContainer width={width} height={height}>
 		{colors.map(color => <ColorSwatch color={color}/>)}
 	</ColorSwatchContainer>
 
@@ -83,7 +82,7 @@ export const LightVerse = ({ thing, setThing }) => {
 							<Slider
 								min={1}
 								max={100}
-								width='50%'
+								width='100%'
 								value={thing.state.brightness}
 								onChange={setBrightness}
 							/>
@@ -98,22 +97,19 @@ export const LightVerse = ({ thing, setThing }) => {
 							<Slider
 								min={3200}
 								max={4800}
-								width='50%'
+								width='100%'
 								value={thing.state.colorTemperature}
 								onChange={setColorTemperature}
 							/>
 						</Arrange>
 					</>}
 					{showColorSlider && <>
-						<Arrange horizontally='space-between' vertically='bottom'>
-							<SmallLabel>
-								color <Highlight color='output'>#{thing.state.color}</Highlight>
-							</SmallLabel>
+						<Arrange height={1} horizontally='space-between' vertically='bottom'>
+							<SmallLabel>color</SmallLabel>
 							{availableColors && availableColors.length &&
 								<ColorSwatches
-									width='50%'
+									width='100%'
 									height='6px'
-									padding='1rem'
 									colors={availableColors}
 								/>
 							}
@@ -123,7 +119,7 @@ export const LightVerse = ({ thing, setThing }) => {
 							<Slider
 								min={0}
 								max={availableColors.length - 1}
-								width='50%'
+								width='100%'
 								value={currentColorIndex}
 								onChange={setColor}
 							/>

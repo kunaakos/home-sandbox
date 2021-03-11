@@ -39,10 +39,13 @@ const GlobalStyles = () => {
 	const theme = useTheme()
 	return (
 	  	<Global styles={css`
-			body, html {
+			html {
 				background: ${theme.colors.bg};
 				color: ${theme.colors.fg};
 				font-size: 20px;
+			}
+			body {
+				margin: 0;
 			}
 			#root {
 				overflow-x: hidden;

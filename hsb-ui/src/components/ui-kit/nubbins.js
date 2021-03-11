@@ -10,9 +10,9 @@ export const Button = styled.button`
 	background: ${({ background, theme }) => theme.colors[background] || theme.colors.brand};
 	color: ${({ color, theme }) => theme.colors[color] || theme.colors.bg1};
 	font-family: ${({ theme }) => theme.fonts.controls};
-	font-size: ${({ fontSize = 'heading', theme }) => theme.fontSizes[fontSize]};
+	font-size: ${({ fontSize = 'subheading', theme }) => theme.fontSizes[fontSize]};
 	text-transform: ${({ textTransform = 'none' }) => textTransform};
-	padding: 0.2rem 0.6rem;
+	padding: 0.05rem 0.45rem;
 	border: none;
 	&:focus,
 	&:active {
@@ -35,9 +35,9 @@ export const NavButton = styled(NavLink)`
 		color: ${({ activeColor, theme }) => theme.colors[activeColor] || theme.colors.bg1};
 	}
 	font-family: ${({ theme }) => theme.fonts.controls};
-	font-size: ${({ fontSize = 'heading', theme }) => theme.fontSizes[fontSize]};
+	font-size: ${({ fontSize = 'subheading', theme }) => theme.fontSizes[fontSize]};
 	text-transform: ${({ textTransform = 'none' }) => textTransform};
-	padding: 0.2rem 0.6rem;
+	padding: 0.05rem 0.45rem;
 `
 
 export const Label = styled.div`
@@ -48,9 +48,9 @@ export const Label = styled.div`
 	background: ${({ background, theme }) => theme.colors[background] || 'none'};
 	color: ${({ color, theme }) => theme.colors[color] || theme.colors.fg1};
 	font-family: ${({ theme }) => theme.fonts.controls};
-	font-size: ${({ fontSize = 'heading', theme }) => theme.fontSizes[fontSize]};
+	font-size: ${({ fontSize = 'subheading', theme }) => theme.fontSizes[fontSize]};
 	text-transform: ${({ textTransform = 'none' }) => textTransform};
-	padding: 0.2rem 0.6rem;
+	padding: 0.05rem 0.45rem;
 `
 export const CardLabel = styled(Label)`
 	margin-left: 1rem;

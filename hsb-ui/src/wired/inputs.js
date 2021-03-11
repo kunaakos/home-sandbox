@@ -196,19 +196,6 @@ export const Slider = ({
 	const inputRef = useRef()
 	const [value, setValue] = useState(receivedValue)
 
-	// NOTE: this is needed because of junk TRADFRI light state updates
-	const debouncedSliderUpdate = useCallback(
-		debounce(
-			value => { inputRef.current.value = value },
-			1000,
-			{
-				leading: false,
-				trailing: true
-			}
-		),
-		[]
-	)
-
 	useEffect(() => {
 		if (value === receivedValue) { return }
 		onChange && onChange(value)
@@ -216,7 +203,7 @@ export const Slider = ({
 
 	useEffect(() => {
 		if (receivedValue === value) { return }
-		debouncedSliderUpdate(receivedValue)
+		inputRef.current.value = receivedValue
 		setValue(receivedValue)
 	}, [receivedValue])
 
