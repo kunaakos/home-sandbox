@@ -2,28 +2,34 @@ import React from 'react'
 import {
 	useState,
 	useEffect,
-	useRef
+	useRef,
+	useCallback
 } from 'react'
 import styled from '@emotion/styled'
+import debounce from 'lodash/debounce'
 
-import { SPACER } from './constants'
 import { Label, Highlight } from './ui-kit'
 import { Arrange } from './layout'
+
+const spacer = ({ theme }) => `${theme.spacerRem}rem`
+const nubbinSize = ({ theme }) => `${theme.nubbinSizeRem}rem`
+const trackWidth = ({ theme }) => `${theme.trackWidthPx}px`
+const stripeWidth = ({ theme }) => `${theme.stripeWidthPx}px`
+const inputColor = ({theme}) => theme.colors.input
 
 const SwitchInput = styled.input`
 	width: 0;
 	height: 0;
 	visibility: hidden;
-
 `
 
 const SwitchThumb = styled.label`
 	cursor: pointer;
-	width: ${SPACER * 4}rem;
-	height: ${SPACER * 2}rem;
+	width: calc(${nubbinSize} * 2);
+	height: ${nubbinSize};
 	display: block;
 	position: absolute;
-	top: -${SPACER / 4}rem;
+	top: calc(${spacer} * -0.3);
 	&:after{
 		content: '';
 		display: block;
@@ -31,45 +37,52 @@ const SwitchThumb = styled.label`
 		top: 0;
 		background: black;
 		box-sizing: border-box;
-		border: 2px solid lightseagreen;
-		height: ${SPACER * 2}rem;
+		border: ${trackWidth} solid ${inputColor};
+		height: ${nubbinSize};
+		width: ${nubbinSize};
 	}
 `
 
 const SwitchContainer = styled.div`
 	-webkit-tap-highlight-color:transparent;
 	position: relative;
-	background: lightseagreen;
-	width: ${SPACER * 4}rem;
-	height: 3px;
+	background: ${inputColor};
+	width: calc(${nubbinSize} * 2);
+	height: ${trackWidth};
 
-	${SwitchInput}:not(:active):checked + ${SwitchThumb}:after {
-		transform: translateX(${SPACER * 2}rem);
-	}
-
-	${SwitchThumb}:not(:active):after {
-		width: ${SPACER * 2}rem;
-	}
-
-	${SwitchThumb}:active:after {
-		width: ${SPACER * 4}rem;
+	${SwitchInput}:checked + ${SwitchThumb}:after {
+		transform: translateX(${nubbinSize});
 	}
 `
 
 export const Switch = ({
-	isOn,
+	isOn: receivedIsOn,
 	onChange
 }) => {
 
-	// they all need unique ids
-	const [id,] = useState(`${Date.now()}_${Math.random() * 1000000}`)
+	const inputRef = useRef()
+	const [isOn, setIsOn] = useState(receivedIsOn)
+	const [id,] = useState(`${Date.now()}_${Math.random() * 1000000}`) // all input+label pairs need unique ids
+
+
+	useEffect(() => {
+		if (isOn === receivedIsOn) { return }
+		onChange && onChange(isOn)
+	}, [isOn])
+
+	useEffect(() => {
+		if (receivedIsOn === isOn) { return }
+		inputRef.current.checked = receivedIsOn
+		setIsOn(receivedIsOn)
+	}, [receivedIsOn])
 
 	return (
 		<SwitchContainer>
 			<SwitchInput
 				type="checkbox"
 				id={id}
-				checked={isOn}
+				defaultChecked={receivedIsOn}
+				ref={inputRef}
 				onChange={({ target: { checked } = {}}) => { onChange && onChange(checked)}}
 			/>
 			<SwitchThumb htmlFor={id}/>
@@ -89,40 +102,40 @@ const SliderInput = styled.input`
 		outline: none;
 	}
 	&::-webkit-slider-runnable-track {
-		background: lightseagreen;
+		background: ${inputColor};
 		border: 0px solid rgba(0, 0, 0, 0);
 		border: 0;
 		width: 100%;
-		height: 3px;
+		height: ${trackWidth};
 		cursor: pointer;
 	}
 	&::-webkit-slider-thumb {
-		margin-top: -${SPACER / 4}rem;
-		width: ${SPACER * 2}rem;
-		height: ${SPACER * 2}rem;
+		margin-top: calc(${spacer} * -0.3);
+		width: ${nubbinSize};
+		height: ${nubbinSize};
 		background: black;
-		border: 2px solid lightseagreen;
-		border-radius: ${SPACER * 2}rem;
+		border: ${trackWidth} solid ${inputColor};
+		border-radius: ${nubbinSize};
 		cursor: pointer;
 		-webkit-appearance: none;
 	}
 	&:focus::-webkit-slider-runnable-track {
-		background: lightseagreen;
+		background: ${inputColor};
 	}
 	&::-moz-range-track {
-		background: lightseagreen;
+		background: ${inputColor};
 		border: 0px solid rgba(0, 0, 0, 0);
 		border: 0;
 		width: 100%;
-		height: 3px;
+		height: ${trackWidth};
 		cursor: pointer;
 	}
 	&::-moz-range-thumb {
-		width: ${SPACER * 2}rem;
-		height: ${SPACER * 2}rem;
+		width: ${nubbinSize};
+		height: ${nubbinSize};
 		background: black;
-		border: 1px solid lightseagreen;
-		border-radius: ${SPACER * 2}rem;
+		border: ${trackWidth} solid ${inputColor};
+		border-radius: ${nubbinSize};
 		cursor: pointer;
 	}
 	&::-ms-track {
@@ -131,34 +144,34 @@ const SliderInput = styled.input`
 		border-width: 14px 0;
 		color: transparent;
 		width: 100%;
-		height: 3px;
+		height: ${trackWidth};
 		cursor: pointer;
 	}
 	&::-ms-fill-lower {
-		background: lightseagreen;
+		background: ${inputColor};
 		border: 0px solid rgba(0, 0, 0, 0);
 		border: 0;
 	}
 	&::-ms-fill-upper {
-		background: lightseagreen;
+		background: ${inputColor};
 		border: 0px solid rgba(0, 0, 0, 0);
 		border: 0;
 	}
 	&::-ms-thumb {
-		width: ${SPACER * 2}rem;
-		height: ${SPACER * 2}rem;
+		width: ${nubbinSize};
+		height: ${nubbinSize};
 		background: black;
-		border: 2px solid lightseagreen;
-		border-radius: ${SPACER * 2}rem;
+		border: ${trackWidth} solid ${inputColor};
+		border-radius: ${nubbinSize};
 		cursor: pointer;
 		margin-top: 0px;
 		/*Needed to keep the Edge thumb centred*/
 	}
 	&:focus::-ms-fill-lower {
-		background: lightseagreen;
+		background: ${inputColor};
 	}
 	&:focus::-ms-fill-upper {
-		background: lightseagreen;
+		background: ${inputColor};
 	}
 	/*TODO: Use one of the selectors from https://stackoverflow.com/a/20541859/7077589 and figure out
 	how to remove the vertical space around the range input in IE*/
@@ -177,30 +190,78 @@ export const Slider = ({
 	min = 0,
 	max = 100,
 	step = 1,
-	value
-}) =>
-	<SliderInput
-		type='range'
-		width={width}
-		min={min}
-		max={max}
-		step={step}
-		value={value}
-		onChange={({ target: { value } = {}}) => { onChange && onChange(value)}}
-	/>
+	value: receivedValue
+}) => {
 
+	const inputRef = useRef()
+	const [value, setValue] = useState(receivedValue)
+
+	// NOTE: this is needed because of junk TRADFRI light state updates
+	const debouncedSliderUpdate = useCallback(
+		debounce(
+			value => { inputRef.current.value = value },
+			1000,
+			{
+				leading: false,
+				trailing: true
+			}
+		),
+		[]
+	)
+
+	useEffect(() => {
+		if (value === receivedValue) { return }
+		onChange && onChange(value)
+	}, [value])
+
+	useEffect(() => {
+		if (receivedValue === value) { return }
+		debouncedSliderUpdate(receivedValue)
+		setValue(receivedValue)
+	}, [receivedValue])
+
+	const debouncedOnChange = useCallback(
+		onChange
+			? debounce(
+				onChange,
+				200,
+				{
+					leading: false,
+					trailing: true
+				}
+			)
+			: () => {},
+		[onChange]
+	)
+
+	const onInputChange = ({ target: { value } = {}}) => { debouncedOnChange(Math.round(parseInt(value))) }
+
+	return (
+		<SliderInput
+			type='range'
+			width={width}
+			min={min}
+			max={max}
+			step={step}
+			ref={inputRef}
+			defaultValue={receivedValue}
+			onChange={onInputChange}
+		/>
+	)
+}
+	
 const PreciseContainer = styled.div`
 	-webkit-tap-highlight-color:transparent;
 	position: relative;
-	background: lightseagreen;
-	width: ${({ width }) => `${SPACER * width}rem`};
-	height: 3px;
+	background: ${inputColor};
+	width: ${({ width, theme }) => `${theme.spacerRem * width}rem`};
+	height: ${trackWidth};
 `
 
 const PreciseValue = styled(Arrange)`
 	position: absolute;
-	bottom: 4px;
-	color: hotpink;
+	bottom: calc(${trackWidth} + ${stripeWidth});
+	color: ${inputColor};
 `
 
 const PreciseInputField = styled(Label)`
@@ -213,8 +274,8 @@ const PreciseControls = styled(Arrange)`
 
 const PreciseControl = styled(Label)`
 	cursor: pointer;
-	width: ${SPACER * 2}rem;
-	color: lightseagreen;
+	width: ${nubbinSize};
+	color: ${inputColor};
 	text-align: center;
 `
 
@@ -283,7 +344,11 @@ export const Precise = ({
 		const userInput = inputRef.current.innerHTML
 		const newEditedValue = parseFloat(userInput)
 		if (
-			(`${newEditedValue}` !== userInput && `${newEditedValue}.` !== userInput) ||
+			(![
+				`${newEditedValue}`,
+				`${newEditedValue}.`,
+				''
+			].includes(userInput)) ||
 			(newEditedValue > max) ||
 			(newEditedValue < min)
 		) {
@@ -297,7 +362,7 @@ export const Precise = ({
 	}
 
 	return (
-		<PreciseContainer>
+		<PreciseContainer width={width}>
 			<PreciseValue width={width} horizontally={'center'}>
 				<PreciseInputField
 					contentEditable={true}
@@ -313,7 +378,7 @@ export const Precise = ({
 				{
 					isUserEditing
 						? <>
-							<PreciseControl onClick={revert}><Highlight color='orange'>X</Highlight></PreciseControl>
+							<PreciseControl onClick={revert}><Highlight color='warn'>X</Highlight></PreciseControl>
 							<PreciseControl onClick={commit}>OK</PreciseControl>
 						</>
 						: <>

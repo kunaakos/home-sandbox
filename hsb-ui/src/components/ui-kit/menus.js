@@ -29,9 +29,9 @@ const Overlay = styled.div`
 	height: 100%;
 	top: 0;
 	right: 0;
-	background: white;
+	background: black;
 	transform: translateX(${({ isOpen }) => isOpen ? '100%': '0'});
-	opacity: ${({ isOpen }) => isOpen ? '0.8': '0'};
+	opacity: ${({ isOpen }) => isOpen ? '0.6': '0'};
     transition: opacity ${({ theme }) => theme.misc.transitionDuration};
 `
 

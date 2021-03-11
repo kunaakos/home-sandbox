@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
 	title: 'HSB STYLE',
 	styleguideDir: 'guide-build',
@@ -30,6 +32,9 @@ module.exports = {
 				}
 			]
 		},
+	},
+	styleguideComponents: {
+		Wrapper: path.join(__dirname, 'src/wired/docs/StyleguideThemeProvider.js')
 	},
 	styles: {
 		Link: {

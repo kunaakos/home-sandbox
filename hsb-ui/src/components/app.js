@@ -1,10 +1,10 @@
 import {
 	Global,
 	css,
+	useTheme,
 	ThemeProvider
 } from '@emotion/react'
 import styled from '@emotion/styled'
-
 import React from 'react'
 import { useState } from 'react'
 import {
@@ -13,6 +13,8 @@ import {
 	Route,
 	Redirect
 } from 'react-router-dom'
+
+import { wiredDarkTheme } from '../themes/wired-dark'
 
 import { useAuth } from '../hooks/use-auth'
 
@@ -23,7 +25,6 @@ import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
 import { AutomationsView } from './views/automations-view'
 
-import { lightTheme } from '../themes/light-theme'
 import { DrawerMenu } from './ui-kit/menus'
 import { Label } from './ui-kit/nubbins'
 import { CenteredCardContainer } from './ui-kit/cards'
@@ -34,20 +35,32 @@ import {
 	VerticalButtonsContainer
 } from './ui-kit/nubbins'
 
-const globalStyles = css`
-	body, html {
-		margin: 0;
-	}
-	#root {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		overflow-y: scroll;
-		overflow-x: hidden;
-	}
-`
+const GlobalStyles = () => {
+	const theme = useTheme()
+	return (
+	  	<Global styles={css`
+			body, html {
+				background: ${theme.colors.bg};
+				color: ${theme.colors.fg};
+				font-size: 20px;
+			}
+			#root {
+				overflow-x: hidden;
+			}
+			@font-face {
+				font-family: 'Lato';
+				font-weight: 300;
+				src: url('/Lato-Light.ttf') format('truetype');
+			}
+			@font-face {
+				font-family: 'Lato';
+				font-weight: 700;
+				src: url('/Lato-Bold.ttf') format('truetype');
+			}
+			`}
+		/>
+	)
+}
 
 const HoverMenu = styled.div`
 	position: fixed;
@@ -99,8 +112,9 @@ export const App = () => {
 	const isAdmin = Boolean(auth.currentUser && auth.currentUser.privileges && auth.currentUser.privileges.length && auth.currentUser.privileges.includes('admin'))
 
 	return (
-		<ThemeProvider theme={lightTheme}>
-			<Global styles={globalStyles} />
+		<ThemeProvider theme={wiredDarkTheme}>
+
+			<GlobalStyles />
 
 			<Router>
 				{auth.status === 'loading' && <></>}
@@ -112,15 +126,15 @@ export const App = () => {
 
 				{auth.status === 'unauthenticated' && <>
 					<Switch>
-						<Route exact path="/">
+						<Route exact path='/'>
 							{auth.redirectToOnboard && <Redirect to={`/onboarding/${auth.redirectToOnboard}`} />}
 							{!auth.redirectToOnboard && <LoginView login={auth.login}/>}
 						</Route>
-						<Route exact path="/onboarding/:idUser">
+						<Route exact path='/onboarding/:idUser'>
 							<OnboardingView />
 						</Route>
-						<Route path="*">
-							<Redirect to="/" />
+						<Route path='*'>
+							<Redirect to='/' />
 						</Route>
 					</Switch>
 				</>}
@@ -134,26 +148,26 @@ export const App = () => {
 				{isActive && <>
 					<Switch>
 
-						<Route exact path="/">
+						<Route exact path='/'>
 							<ThingsView />
 						</Route>
 
 						{isAdmin && <>
-							<Route exact path="/gateways">
+							<Route exact path='/gateways'>
 								<GatewaysView />
 							</Route>
 
-							<Route exact path="/automations">
+							<Route exact path='/automations'>
 								<AutomationsView />
 							</Route>
 
-							<Route exact path="/users">
+							<Route exact path='/users'>
 								<UsersView />
 							</Route>
 						</>}
 
-						<Route path="*">
-							<Redirect to="/" />
+						<Route path='*'>
+							<Redirect to='/' />
 						</Route>
 
 					</Switch>
@@ -170,7 +184,7 @@ export const App = () => {
 					>
 						<DrawerMenuButtonsContainer>
 							<NavButton
-								exact to="/"
+								exact to='/'
 								onClick={closeDrawer}
 							>
 								Things
@@ -178,19 +192,19 @@ export const App = () => {
 
 							{isAdmin && <>
 								<NavButton
-									to="/gateways"
+									to='/gateways'
 									onClick={closeDrawer}
 								>
 									Gateways
 								</NavButton>
 								<NavButton
-									to="/automations"
+									to='/automations'
 									onClick={closeDrawer}
 								>
 									Automations
 								</NavButton>
 								<NavButton
-									to="/users"
+									to='/users'
 									onClick={closeDrawer}
 								>
 									Users
