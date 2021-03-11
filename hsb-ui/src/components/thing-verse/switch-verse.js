@@ -19,7 +19,7 @@ export const SwitchVerse = ({ thing, setThing }) => {
 			<Label>{thing.label}</Label>
 			<Stripe/>
 			<Arrange vertically='top' horizontally='right'>
-				<Switch state={thing.state.isOn} onChange={state => setIsOn(state)}/>
+				<Switch isOn={thing.state.isOn} onChange={state => setIsOn(state)}/>
 			</Arrange>
 		</Verse>
 	)

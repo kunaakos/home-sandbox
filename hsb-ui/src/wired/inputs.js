@@ -81,7 +81,7 @@ export const Switch = ({
 			<SwitchInput
 				type="checkbox"
 				id={id}
-				defaultChecked={receivedIsOn}
+				defaultChecked={isOn}
 				ref={inputRef}
 				onChange={({ target: { checked } = {}}) => { onChange && onChange(checked)}}
 			/>
@@ -244,7 +244,7 @@ export const Slider = ({
 			max={max}
 			step={step}
 			ref={inputRef}
-			defaultValue={receivedValue}
+			defaultValue={value}
 			onChange={onInputChange}
 		/>
 	)
