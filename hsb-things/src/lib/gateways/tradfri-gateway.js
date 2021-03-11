@@ -17,6 +17,29 @@ import { logger } from '../../logger'
 import { makeSwitch } from "../things/switch"
 import { makeLight } from "../things/light"
 
+const TRADFRI_COLORS = [
+	'dcf0f8',
+	'eaf6fb',
+	'f5faf6',
+	'f2eccf',
+	'f1e0b5',
+	'efd275',
+	'ebb63e',
+	'e78834',
+	'e57345',
+	'da5d41',
+	'dc4b31',
+	'e491af',
+	'e8bedd',
+	'd9337c',
+	'c984bb',
+	'8f2686',
+	'4a418a',
+	'6c83ba',
+	// 'a9d62b', // this one is shite
+	'd6e44b',
+]
+
 // NOTE: used during auth flow
 export const discover = async () => {
 	return await discoverGateway()
@@ -97,7 +120,10 @@ const makeLightFromTradfriLightbulb = ({ device, gatewayId }) => {
 		initialState: {
 			isOn: getTradfriLightbulbState(device),
 			...(isDimmable && { brightness: getTradfriLightbulbBrightness(device) }),
-			...(isColor && { color: getTradfriLightbulbColor(device) }),
+			...(isColor && {
+				color: getTradfriLightbulbColor(device),
+				availableColors: TRADFRI_COLORS,
+			}),
 			...(isAdjustableColorTemperature && { colorTemperature: getTradfriLightbulbColorTemperature(device) })
 		},
 		effects: {

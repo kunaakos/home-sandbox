@@ -9,6 +9,7 @@ export const makeLight = ({
 	label,
 	isHidden,
 	isColor,
+	availableColors,
 	isDimmable,
 	colorTemperatureRange,
 	effects,
@@ -23,7 +24,8 @@ export const makeLight = ({
 			brightness: 100
 		}),
 		...(Boolean(isColor) && {
-			color: 'ffffff'
+			color: 'ffffff',
+			availableColors
 		}),
 		...(Boolean(colorTemperatureRange) && {
 			colorTemperature: 4000
@@ -77,6 +79,10 @@ export const makeLight = ({
 						state,
 						key: 'color'
 					})
+				},
+				availableColors: {
+					type: 'string',
+					get: () => JSON.stringify(state.availableColors),
 				}
 			}),
 			...(Boolean(colorTemperatureRange) && {

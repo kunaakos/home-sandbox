@@ -60,8 +60,8 @@ export const Arrange = styled.div`
 				return 'flex-start'
 			case 'space-around':
 				return 'space-around'
-			case 'space-around':
-				return 'space-around'
+			case 'space-between':
+				return 'space-between'
 			default:
 				return 'center'
 		}
