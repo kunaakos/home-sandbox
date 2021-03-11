@@ -13,8 +13,8 @@ Let's switch over to wire components and render some text to talk about text!
 		<Heading>what about colors?</Heading>
 		<Paragraph>HTML color names are currently used for simplicity and because they already have clearly defined names. This will change once theming is introduced.</Paragraph>
 		<Paragraph>Backgrounds are always <Highlight color='black'>`black`</Highlight> (that was black in case you can't tell), and text is `ghostwhite` by default.</Paragraph>
-		<Paragraph>You've seen <Highlight color='orangered'>`orangered`</Highlight> used for errors, and <Highlight color='gold'>`gold`</Highlight> for warnings &mdash; these are standard. An OK status is the default color, no need to call any attention to it.</Paragraph>
-		<Paragraph>For anything else, feel free to use the cold <Highlight color='dodgerblue'>`dodgerblue`</Highlight>, the lukewarm <Highlight color='lightseagreen'>`lightseagreen`</Highlight> or the very hot <Highlight color='hotpink'>`hotpink`</Highlight>. Always think about temperature: the more important/higher priority the information, the warmer/stronger the rendering of it.</Paragraph>
+		<Paragraph>You've seen <Highlight color='error'>`orangered`</Highlight> used for errors, and <Highlight color='warn'>`gold`</Highlight> for warnings &mdash; these are standard. An OK status is the default color, no need to call any attention to it.</Paragraph>
+		<Paragraph>For UI triggers, use <Highlight color='ui'>`dodgerblue`</Highlight>. <Highlight color='input'>`lightseagreen`</Highlight> is for inputs, and the very hot <Highlight color='output'>`hotpink`</Highlight> is reserved for outputs.</Paragraph>
 		<Paragraph>And make it burn retinas a bit, that's fine.</Paragraph>
 	</>
 ```

@@ -5,7 +5,6 @@ import {
 	ThemeProvider
 } from '@emotion/react'
 import styled from '@emotion/styled'
-
 import React from 'react'
 import { useState } from 'react'
 import {
@@ -14,6 +13,8 @@ import {
 	Route,
 	Redirect
 } from 'react-router-dom'
+
+import { wiredDarkTheme } from '../themes/wired-dark'
 
 import { useAuth } from '../hooks/use-auth'
 
@@ -24,7 +25,6 @@ import { ThingsView } from './views/things-view'
 import { GatewaysView } from './views/gateways-view'
 import { AutomationsView } from './views/automations-view'
 
-import { wiredDarkTheme } from '../themes/wired-dark'
 import { DrawerMenu } from './ui-kit/menus'
 import { Label } from './ui-kit/nubbins'
 import { CenteredCardContainer } from './ui-kit/cards'
@@ -42,6 +42,7 @@ const GlobalStyles = () => {
 			body, html {
 				background: ${theme.colors.bg};
 				color: ${theme.colors.fg};
+				font-size: 20px;
 			}
 			#root {
 				overflow-x: hidden;
