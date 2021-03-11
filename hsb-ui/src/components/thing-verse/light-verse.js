@@ -55,9 +55,8 @@ export const LightVerse = ({ thing, setThing }) => {
 	const setColorTemperature = colorTemperature => { setThing(thing.id, { colorTemperature }) }
 	
 	// yea, everything related to light color is hacky
-	const setColor = colorCodeindex => { console.log(availableColors[colorCodeindex]); setThing(thing.id, { color: availableColors[colorCodeindex] }) }
+	const setColor = colorCodeindex => { setThing(thing.id, { color: availableColors[colorCodeindex] }) }
 	const currentColorIndex = availableColors.findIndex(color => color === thing.state.color)
-	console.log(thing.state.color)
 
 	return (
 
