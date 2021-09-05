@@ -38,7 +38,7 @@
 		"knex": "^0.21.17",
 		"lodash": "^4.17.20",
 		"node-fetch": "^2.6.0",
-		"node-tradfri-client": "^2.1.2",
+		"node-tradfri-client": "3.0.1",
 		"nodemon": "^2.0.7",
 		"serialport": "^8.0.7",
 		"source-map-support": "^0.5.16",
